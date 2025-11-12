@@ -1,17 +1,30 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, SafeAreaView } from 'react-native';
-import { useNavigation } from "@react-navigation/native";
-// Assuming you have a custom component or a standard icon for the checkmark
-// You might use a library like 'react-native-vector-icons' for the checkmark
-// Example: import Icon from 'react-native-vector-icons/MaterialIcons'; 
+import { StyleSheet, View, Text, TouchableOpacity, Image, SafeAreaView, Alert } from 'react-native';
+import { useNavigation, useRoute } from "@react-navigation/native";
+import Header from "../../components/Header/Header";
 
 const ConfirmationScreen = () => {
-  // Dummy data mirroring the screenshot
   const navigation = useNavigation();
+  const route = useRoute();
+  
+  // Récupérer les données passées depuis l'écran de réservation
+  const { reservation, parkingTitle, totalPrice, startDate, endDate } = route.params || {};
+  
+  // Formater la date pour l'affichage
+  const formatDateTime = () => {
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      return `Le ${start.toLocaleDateString('fr-FR')} ${start.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}-${end.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}`;
+    }
+    return "Date non disponible";
+  };
+
   const bookingDetails = {
-    parkingName: "Parking Atlantis",
-    location: "Lot BM 159 Ampitatafika 102",
-    dateTime: "Le 18/01/2025 13H40-15-05"
+    parkingName: parkingTitle || "Parking",
+    location: reservation?.parking?.address || reservation?.parkingAddress || "Adresse non disponible",
+    dateTime: formatDateTime(),
+    price: totalPrice || reservation?.totalPrice || 0
   };
 
   const handleViewBookings = () => {
@@ -22,15 +35,7 @@ const ConfirmationScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* ➡️ Header (Simplified) */}
-      <View style={styles.header}>
-        {/* Placeholder for menu icon */}
-        <Text style={styles.headerIcon}>☰</Text>
-        <Text style={styles.logo}>Logo</Text>
-        {/* Placeholder for 'L' logo icon */}
-        <View style={styles.logoLContainer}>
-          <Text style={styles.logoL}>L</Text>
-        </View>
-      </View>
+      <Header navigation={navigation} />
 
       {/* ➡️ Confirmation Message */}
       <View style={styles.confirmationHeader}>
@@ -46,6 +51,7 @@ const ConfirmationScreen = () => {
         <Text style={styles.parkingName}>{bookingDetails.parkingName}</Text>
         <Text style={styles.detailItem}>- {bookingDetails.location}</Text>
         <Text style={styles.detailItem}>- {bookingDetails.dateTime}</Text>
+        <Text style={styles.detailItem}> Prix: {bookingDetails.price.toFixed(2)} €</Text>
       </View>
 
       {/* ➡️ QR Code */}
@@ -84,34 +90,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     paddingTop: 10, // Adjust for top spacing
-  },
-  // --- Header Styles ---
-  header: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-  },
-  headerIcon: {
-    fontSize: 24,
-    color: '#000',
-  },
-  logo: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  logoLContainer: {
-    backgroundColor: '#6cff6c', // Bright green color
-    borderRadius: 5,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-  },
-  logoL: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 18,
   },
 
   // --- Confirmation Header Styles ---

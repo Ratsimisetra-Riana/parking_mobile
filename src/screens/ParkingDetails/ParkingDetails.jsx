@@ -1,9 +1,71 @@
-import React from "react";
-import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, Image, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { parkingService } from "../../services";
 
 export default function ParkingDetails({ route, navigation }) {
-  const { title, address, price, rating, image } = route.params;
+  const { parkingId, title: initialTitle, address: initialAddress, price: initialPrice, rating: initialRating, image } = route.params;
+  
+  console.log('🎯 ParkingDetails - Paramètres reçus:');
+  console.log('  - parkingId:', parkingId);
+  console.log('  - initialTitle:', initialTitle);
+  console.log('  - route.params:', route.params);
+  
+  const [parking, setParking] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadParkingDetails();
+  }, [parkingId]);
+
+  const loadParkingDetails = async () => {
+    try {
+      setLoading(true);
+      console.log('📡 Chargement parking ID:', parkingId);
+      
+      if (!parkingId) {
+        console.warn('⚠️ parkingId est undefined, utilisation des données initiales');
+        setParking({
+          label: initialTitle,
+          description: initialAddress,
+          hourlyRate: parseFloat(initialPrice) || 0,
+        });
+        return;
+      }
+      
+      const data = await parkingService.getParkingById(parkingId);
+      console.log('✅ Réponse API détails parking:', data);
+      console.log('   - ID retourné:', data.id_Parking || data.Id_Parking || data.id_parking || data.id);
+      console.log('   - Label retourné:', data.label);
+      setParking(data);
+    } catch (error) {
+      console.error('❌ Erreur chargement détails:', error);
+      console.error('   Type erreur:', error.response?.status, error.message);
+      // Ne pas afficher d'alerte, utiliser les données initiales
+      setParking({
+        label: initialTitle,
+        description: initialAddress,
+        hourlyRate: parseFloat(initialPrice) || 0,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: "#fff" }}>
+        <ActivityIndicator size="large" color="#6BBF47" />
+        <Text style={{ marginTop: 10 }}>Chargement...</Text>
+      </View>
+    );
+  }
+
+  const title = parking?.label || initialTitle;
+  const address = parking?.description || initialAddress;
+  const priceValue = parking?.hourlyRate || (initialPrice ? parseFloat(initialPrice.replace('$/heure', '')) : 0);
+  const price = `${priceValue}$/heure`;
+  const rating = initialRating || 4;
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -64,10 +126,14 @@ export default function ParkingDetails({ route, navigation }) {
       {/* RESERVE BUTTON */}
       <View style={{ padding: 20 }}>
        <TouchableOpacity
-            onPress={() => navigation.navigate("Réservation", {
+            onPress={() => {
+              console.log('Navigation vers Réservation avec:', { parkingId, title, price: priceValue });
+              navigation.navigate("Réservation", {
+                parkingId,
                 title,
-                price
-            })}
+                price: priceValue.toString()
+              });
+            }}
             style={{ backgroundColor: "#A4E66E", padding: 14, borderRadius: 10, marginTop: 20 }}>
             <Text style={{ textAlign: "center", fontWeight: "bold" }}>Réserver</Text>
         </TouchableOpacity>

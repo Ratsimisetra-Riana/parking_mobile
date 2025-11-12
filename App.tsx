@@ -29,24 +29,22 @@ export default function App() {
 
   return (
      <GestureHandlerRootView style={{ flex: 1  }}>
-          <PaperProvider>
-            <SafeAreaView style={{ flex: 1 }}>
-               <NavigationContainer>
-                
-                <Stack.Navigator initialRouteName="Home">
-                  <Stack.Screen name="Home" component={Home} />
-                  <Stack.Screen name="Login" component={Login} />
-                  <Stack.Screen name="Registration" component={Registration} />
-                   <Stack.Screen name="Liste des parkings" component={ParkingList} />
-                   <Stack.Screen name="Détails du parking" component={ParkingDetails} />
-                   <Stack.Screen name="Réservation" component={Reservation} />
-                   <Stack.Screen name="Confirmation de la réservation" component={ReservationConfirmation} />
-                   <Stack.Screen name="Mes réservations" component={ReservationList} />
-                </Stack.Navigator>
-              </NavigationContainer>              
-            </SafeAreaView>
-          </PaperProvider>
-        </GestureHandlerRootView>
+           <PaperProvider>
+                <NavigationContainer>
+                 
+                 <Stack.Navigator initialRouteName="Home">
+                   <Stack.Screen name="Home" component={Home} />
+                   <Stack.Screen name="Login" component={Login} />
+                   <Stack.Screen name="Registration" component={Registration} />
+                    <Stack.Screen name="Liste des parkings" component={ParkingList} />
+                    <Stack.Screen name="Détails du parking" component={ParkingDetails} />
+                    <Stack.Screen name="Réservation" component={Reservation} />
+                    <Stack.Screen name="Confirmation de la réservation" component={ReservationConfirmation} />
+                    <Stack.Screen name="Mes réservations" component={ReservationList} />
+                 </Stack.Navigator>
+               </NavigationContainer>
+           </PaperProvider>
+         </GestureHandlerRootView>
   );
 }
 

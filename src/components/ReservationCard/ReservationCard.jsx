@@ -11,6 +11,8 @@ export function ReservationCard ({ reservation, styles }) {
         return styles.cardYellow;
       case 'blue':
         return styles.cardBlue;
+      case 'red':
+        return styles.cardRed;
       default:
         return styles.cardDefault;
     }
@@ -25,6 +27,8 @@ export function ReservationCard ({ reservation, styles }) {
         return styles.badgeYellow;
       case 'blue':
         return styles.badgeBlue;
+      case 'red':
+        return styles.badgeRed;
       default:
         return styles.badgeDefault;
     }
@@ -32,10 +36,14 @@ export function ReservationCard ({ reservation, styles }) {
 
   return (
     <View style={[styles.card, getCardStyle(reservation.color)]}>
-      <View>
-        <Text style={styles.parkingName}>{reservation.name}</Text>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.parkingName}> {reservation.name}</Text>
         <Text style={styles.detailItem}>{reservation.location}</Text>
         <Text style={styles.detailItem}>{reservation.dateTime}</Text>
+        <Text style={styles.detailItem}>Prix: {reservation.totalPrice?.toFixed(2) || '0.00'} €</Text>
+        {reservation.paymentMethod && reservation.paymentMethod !== 'Non défini' && (
+          <Text style={styles.detailItem}>Paiement{reservation.paymentMethod}</Text>
+        )}
       </View>
       <View style={[styles.statusBadge, getBadgeStyle(reservation.color)]}>
         <Text style={styles.badgeText}>{reservation.status}</Text>

@@ -1,17 +1,22 @@
 import { TouchableOpacity, Image, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-export function ParkingCard({ title, address, price, rating, image }) {
+export function ParkingCard({ title, address, price, rating, image, onPress, parkingId }) {
   const navigation = useNavigation();
 
   function openDetails() {
-    navigation.navigate("Détails du parking", {
-      title,
-      address,
-      price,
-      rating,
-      image
-    });
+    if (onPress) {
+      onPress();
+    } else {
+      navigation.navigate("Détails du parking", {
+        parkingId,
+        title,
+        address,
+        price,
+        rating,
+        image
+      });
+    }
   }
 
   return (

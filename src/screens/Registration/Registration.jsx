@@ -1,10 +1,128 @@
-import { View, Text, TextInput, Image  } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, Image, Alert, ActivityIndicator } from "react-native";
 import { StyleSheet } from 'react-native';
-import {  Button } from 'react-native-paper';
+import { Button } from 'react-native-paper';
 import { ScrollView } from "react-native-gesture-handler";
 import PhoneNumberInput from "../../components/PhoneNumberInput/PhoneNumberInput";
+import { authService } from "../../services";
 
-export default function Registration() {
+export default function Registration({ navigation }) {
+  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleRegister = async () => {
+    // Debug: Afficher toutes les valeurs
+    console.log('=== VALIDATION REGISTRATION ===');
+    console.log('Nom:', name);
+    console.log('Prénom:', firstName);
+    console.log('Email:', email);
+    console.log('Username:', username);
+    console.log('Password:', password ? '***' : 'vide');
+    console.log('Confirm Password:', confirmPassword ? '***' : 'vide');
+    console.log('Phone Number (formatted):', phoneNumber);
+    console.log('Phone Number length:', phoneNumber ? phoneNumber.length : 0);
+    
+    // Validation des champs
+    if (!name.trim() || !firstName.trim() || !email.trim() || 
+        !username.trim() || !password.trim() || !confirmPassword.trim()) {
+      Alert.alert('Erreur', 'Veuillez remplir tous les champs');
+      return;
+    }
+
+    // Validation du numéro de téléphone (doit commencer par + et avoir au moins 10 caractères)
+    if (!phoneNumber || !phoneNumber.startsWith('+') || phoneNumber.length < 10) {
+      Alert.alert('Erreur', 'Veuillez entrer un numéro de téléphone valide avec l\'indicatif pays');
+      return;
+    }
+
+    // Validation email
+    if (!validateEmail(email)) {
+      Alert.alert('Erreur', 'Veuillez entrer une adresse email valide');
+      return;
+    }
+
+    // Validation mot de passe
+    if (password.length < 6) {
+      Alert.alert('Erreur', 'Le mot de passe doit contenir au moins 6 caractères');
+      return;
+    }
+
+    // Vérification confirmation mot de passe
+    if (password !== confirmPassword) {
+      Alert.alert('Erreur', 'Les mots de passe ne correspondent pas');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const userData = {
+        name: name.trim(),
+        first_name: firstName.trim(),
+        user_name: username.trim(),
+        email: email.trim().toLowerCase(),
+        password: password,
+        phone_number: phoneNumber, // Déjà formaté avec indicatif pays (+261, +33, +1, etc.)
+      };
+
+      console.log('Données envoyées au backend:', userData);
+
+      const response = await authService.register(userData);
+      
+      console.log('Inscription réussie:', response);
+      
+      // Afficher un message de succès
+      Alert.alert(
+        'Succès',
+        'Votre compte a été créé avec succès !',
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate("Liste des parkings")
+          }
+        ]
+      );
+    } catch (error) {
+      console.error('Erreur d\'inscription:', error);
+      
+      // Gestion des différents types d'erreurs
+      if (error.response) {
+        const { status, data } = error.response;
+        
+        if (status === 409) {
+          // Conflit - utilisateur existe déjà
+          Alert.alert('Erreur', 'Ce nom d\'utilisateur ou email existe déjà');
+        } else if (status === 400) {
+          // Données invalides
+          Alert.alert('Erreur', data.message || 'Données invalides');
+        } else {
+          Alert.alert('Erreur', `Erreur serveur: ${status}`);
+        }
+      } else if (error.request) {
+        // Pas de réponse du serveur
+        Alert.alert(
+          'Erreur de connexion',
+          'Impossible de contacter le serveur.\nVérifiez que le backend est démarré.'
+        );
+      } else {
+        // Autre erreur
+        Alert.alert('Erreur', 'Une erreur inattendue s\'est produite');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
  
 
   return (
@@ -27,34 +145,69 @@ export default function Registration() {
                     <TextInput  
                         placeholder="Nom"
                         style={styles.input}
+                        value={name}
+                        onChangeText={setName}
+                        editable={!loading}
                     />
                     <TextInput
                         placeholder="Prénom"
                         style={styles.input}
+                        value={firstName}
+                        onChangeText={setFirstName}
+                        editable={!loading}
                     />
                     <TextInput
                         placeholder="E-mail"
                         style={styles.input}
+                        value={email}
+                        onChangeText={setEmail}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        editable={!loading}
                     />
                     <TextInput
                         placeholder="Nom d'utilisateur"
                         style={styles.input}
+                        value={username}
+                        onChangeText={setUsername}
+                        autoCapitalize="none"
+                        editable={!loading}
                     />
                     <TextInput
                         placeholder="Mot de passe"
                         style={styles.input}
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry
+                        editable={!loading}
                     />
                     <TextInput
                         placeholder="Confirmation du mot de passe"
                         style={styles.input}
+                        value={confirmPassword}
+                        onChangeText={setConfirmPassword}
+                        secureTextEntry
+                        editable={!loading}
                     />
                     <PhoneNumberInput 
                       height={60}
                       marginTop={10}
+                      value={phoneNumber}
+                      onChangeText={setPhoneNumber}
+                      editable={!loading}
                     />
                 </View> 
                 
-                <Button mode="contained" style={styles.submit} contentStyle={styles.submitContent}  labelStyle={{ fontSize: 17 }}>Créer le compte</Button>
+                <Button 
+                  mode="contained" 
+                  style={styles.submit} 
+                  contentStyle={styles.submitContent}  
+                  labelStyle={{ fontSize: 17 }}
+                  onPress={handleRegister}
+                  disabled={loading}
+                >
+                  {loading ? <ActivityIndicator color="#fff" /> : 'Créer le compte'}
+                </Button>
                
             </View>
             </ScrollView>

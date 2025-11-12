@@ -42,19 +42,15 @@ export default function Home({navigation}) {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    padding : 40,
+  container: {
+    flex: 1,
     backgroundColor:"white"
   },
-  logo: { 
-    width : '100%',
-    height:'50%' 
-  },
-  title: { 
+  title: {
     fontSize : 17,
     fontFamily: 'Figtree-Regular'
   },
-  description: { 
+  description: {
     fontSize : 17,
     marginTop : 7
   },
@@ -88,30 +84,26 @@ const styles = StyleSheet.create({
   submitContent: {
     height:75,
     justifyContent: "center",
-    
-       
   },
   linkContainer:{
     marginTop: 50,
-    display:"flex",
     flexDirection:"row",
     justifyContent: 'center',
     alignItems: "center"
   },
   
-  logoContainer: { 
+  logoContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    width : '100%',
-    height:'50%'
   },
-  logo: { 
+  logo: {
     width: 200,
     height: 200,
-    resizeMode: "contain" 
+    resizeMode: "contain"
   },
   body: {
-    marginTop:80
+    paddingHorizontal: 40,
+    paddingBottom: 40
   }
 });
