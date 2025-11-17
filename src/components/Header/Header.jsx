@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, StyleSheet, Image } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { authService } from '../../services';
 
 const Header = ({ navigation }) => {
   const [userName, setUserName] = useState('');
@@ -40,10 +41,28 @@ const Header = ({ navigation }) => {
   };
 
   const handleLogout = async () => {
-    setMenuVisible(false);
-    await AsyncStorage.clear();
-    if (navigation) {
-      navigation.navigate('Login');
+    try {
+      setMenuVisible(false);
+      
+      // Utiliser le service d'authentification pour déconnecter
+      await authService.logout();
+      
+      console.log('✅ Déconnexion réussie - Token supprimé');
+      
+      if (navigation) {
+        // Réinitialiser la navigation pour empêcher le retour arrière
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Login' }],
+        });
+      }
+    } catch (error) {
+      console.error('❌ Erreur lors de la déconnexion:', error);
+      // En cas d'erreur, forcer la suppression et rediriger quand même
+      await AsyncStorage.clear();
+      if (navigation) {
+        navigation.navigate('Login');
+      }
     }
   };
 
@@ -71,7 +90,11 @@ const Header = ({ navigation }) => {
         onPress={handleLogoPress}
         activeOpacity={0.7}
       >
-        <Text style={styles.logoButtonText}>L</Text>
+        <Image 
+          source={require('../../assets/logo.png')} 
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
       </TouchableOpacity>
 
       {/* Menu Modal */}
@@ -147,8 +170,16 @@ const styles = StyleSheet.create({
   },
   logoButton: {
     backgroundColor: '#A4E66E',
-    padding: 10,
+    padding: 8,
     borderRadius: 8,
+    width: 45,
+    height: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoImage: {
+    width: 35,
+    height: 35,
   },
   logoButtonText: {
     fontWeight: 'bold',

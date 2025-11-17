@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { vehicleService } from "../services";
 
 export default function useFilters() {
   const [activeFilter, setActiveFilter] = useState(null);
@@ -7,12 +8,43 @@ export default function useFilters() {
   const [endDate, setEndDate] = useState(null);
   const [selectedVehicles, setSelectedVehicles] = useState([]);
   const [vehicleCount, setVehicleCount] = useState("");
+  const [vehicleOptions, setVehicleOptions] = useState([]);
+  const [loadingVehicles, setLoadingVehicles] = useState(true);
 
-  const vehicleOptions = ["Moto", "Voiture", "Camion", "Bus"];
+  // Charger les types de véhicules depuis l'API
+  useEffect(() => {
+    const loadVehicles = async () => {
+      try {
+        setLoadingVehicles(true);
+        const vehicles = await vehicleService.getAllVehicles();
+        
+        // Mapper les données de l'API vers le format attendu
+        const formattedVehicles = vehicles.map(v => ({
+          id: v.id_Vehicles || v.Id_Vehicles,
+          name: v.types,
+          icon: v.icon
+        }));
+        
+        setVehicleOptions(formattedVehicles);
+        console.log('✅ Types de véhicules chargés:', formattedVehicles);
+      } catch (error) {
+        console.error('❌ Erreur chargement types de véhicules:', error);
+        // En cas d'erreur, utiliser des valeurs par défaut
+        setVehicleOptions([
+          { id: 1, name: "Voiture", icon: "car-icon" },
+          { id: 2, name: "Moto", icon: "motorcycle-icon" },
+        ]);
+      } finally {
+        setLoadingVehicles(false);
+      }
+    };
 
-  const toggleVehicleSelection = (type) => {
+    loadVehicles();
+  }, []);
+
+  const toggleVehicleSelection = (vehicleId) => {
     setSelectedVehicles(prev =>
-      prev.includes(type) ? prev.filter(v => v !== type) : [...prev, type]
+      prev.includes(vehicleId) ? prev.filter(v => v !== vehicleId) : [...prev, vehicleId]
     );
   };
 
@@ -27,6 +59,7 @@ export default function useFilters() {
     toggleVehicleSelection,
     vehicleCount,
     setVehicleCount,
-    vehicleOptions
+    vehicleOptions,
+    loadingVehicles
   };
 }

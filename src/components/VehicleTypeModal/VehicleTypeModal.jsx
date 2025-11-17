@@ -1,25 +1,36 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import Modal from "react-native-modal";
 
-export default function VehicleTypeModal({ visible, onClose, options, selected, toggle }) {
+export default function VehicleTypeModal({ visible, onClose, options, selected, toggle, loading }) {
   return (
     <Modal isVisible={visible} onBackdropPress={onClose}>
       <View style={styles.modal}>
         <Text style={styles.title}>Types de véhicules</Text>
 
-        {options.map((v) => (
-          <TouchableOpacity
-            key={v}
-            onPress={() => toggle(v)}
-            style={[styles.item, { backgroundColor: selected.includes(v) ? "#A4E66E" : "#eee" }]}
-          >
-            <Text>{v}</Text>
-          </TouchableOpacity>
-        ))}
+        {loading ? (
+          <View style={{ padding: 20, alignItems: 'center' }}>
+            <ActivityIndicator size="large" color="#A4E66E" />
+            <Text style={{ marginTop: 10, color: '#666' }}>Chargement...</Text>
+          </View>
+        ) : options.length === 0 ? (
+          <View style={{ padding: 20, alignItems: 'center' }}>
+            <Text style={{ color: '#666' }}>Aucun type de véhicule disponible</Text>
+          </View>
+        ) : (
+          options.map((vehicle) => (
+            <TouchableOpacity
+              key={vehicle.id}
+              onPress={() => toggle(vehicle.id)}
+              style={[styles.item, { backgroundColor: selected.includes(vehicle.id) ? "#A4E66E" : "#eee" }]}
+            >
+              <Text>{vehicle.name}</Text>
+            </TouchableOpacity>
+          ))
+        )}
 
         <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-          <Text>Valider</Text>
+          <Text>Fermer</Text>
         </TouchableOpacity>
       </View>
     </Modal>

@@ -50,10 +50,18 @@ const parkingService = {
       if (filters.numberOfVehicles) params.numberOfVehicles = filters.numberOfVehicles;
       if (filters.sortBy) params.sortBy = filters.sortBy;
       
+      console.log('📡 Recherche parkings avec filtres:', filters);
+      console.log('📡 Paramètres envoyés:', params);
+      
       const response = await api.get('/parkings/search', { params });
+      
+      console.log('✅ Résultats reçus:', response.data.length, 'parkings');
+      
       return response.data;
     } catch (error) {
-      console.error('Erreur lors de la recherche de parkings:', error);
+      console.error('❌ Erreur lors de la recherche de parkings:', error);
+      console.error('❌ Status:', error.response?.status);
+      console.error('❌ Data:', error.response?.data);
       throw error;
     }
   },

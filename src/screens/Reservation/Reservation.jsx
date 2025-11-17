@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator,
 import DatePicker from "react-native-date-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { reservationService, vehicleService, parkingService } from "../../services";
+import { reservationService, vehicleService, parkingService, authService } from "../../services";
 import Header from "../../components/Header/Header";
 
 export default function ReservationScreen({ route, navigation }) {
@@ -70,9 +70,11 @@ export default function ReservationScreen({ route, navigation }) {
       
       console.log('📊 Réponse API disponibilités:', data);
       console.log('📊 Nombre de véhicules dans la réponse:', data.vehicleAvailabilities?.length);
+      console.log('📊 Horaires disponibilité:', data.availabilitySchedule);
       
       // Créer un objet de disponibilité indexé par vehicleTypeId
       const availabilityMap = {};
+      availabilityMap.schedule = data.availabilitySchedule; // Stocker les horaires
       data.vehicleAvailabilities.forEach(vehicle => {
         availabilityMap[vehicle.vehicleTypeId] = vehicle;
         console.log(`   🚗 Véhicule ${vehicle.vehicleType} (ID ${vehicle.vehicleTypeId}): ${vehicle.availableCapacity}/${vehicle.totalCapacity} places`);
@@ -99,6 +101,7 @@ export default function ReservationScreen({ route, navigation }) {
   };
 
   // Formatter la date pour l'affichage (format 24h)
+  // Formatter la date pour l'affichage (format 24h)
   const formatDateForDisplay = (date) => {
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -106,6 +109,42 @@ export default function ReservationScreen({ route, navigation }) {
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     return `${day}/${month}/${year} à ${hours}:${minutes}`;
+  };
+
+  // Vérifier si les horaires de réservation sont dans les plages d'ouverture
+  const validateReservationHours = () => {
+    // Si on a les horaires de disponibilité
+    if (availabilities.schedule) {
+      const schedule = availabilities.schedule;
+      
+      // Extraire les horaires d'ouverture (format: "Du lundi au vendredi à 08:00-18:00")
+      const timeMatch = schedule.match(/(\d{2}:\d{2})-(\d{2}:\d{2})/);
+      
+      if (timeMatch) {
+        const [_, openTime, closeTime] = timeMatch;
+        const [openHour, openMin] = openTime.split(':').map(Number);
+        const [closeHour, closeMin] = closeTime.split(':').map(Number);
+        
+        const startHour = startDate.getHours();
+        const startMin = startDate.getMinutes();
+        const endHour = endDate.getHours();
+        const endMin = endDate.getMinutes();
+        
+        const startTimeInMinutes = startHour * 60 + startMin;
+        const endTimeInMinutes = endHour * 60 + endMin;
+        const openTimeInMinutes = openHour * 60 + openMin;
+        const closeTimeInMinutes = closeHour * 60 + closeMin;
+        
+        if (startTimeInMinutes < openTimeInMinutes || endTimeInMinutes > closeTimeInMinutes) {
+          return {
+            valid: false,
+            message: `Le parking est ouvert ${schedule}. Veuillez choisir des horaires dans cette plage.`
+          };
+        }
+      }
+    }
+    
+    return { valid: true };
   };
 
   const calculatePrice = async () => {
@@ -161,6 +200,13 @@ export default function ReservationScreen({ route, navigation }) {
       return;
     }
 
+    // Vérifier les horaires de disponibilité
+    const hoursValidation = validateReservationHours();
+    if (!hoursValidation.valid) {
+      Alert.alert('Horaires non valides', hoursValidation.message);
+      return;
+    }
+
     if (!cardNumber || !expiryDate || !cvv) {
       Alert.alert('Erreur', 'Veuillez remplir tous les champs de paiement');
       return;
@@ -171,6 +217,14 @@ export default function ReservationScreen({ route, navigation }) {
       
       // Vérifier la disponibilité une dernière fois avant de réserver
       await loadParkingAvailability();
+      
+      // Re-vérifier les horaires après rechargement
+      const hoursCheck = validateReservationHours();
+      if (!hoursCheck.valid) {
+        Alert.alert('Horaires non valides', hoursCheck.message);
+        setLoading(false);
+        return;
+      }
       
       // Vérifier que tous les véhicules sélectionnés sont toujours disponibles
       for (const vehicleId of selectedTypes) {
@@ -334,14 +388,24 @@ export default function ReservationScreen({ route, navigation }) {
               <Ionicons name="information-circle-outline" size={22} color="#666" />
               <Text style={{ marginLeft: 10, fontSize: 16 }}>Infos connexion</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={{ flexDirection: 'row', alignItems: 'center', padding: 15 }}
+            <TouchableOpacity 
+              style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 15 }}
               onPress={async () => {
-                setShowMenu(false);
-                await AsyncStorage.clear();
-                Alert.alert('Déconnecté', 'Reconnectez-vous pour obtenir le nouveau token', [
-                  { text: 'OK', onPress: () => navigation.navigate('Login') }
-                ]);
+                try {
+                  setShowMenu(false);
+                  await authService.logout();
+                  console.log('✅ Déconnexion réussie - Token supprimé');
+                  Alert.alert('Déconnecté', 'Vous avez été déconnecté avec succès', [
+                    { text: 'OK', onPress: () => navigation.reset({
+                      index: 0,
+                      routes: [{ name: 'Login' }],
+                    }) }
+                  ]);
+                } catch (error) {
+                  console.error('❌ Erreur lors de la déconnexion:', error);
+                  await AsyncStorage.clear();
+                  navigation.navigate('Login');
+                }
               }}
             >
               <Ionicons name="log-out-outline" size={22} color="#ff4444" />
@@ -371,6 +435,28 @@ export default function ReservationScreen({ route, navigation }) {
       >
         <Text style={{ color: '#333' }}>{formatDateForDisplay(endDate)}</Text>
       </TouchableOpacity>
+
+      {/* HORAIRES D'OUVERTURE */}
+      {availabilities.schedule && (
+        <View style={{ 
+          backgroundColor: '#F0F8FF', 
+          padding: 12, 
+          borderRadius: 8, 
+          marginTop: 15,
+          borderLeftWidth: 4,
+          borderLeftColor: '#6BBF47'
+        }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons name="time-outline" size={20} color="#6BBF47" />
+            <Text style={{ marginLeft: 8, fontSize: 14, fontWeight: '600', color: '#333' }}>
+              Horaires d'ouverture
+            </Text>
+          </View>
+          <Text style={{ marginTop: 5, fontSize: 13, color: '#555' }}>
+            {availabilities.schedule}
+          </Text>
+        </View>
+      )}
 
       {/* VEHICLE SELECTION */}
       <Text style={{ fontWeight: "600", marginTop: 20, marginBottom: 5 }}>

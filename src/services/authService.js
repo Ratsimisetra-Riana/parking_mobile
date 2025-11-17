@@ -132,6 +132,40 @@ const authService = {
       return null;
     }
   },
+
+  /**
+   * Vérifier si le token est expiré
+   * @returns {Promise<boolean>} true si expiré, false sinon
+   */
+  isTokenExpired: async () => {
+    try {
+      const token = await AsyncStorage.getItem('jwt_token');
+      if (!token) return true;
+
+      const decoded = jwtDecode(token);
+      const currentTime = Date.now() / 1000; // Convertir en secondes
+      
+      // Vérifier si le token est expiré (avec une marge de 60 secondes)
+      return decoded.exp < (currentTime + 60);
+    } catch (error) {
+      console.error('Erreur lors de la vérification du token:', error);
+      return true; // En cas d'erreur, considérer comme expiré
+    }
+  },
+
+  /**
+   * Récupérer les informations de l'utilisateur connecté
+   * @returns {Promise<Object|null>}
+   */
+  getCurrentUser: async () => {
+    try {
+      const userJson = await AsyncStorage.getItem('user');
+      return userJson ? JSON.parse(userJson) : null;
+    } catch (error) {
+      console.error('Erreur lors de la récupération de l\'utilisateur:', error);
+      return null;
+    }
+  },
 };
 
 export default authService;

@@ -25,6 +25,9 @@ api.interceptors.request.use(
         '/auth/register',
         '/parkings',                    // Liste des parkings
         '/parkings/search',             // Recherche de parkings
+        '/parkings/search/address',     // Recherche par adresse
+        '/parkings/search/location',    // Recherche par localisation
+        '/parkings/search/combined',    // Recherche combinée
         '/parkings/*/availability',     // Disponibilité des parkings
         '/vehicles',                    // Liste des types de véhicules
       ];
@@ -37,12 +40,15 @@ api.interceptors.request.use(
         if (endpoint.includes('*')) {
           // Convertir le pattern en regex (échapper les caractères spéciaux sauf *)
           const regexPattern = endpoint.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\\\*/g, '[^/]*');
-          const regex = new RegExp(regexPattern);
+          const regex = new RegExp('^' + regexPattern + '(/.*)?$');
           return regex.test(config.url);
         }
         
-        return config.url.includes(endpoint);
+        // Pour les endpoints normaux, vérifier une correspondance exacte ou avec paramètres
+        return config.url === endpoint || config.url.startsWith(endpoint + '?') || config.url.startsWith(endpoint + '/');
       });
+      
+      console.log('🔍 Vérification URL:', config.url, '| Public?', isPublicEndpoint);
       
       if (!isPublicEndpoint) {
         const token = await AsyncStorage.getItem('jwt_token');
@@ -53,6 +59,8 @@ api.interceptors.request.use(
           console.warn('⚠️ Pas de token pour:', config.url);
         }
       } else {
+        // S'assurer qu'aucun header Authorization n'est envoyé
+        delete config.headers.Authorization;
         console.log('🌐 Endpoint public (pas de token):', config.url);
       }
     } catch (error) {
@@ -78,11 +86,16 @@ api.interceptors.response.use(
       console.error(`❌ Erreur ${status} pour ${error.config?.url}:`, data);
       
       if (status === 401) {
-        // Token expiré ou invalide - déconnecter l'utilisateur
-        console.warn('🚪 Token invalide, déconnexion...');
+        // Token expiré ou invalide - déconnecter l'utilisateur proprement
+        console.warn('🚪 Token invalide ou expiré, déconnexion automatique...');
+        
+        // Suppression complète des données d'authentification
         await AsyncStorage.removeItem('jwt_token');
         await AsyncStorage.removeItem('user');
-        // Note: Vous devrez gérer la navigation vers Login depuis vos composants
+        await AsyncStorage.removeItem('username');
+        
+        console.log('✅ Données d\'authentification supprimées');
+        // Note: La navigation vers Login doit être gérée dans les composants
       } else if (status === 403) {
         console.error('🚫 Accès refusé (403) - Vérifiez les permissions');
       }
