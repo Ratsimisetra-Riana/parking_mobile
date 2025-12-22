@@ -1,21 +1,23 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, SafeAreaView, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation, useRoute } from "@react-navigation/native";
+import QRCode from 'react-native-qrcode-svg';
 import Header from "../../components/Header/Header";
+import Footer from "../../components/Footer/Footer";
 
 const ConfirmationScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  
+
   // Récupérer les données passées depuis l'écran de réservation
   const { reservation, parkingTitle, totalPrice, startDate, endDate } = route.params || {};
-  
+
   // Formater la date pour l'affichage
   const formatDateTime = () => {
     if (startDate && endDate) {
       const start = new Date(startDate);
       const end = new Date(endDate);
-      return `Le ${start.toLocaleDateString('fr-FR')} ${start.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}-${end.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}`;
+      return `Le ${start.toLocaleDateString('fr-FR')} ${start.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}-${end.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
     }
     return "Date non disponible";
   };
@@ -27,77 +29,94 @@ const ConfirmationScreen = () => {
     price: totalPrice || reservation?.totalPrice || 0
   };
 
-  const handleViewBookings = () => {
-    // Logic to navigate to the "My Reservations" screen
-    console.log("Navigating to My Reservations");
-  };
+  // Générer les données pour le QR Code
+  const qrData = JSON.stringify({
+    reservationId: reservation?.id || `TEMP-${Date.now()}`,
+    parkingId: reservation?.parkingId || reservation?.parking?.id,
+    parkingName: bookingDetails.parkingName,
+    location: bookingDetails.location,
+    startDate: startDate,
+    endDate: endDate,
+    totalPrice: bookingDetails.price,
+    userId: reservation?.userId,
+    createdAt: new Date().toISOString()
+  });
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* ➡️ Header (Simplified) */}
-      <Header navigation={navigation} />
-
-      {/* ➡️ Confirmation Message */}
-      <View style={styles.confirmationHeader}>
-        <Text style={styles.confirmationText}>
-          Réservation confirmé
-        </Text>
-        {/* Replace with an actual icon component if using a library */}
-        <Text style={styles.checkmark}>✅</Text> 
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.headerContainer}>
+        <Header navigation={navigation} />
       </View>
 
-      {/* ➡️ Booking Details Card */}
-      <View style={styles.detailsCard}>
-        <Text style={styles.parkingName}>{bookingDetails.parkingName}</Text>
-        <Text style={styles.detailItem}>- {bookingDetails.location}</Text>
-        <Text style={styles.detailItem}>- {bookingDetails.dateTime}</Text>
-        <Text style={styles.detailItem}> Prix: {bookingDetails.price.toFixed(2)} €</Text>
-      </View>
-
-      {/* ➡️ QR Code */}
-      {/* Replace this placeholder with an actual QR code component/image */}
-      <Image 
-        source={require('../../assets/parking_map.png')} // Replace with actual path or dynamic component
-        style={styles.qrCode} 
-        accessibilityLabel="QR Code for booking validation"
-      />
-
-      {/* ➡️ Button */}
-      <TouchableOpacity 
-        style={styles.button} 
-        onPress={handleViewBookings}
+      {/* Contenu scrollable */}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.buttonText} onPress={() => navigation.navigate("Mes réservations")}>Voir mes réservations</Text>
-      </TouchableOpacity>
+        {/* Confirmation Message */}
+        <View style={styles.confirmationHeader}>
+          <Text style={styles.confirmationText}>
+            Réservation confirmée
+          </Text>
+          <Text style={styles.checkmark}>✅</Text>
+        </View>
 
-      {/* ➡️ Bottom Navigation (Simplified) */}
-      <View style={styles.bottomNav}>
-        {/* You'd use icons and separate components for a real bottom nav */}
-        <Text style={styles.navItem}>🏠 Accueil</Text>
-        <Text style={styles.navItem}>✔️ Réservations</Text>
-        <Text style={styles.navItem}>➕ Publier</Text>
-        <Text style={styles.navItem}>💬 Chat</Text>
-        <Text style={styles.navItem}>👤 Mon compte</Text>
-      </View>
-    </SafeAreaView>
+        {/* Booking Details Card */}
+        <View style={styles.detailsCard}>
+          <Text style={styles.parkingName}>{bookingDetails.parkingName}</Text>
+          <Text style={styles.detailItem}>- {bookingDetails.location}</Text>
+          <Text style={styles.detailItem}>- {bookingDetails.dateTime}</Text>
+          <Text style={styles.detailItem}>Prix: {bookingDetails.price.toFixed(2)} €</Text>
+        </View>
+
+        {/* QR Code */}
+        <View style={styles.qrCodeContainer}>
+          <QRCode
+            value={qrData}
+            size={200}
+            color="#2D3436"
+            backgroundColor="white"
+          />
+        </View>
+
+        {/* Button */}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate("Mes réservations")}
+        >
+          <Text style={styles.buttonText}>Voir mes réservations</Text>
+        </TouchableOpacity>
+      </ScrollView>
+
+      {/* Footer */}
+      <Footer navigation={navigation} activeRoute="Confirmation de la réservation" />
+    </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    paddingTop: 10, // Adjust for top spacing
   },
-
-  // --- Confirmation Header Styles ---
+  headerContainer: {
+    paddingHorizontal: 18,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+  },
   confirmationHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    width: '90%',
+    justifyContent: 'center',
+    width: '100%',
     marginTop: 20,
     marginBottom: 20,
   },
@@ -105,21 +124,18 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     marginRight: 10,
+    color: '#2D3436',
   },
   checkmark: {
     fontSize: 22,
-    // The screenshot uses a green checkmark icon, use an icon library for a better look
-    // If using an emoji, this is fine
   },
-
-  // --- Booking Details Card Styles ---
   detailsCard: {
-    width: '90%',
+    width: '100%',
     padding: 15,
     borderRadius: 10,
-    backgroundColor: 'rgba(173, 216, 230, 0.2)', // Light blue/purple background
+    backgroundColor: 'rgba(164, 230, 110, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(173, 216, 230, 0.4)',
+    borderColor: 'rgba(164, 230, 110, 0.3)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -130,57 +146,40 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
     marginBottom: 5,
+    color: '#2D3436',
   },
   detailItem: {
     fontSize: 14,
-    color: '#333',
+    color: '#636E72',
     lineHeight: 20,
   },
-
-  // --- QR Code Styles ---
-  qrCode: {
-    width: 250, // Adjust size as needed
-    height: 250, // QR codes are usually square
-    marginTop: 40,
-    marginBottom: 40,
-    // You'd replace this with the actual QR code image source or a library component
-    backgroundColor: '#000', // Placeholder color to show size
+  qrCodeContainer: {
+    marginTop: 30,
+    marginBottom: 30,
+    padding: 15,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-
-  // --- Button Styles ---
   button: {
-    backgroundColor: '#e0e0e0', // Light gray background
+    backgroundColor: '#A4E66E',
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 30,
-    width: '70%',
+    width: '80%',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 20,
+    marginBottom: 20,
   },
   buttonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: '#2D3436',
   },
-
-  // --- Bottom Navigation Styles ---
-  bottomNav: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    backgroundColor: '#fff',
-  },
-  navItem: {
-    fontSize: 12,
-    color: '#999',
-    textAlign: 'center',
-  }
 });
 
 export default ConfirmationScreen;

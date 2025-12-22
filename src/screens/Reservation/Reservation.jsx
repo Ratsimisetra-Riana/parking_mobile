@@ -65,13 +65,13 @@ export default function ReservationScreen({ route, navigation }) {
       setLoadingAvailability(true);
       const startDateTime = startDate.toISOString();
       const endDateTime = endDate.toISOString();
-      
+
       const data = await parkingService.getParkingAvailability(parkingId, startDateTime, endDateTime);
-      
+
       console.log('📊 Réponse API disponibilités:', data);
       console.log('📊 Nombre de véhicules dans la réponse:', data.vehicleAvailabilities?.length);
       console.log('📊 Horaires disponibilité:', data.availabilitySchedule);
-      
+
       // Créer un objet de disponibilité indexé par vehicleTypeId
       const availabilityMap = {};
       availabilityMap.schedule = data.availabilitySchedule; // Stocker les horaires
@@ -79,7 +79,7 @@ export default function ReservationScreen({ route, navigation }) {
         availabilityMap[vehicle.vehicleTypeId] = vehicle;
         console.log(`   🚗 Véhicule ${vehicle.vehicleType} (ID ${vehicle.vehicleTypeId}): ${vehicle.availableCapacity}/${vehicle.totalCapacity} places`);
       });
-      
+
       setAvailabilities(availabilityMap);
       console.log('✅ Disponibilités stockées:', availabilityMap);
     } catch (error) {
@@ -116,25 +116,25 @@ export default function ReservationScreen({ route, navigation }) {
     // Si on a les horaires de disponibilité
     if (availabilities.schedule) {
       const schedule = availabilities.schedule;
-      
+
       // Extraire les horaires d'ouverture (format: "Du lundi au vendredi à 08:00-18:00")
       const timeMatch = schedule.match(/(\d{2}:\d{2})-(\d{2}:\d{2})/);
-      
+
       if (timeMatch) {
         const [_, openTime, closeTime] = timeMatch;
         const [openHour, openMin] = openTime.split(':').map(Number);
         const [closeHour, closeMin] = closeTime.split(':').map(Number);
-        
+
         const startHour = startDate.getHours();
         const startMin = startDate.getMinutes();
         const endHour = endDate.getHours();
         const endMin = endDate.getMinutes();
-        
+
         const startTimeInMinutes = startHour * 60 + startMin;
         const endTimeInMinutes = endHour * 60 + endMin;
         const openTimeInMinutes = openHour * 60 + openMin;
         const closeTimeInMinutes = closeHour * 60 + closeMin;
-        
+
         if (startTimeInMinutes < openTimeInMinutes || endTimeInMinutes > closeTimeInMinutes) {
           return {
             valid: false,
@@ -143,23 +143,23 @@ export default function ReservationScreen({ route, navigation }) {
         }
       }
     }
-    
+
     return { valid: true };
   };
 
   const calculatePrice = async () => {
     try {
       setLoadingPrice(true);
-      
+
       // Vérifier le token avant l'appel
       const token = await AsyncStorage.getItem('jwt_token');
-      
+
       if (!token) {
         Alert.alert('Erreur', 'Vous devez être connecté pour calculer le prix');
         navigation.navigate('Login');
         return;
       }
-      
+
       // Formater les véhicules sélectionnés selon le format attendu par le backend
       const selectedVehicles = selectedTypes.map(vehicleId => ({
         vehicleTypeId: vehicleId,
@@ -175,7 +175,7 @@ export default function ReservationScreen({ route, navigation }) {
         endDateTime: formattedEndDate,
         selectedVehicles: selectedVehicles
       });
-      
+
       setCalculatedPrice(priceData.totalPrice || priceData);
     } catch (error) {
       console.error('Erreur calcul prix:', error);
@@ -214,10 +214,10 @@ export default function ReservationScreen({ route, navigation }) {
 
     try {
       setLoading(true);
-      
+
       // Vérifier la disponibilité une dernière fois avant de réserver
       await loadParkingAvailability();
-      
+
       // Re-vérifier les horaires après rechargement
       const hoursCheck = validateReservationHours();
       if (!hoursCheck.valid) {
@@ -225,24 +225,24 @@ export default function ReservationScreen({ route, navigation }) {
         setLoading(false);
         return;
       }
-      
+
       // Vérifier que tous les véhicules sélectionnés sont toujours disponibles
       for (const vehicleId of selectedTypes) {
         const availability = availabilities[vehicleId];
         if (!availability || !availability.isAvailable || availability.availableCapacity < 1) {
           Alert.alert(
-            'Plus disponible', 
+            'Plus disponible',
             `Le véhicule n'est plus disponible pour cette période. Veuillez en sélectionner un autre.`,
             [{ text: 'OK', onPress: () => setLoading(false) }]
           );
           return;
         }
       }
-      
+
       // Récupérer l'utilisateur connecté
       const userJson = await AsyncStorage.getItem('user');
       const user = userJson ? JSON.parse(userJson) : null;
-      
+
       if (!user || !user.Id_Users) {
         Alert.alert('Erreur', 'Utilisateur non connecté');
         navigation.navigate('Login');
@@ -269,7 +269,7 @@ export default function ReservationScreen({ route, navigation }) {
       };
 
       const reservation = await reservationService.createReservation(reservationData);
-      
+
       Alert.alert('Succès', 'Réservation confirmée !', [
         {
           text: 'OK',
@@ -294,10 +294,10 @@ export default function ReservationScreen({ route, navigation }) {
   const toggle = (vehicleId) => {
     // Vérifier la disponibilité avant de sélectionner
     const availability = availabilities[vehicleId];
-    
+
     if (availability && !availability.isAvailable) {
       Alert.alert(
-        'Non disponible', 
+        'Non disponible',
         `${availability.vehicleType} n'est pas disponible pour ce parking ou cette période.`
       );
       return;
@@ -335,7 +335,7 @@ export default function ReservationScreen({ route, navigation }) {
   ];
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#fff", paddingTop: 50 }}>
+    <View style={{ flex: 1, backgroundColor: "#fff", paddingTop: 10 }}>
       {/* HEADER */}
       <View style={{ paddingHorizontal: 20 }}>
         <Header navigation={navigation} />
@@ -346,276 +346,278 @@ export default function ReservationScreen({ route, navigation }) {
         showsVerticalScrollIndicator={false}
       >
 
-      {/* Modal Menu */}
-      <Modal
-        visible={showMenu}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowMenu(false)}
-      >
-        <TouchableOpacity 
-          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}
-          activeOpacity={1}
-          onPress={() => setShowMenu(false)}
+        {/* Modal Menu */}
+        <Modal
+          visible={showMenu}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowMenu(false)}
         >
-          <View style={{ 
-            position: 'absolute',
-            top: 100,
-            left: 20,
-            backgroundColor: 'white',
-            borderRadius: 10,
-            padding: 10,
-            width: 250,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.25,
-            shadowRadius: 3.84,
-            elevation: 5,
-          }}>
-            <TouchableOpacity
-              style={{ flexDirection: 'row', alignItems: 'center', padding: 15, borderBottomWidth: 1, borderBottomColor: '#eee' }}
-              onPress={async () => {
-                setShowMenu(false);
-                const token = await AsyncStorage.getItem('jwt_token');
-                const userJson = await AsyncStorage.getItem('user');
-                const user = userJson ? JSON.parse(userJson) : null;
-                Alert.alert(
-                  '✅ Connexion', 
-                  `Token: ${token ? token.substring(0, 20) + '...' : 'Aucun'}\nUtilisateur ID: ${user?.Id_Users || 'N/A'}\nUsername: ${user?.user_name || 'N/A'}`
-                );
-              }}
-            >
-              <Ionicons name="information-circle-outline" size={22} color="#666" />
-              <Text style={{ marginLeft: 10, fontSize: 16 }}>Infos connexion</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 15 }}
-              onPress={async () => {
-                try {
+          <TouchableOpacity
+            style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}
+            activeOpacity={1}
+            onPress={() => setShowMenu(false)}
+          >
+            <View style={{
+              position: 'absolute',
+              top: 100,
+              left: 20,
+              backgroundColor: 'white',
+              borderRadius: 10,
+              padding: 10,
+              width: 250,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.25,
+              shadowRadius: 3.84,
+              elevation: 5,
+            }}>
+              <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center', padding: 15, borderBottomWidth: 1, borderBottomColor: '#eee' }}
+                onPress={async () => {
                   setShowMenu(false);
-                  await authService.logout();
-                  console.log('✅ Déconnexion réussie - Token supprimé');
-                  Alert.alert('Déconnecté', 'Vous avez été déconnecté avec succès', [
-                    { text: 'OK', onPress: () => navigation.reset({
-                      index: 0,
-                      routes: [{ name: 'Login' }],
-                    }) }
-                  ]);
-                } catch (error) {
-                  console.error('❌ Erreur lors de la déconnexion:', error);
-                  await AsyncStorage.clear();
-                  navigation.navigate('Login');
-                }
-              }}
-            >
-              <Ionicons name="log-out-outline" size={22} color="#ff4444" />
-              <Text style={{ marginLeft: 10, fontSize: 16, color: '#ff4444' }}>Déconnexion</Text>
-            </TouchableOpacity>
-          </View>
+                  const token = await AsyncStorage.getItem('jwt_token');
+                  const userJson = await AsyncStorage.getItem('user');
+                  const user = userJson ? JSON.parse(userJson) : null;
+                  Alert.alert(
+                    '✅ Connexion',
+                    `Token: ${token ? token.substring(0, 20) + '...' : 'Aucun'}\nUtilisateur ID: ${user?.Id_Users || 'N/A'}\nUsername: ${user?.user_name || 'N/A'}`
+                  );
+                }}
+              >
+                <Ionicons name="information-circle-outline" size={22} color="#666" />
+                <Text style={{ marginLeft: 10, fontSize: 16 }}>Infos connexion</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 15 }}
+                onPress={async () => {
+                  try {
+                    setShowMenu(false);
+                    await authService.logout();
+                    console.log('✅ Déconnexion réussie - Token supprimé');
+                    Alert.alert('Déconnecté', 'Vous avez été déconnecté avec succès', [
+                      {
+                        text: 'OK', onPress: () => navigation.reset({
+                          index: 0,
+                          routes: [{ name: 'Login' }],
+                        })
+                      }
+                    ]);
+                  } catch (error) {
+                    console.error('❌ Erreur lors de la déconnexion:', error);
+                    await AsyncStorage.clear();
+                    navigation.navigate('Login');
+                  }
+                }}
+              >
+                <Ionicons name="log-out-outline" size={22} color="#ff4444" />
+                <Text style={{ marginLeft: 10, fontSize: 16, color: '#ff4444' }}>Déconnexion</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </Modal>
+
+        <Text style={{ fontSize: 20, fontWeight: "700", marginBottom: 18 }}>
+          Réservation - {title}
+        </Text>
+
+        {/* DATES */}
+        <Text style={{ fontWeight: "600" }}>Date et heure de début</Text>
+        <TouchableOpacity
+          onPress={() => openDateTimePicker('start')}
+          style={input}
+        >
+          <Text style={{ color: '#333' }}>{formatDateForDisplay(startDate)}</Text>
         </TouchableOpacity>
-      </Modal>
 
-      <Text style={{ fontSize: 20, fontWeight: "700", marginBottom: 18 }}>
-        Réservation - {title}
-      </Text>
+        <Text style={{ fontWeight: "600", marginTop: 14 }}>Date et heure de fin</Text>
+        <TouchableOpacity
+          onPress={() => openDateTimePicker('end')}
+          style={input}
+        >
+          <Text style={{ color: '#333' }}>{formatDateForDisplay(endDate)}</Text>
+        </TouchableOpacity>
 
-      {/* DATES */}
-      <Text style={{ fontWeight: "600" }}>Date et heure de début</Text>
-      <TouchableOpacity 
-        onPress={() => openDateTimePicker('start')}
-        style={input}
-      >
-        <Text style={{ color: '#333' }}>{formatDateForDisplay(startDate)}</Text>
-      </TouchableOpacity>
-
-      <Text style={{ fontWeight: "600", marginTop: 14 }}>Date et heure de fin</Text>
-      <TouchableOpacity 
-        onPress={() => openDateTimePicker('end')}
-        style={input}
-      >
-        <Text style={{ color: '#333' }}>{formatDateForDisplay(endDate)}</Text>
-      </TouchableOpacity>
-
-      {/* HORAIRES D'OUVERTURE */}
-      {availabilities.schedule && (
-        <View style={{ 
-          backgroundColor: '#F0F8FF', 
-          padding: 12, 
-          borderRadius: 8, 
-          marginTop: 15,
-          borderLeftWidth: 4,
-          borderLeftColor: '#6BBF47'
-        }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons name="time-outline" size={20} color="#6BBF47" />
-            <Text style={{ marginLeft: 8, fontSize: 14, fontWeight: '600', color: '#333' }}>
-              Horaires d'ouverture
+        {/* HORAIRES D'OUVERTURE */}
+        {availabilities.schedule && (
+          <View style={{
+            backgroundColor: '#F0F8FF',
+            padding: 12,
+            borderRadius: 8,
+            marginTop: 15,
+            borderLeftWidth: 4,
+            borderLeftColor: '#6BBF47'
+          }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="time-outline" size={20} color="#6BBF47" />
+              <Text style={{ marginLeft: 8, fontSize: 14, fontWeight: '600', color: '#333' }}>
+                Horaires d'ouverture
+              </Text>
+            </View>
+            <Text style={{ marginTop: 5, fontSize: 13, color: '#555' }}>
+              {availabilities.schedule}
             </Text>
           </View>
-          <Text style={{ marginTop: 5, fontSize: 13, color: '#555' }}>
-            {availabilities.schedule}
-          </Text>
-        </View>
-      )}
-
-      {/* VEHICLE SELECTION */}
-      <Text style={{ fontWeight: "600", marginTop: 20, marginBottom: 5 }}>
-        Places disponibles {loadingAvailability && <ActivityIndicator size="small" color="#A4E66E" />}
-      </Text>
-      <Text style={{ fontSize: 12, color: "#666", marginBottom: 10, fontStyle: "italic" }}>
-        Disponibilités pour la période sélectionnée
-      </Text>
-
-      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
-        {vehicles.map((v, index) => {
-          const vehicleId = v.Id_Vehicles || v.Id_Vehicle || index;
-          const availability = availabilities[vehicleId];
-          const isAvailable = availability ? availability.isAvailable : true;
-          const availableCapacity = availability ? availability.availableCapacity : 0;
-          
-          // Mapper les icônes du backend vers les icônes Ionicons
-          const iconMap = {
-            'car-icon': 'car-sport',
-            'motorcycle-icon': 'bicycle',
-            'van-icon': 'bus',
-            'truck-icon': 'car',
-            'city-car-icon': 'car-outline',
-            'scooter-icon': 'bicycle-outline'
-          };
-          
-          const iconName = iconMap[v.icon] || v.icon || "car";
-          
-          return (
-            <TouchableOpacity
-              key={`vehicle-${vehicleId}-${index}`}
-              onPress={() => toggle(vehicleId)}
-              disabled={!isAvailable || loadingAvailability}
-              style={{
-                width: 80,
-                height: 80,
-                borderRadius: 10,
-                justifyContent: "center",
-                alignItems: "center",
-                backgroundColor: !isAvailable 
-                  ? "#E0E0E0" 
-                  : selectedTypes.includes(vehicleId) 
-                    ? "#A4E66E" 
-                    : "#FFD6D6",
-                opacity: !isAvailable ? 0.5 : 1,
-                borderWidth: 2,
-                borderColor: !isAvailable ? "#999" : selectedTypes.includes(vehicleId) ? "#7AC142" : "#FFB6B6"
-              }}
-            >
-              <Ionicons 
-                name={iconName} 
-                size={28} 
-                color={!isAvailable ? "#666" : selectedTypes.includes(vehicleId) ? "#2C5F2D" : "#8B0000"}
-              />
-              <Text style={{ 
-                fontSize: 10, 
-                marginTop: 4, 
-                fontWeight: '600',
-                color: !isAvailable ? "#666" : "#333"
-              }}>
-                {v.types || v.type}
-              </Text>
-              {availability && (
-                <Text style={{ 
-                  fontSize: 10,  // Augmenté de 9 à 10 pour meilleure lisibilité
-                  fontWeight: '600',
-                  color: !isAvailable ? "#666" : isAvailable ? "#2C5F2D" : "#555"
-                }}>
-                  {isAvailable ? `${availableCapacity} dispo` : 'Complet'}
-                </Text>
-              )}
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-
-      {selectedTypes.length > 0 && (
-        <Text style={{ marginTop: 10, color: '#666' }}>
-          {selectedTypes.length} véhicule(s) sélectionné(s)
-        </Text>
-      )}
-
-      {/* PAYMENT */}
-      <Text style={{ fontWeight: "600", marginTop: 25 }}>Mode de paiement</Text>
-
-      <TextInput 
-        placeholder="Numéro de carte bancaire (16 chiffres)" 
-        placeholderTextColor="#999"
-        style={input}
-        value={cardNumber}
-        onChangeText={setCardNumber}
-        keyboardType="numeric"
-        maxLength={19}
-      />
-      <TextInput 
-        placeholder="Date d'expiration (MM/AA)" 
-        placeholderTextColor="#999"
-        style={input}
-        value={expiryDate}
-        onChangeText={setExpiryDate}
-        keyboardType="numeric"
-        maxLength={5}
-      />
-      <TextInput 
-        placeholder="Code de sécurité CVV (3 chiffres)" 
-        placeholderTextColor="#999"
-        style={input}
-        value={cvv}
-        onChangeText={setCvv}
-        keyboardType="numeric"
-        maxLength={3}
-        secureTextEntry
-      />
-
-      {/* PRICE DISPLAY */}
-      <Text style={{ textAlign: "center", fontSize: 18, marginTop: 18 }}>Total du montant</Text>
-      {loadingPrice ? (
-        <ActivityIndicator size="small" color="#A019FF" style={{ marginVertical: 10 }} />
-      ) : (
-        <Text style={{ textAlign: "center", fontSize: 28, fontWeight: "800", color: "#A019FF" }}>
-          {calculatedPrice ? `${calculatedPrice.toFixed(2)}$` : price}
-        </Text>
-      )}
-
-      {/* CONFIRM BUTTON */}
-      <TouchableOpacity
-        style={{
-          backgroundColor: loading ? "#DCDCDC" : "#A4E66E",
-          paddingVertical: 14,
-          borderRadius: 10,
-          marginTop: 25,
-          marginBottom: 60,
-          alignItems: "center"
-        }}
-        onPress={handleConfirmReservation}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={{ fontWeight: "600", color: "#444" }}>Confirmer la réservation</Text>
         )}
-      </TouchableOpacity>
 
-      {/* DATE PICKER MODAL */}
-      <DatePicker
-        modal
-        open={openPicker}
-        date={pickerType === 'start' ? startDate : endDate}
-        onConfirm={handleDateConfirm}
-        onCancel={() => setOpenPicker(false)}
-        mode="datetime"
-        locale="fr"
-        is24hourSource="locale"
-        title={pickerType === 'start' ? 'Sélectionner la date de début' : 'Sélectionner la date de fin'}
-        confirmText="Confirmer"
-        cancelText="Annuler"
-      />
+        {/* VEHICLE SELECTION */}
+        <Text style={{ fontWeight: "600", marginTop: 20, marginBottom: 5 }}>
+          Places disponibles {loadingAvailability && <ActivityIndicator size="small" color="#A4E66E" />}
+        </Text>
+        <Text style={{ fontSize: 12, color: "#666", marginBottom: 10, fontStyle: "italic" }}>
+          Disponibilités pour la période sélectionnée
+        </Text>
 
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
+          {vehicles.map((v, index) => {
+            const vehicleId = v.Id_Vehicles || v.Id_Vehicle || index;
+            const availability = availabilities[vehicleId];
+            const isAvailable = availability ? availability.isAvailable : true;
+            const availableCapacity = availability ? availability.availableCapacity : 0;
+
+            // Mapper les icônes du backend vers les icônes Ionicons
+            const iconMap = {
+              'car-icon': 'car-sport',
+              'suv-icon': 'car-sport',
+              'motorcycle-icon': 'bicycle',
+              'ebike-icon': 'bicycle',
+              'van-icon': 'bus',
+              'truck-icon': 'car',
+              'city-car-icon': 'car-outline',
+              'scooter-icon': 'bicycle-outline'
+            };
+
+            const iconName = iconMap[v.icon] || v.icon || "car";
+
+            return (
+              <TouchableOpacity
+                key={`vehicle-${vehicleId}-${index}`}
+                onPress={() => toggle(vehicleId)}
+                disabled={!isAvailable || loadingAvailability}
+                style={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: 10,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: !isAvailable
+                    ? "#E0E0E0"
+                    : selectedTypes.includes(vehicleId)
+                      ? "#A4E66E"
+                      : "#FFD6D6",
+                  opacity: !isAvailable ? 0.5 : 1,
+                  borderWidth: 2,
+                  borderColor: !isAvailable ? "#999" : selectedTypes.includes(vehicleId) ? "#7AC142" : "#FFB6B6"
+                }}
+              >
+                <Ionicons
+                  name={iconName}
+                  size={28}
+                  color={!isAvailable ? "#666" : selectedTypes.includes(vehicleId) ? "#2C5F2D" : "#8B0000"}
+                />
+                <Text style={{
+                  fontSize: 10,
+                  marginTop: 4,
+                  fontWeight: '600',
+                  color: !isAvailable ? "#666" : "#333"
+                }}>
+                  {v.types || v.type}
+                </Text>
+                {availability && (
+                  <Text style={{
+                    fontSize: 10,  // Augmenté de 9 à 10 pour meilleure lisibilité
+                    fontWeight: '600',
+                    color: !isAvailable ? "#666" : isAvailable ? "#2C5F2D" : "#555"
+                  }}>
+                    {isAvailable ? `${availableCapacity} dispo` : 'Complet'}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {selectedTypes.length > 0 && (
+          <Text style={{ marginTop: 10, color: '#666' }}>
+            {selectedTypes.length} véhicule(s) sélectionné(s)
+          </Text>
+        )}
+
+        {/* PAYMENT */}
+        <Text style={{ fontWeight: "600", marginTop: 25 }}>Mode de paiement</Text>
+
+        <TextInput
+          placeholder="Numéro de carte bancaire (16 chiffres)"
+          placeholderTextColor="#999"
+          style={input}
+          value={cardNumber}
+          onChangeText={setCardNumber}
+          keyboardType="numeric"
+          maxLength={19}
+        />
+        <TextInput
+          placeholder="Date d'expiration (MM/AA)"
+          placeholderTextColor="#999"
+          style={input}
+          value={expiryDate}
+          onChangeText={setExpiryDate}
+          keyboardType="numeric"
+          maxLength={5}
+        />
+        <TextInput
+          placeholder="Code de sécurité CVV (3 chiffres)"
+          placeholderTextColor="#999"
+          style={input}
+          value={cvv}
+          onChangeText={setCvv}
+          keyboardType="numeric"
+          maxLength={3}
+          secureTextEntry
+        />
+
+        {/* PRICE DISPLAY */}
+        <Text style={{ textAlign: "center", fontSize: 18, marginTop: 18 }}>Total du montant</Text>
+        {loadingPrice ? (
+          <ActivityIndicator size="small" color="#A019FF" style={{ marginVertical: 10 }} />
+        ) : (
+          <Text style={{ textAlign: "center", fontSize: 28, fontWeight: "800", color: "#A019FF" }}>
+            {calculatedPrice ? `${calculatedPrice.toFixed(2)}$` : price}
+          </Text>
+        )}
+
+        {/* CONFIRM BUTTON */}
+        <TouchableOpacity
+          style={{
+            backgroundColor: loading ? "#DCDCDC" : "#A4E66E",
+            paddingVertical: 14,
+            borderRadius: 10,
+            marginTop: 25,
+            marginBottom: 60,
+            alignItems: "center"
+          }}
+          onPress={handleConfirmReservation}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={{ fontWeight: "600", color: "#444" }}>Confirmer la réservation</Text>
+          )}
+        </TouchableOpacity>
+
+        {/* DATE PICKER MODAL */}
+        <DatePicker
+          modal
+          open={openPicker}
+          date={pickerType === 'start' ? startDate : endDate}
+          mode="datetime"
+          onConfirm={handleDateConfirm}
+          onCancel={() => setOpenPicker(false)}
+          minimumDate={pickerType === 'start' ? new Date() : startDate}
+          locale="fr"
+          title={pickerType === 'start' ? 'Sélectionner la date de début' : 'Sélectionner la date de fin'}
+          timeZoneOffsetInMinutes={new Date().getTimezoneOffset() * -1}
+        />
       </ScrollView>
     </View>
   );

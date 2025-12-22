@@ -80,9 +80,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.turbomoduleexample"
+    namespace "com.upark"
     defaultConfig {
-        applicationId "com.turbomoduleexample"
+        applicationId "com.upark"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

@@ -1,13 +1,8 @@
 import api from '../config/api';
 
-/**
- * Service pour la gestion des réservations
- */
+
 const reservationService = {
-  /**
-   * Récupérer toutes les réservations
-   * @returns {Promise} Liste des réservations
-   */
+  
   getAllReservations: async () => {
     try {
       const response = await api.get('/reservations');
@@ -18,11 +13,7 @@ const reservationService = {
     }
   },
 
-  /**
-   * Récupérer une réservation par son ID
-   * @param {number} id - ID de la réservation
-   * @returns {Promise} Détails de la réservation
-   */
+ 
   getReservationById: async (id) => {
     try {
       const response = await api.get(`/reservations/${id}`);
@@ -33,11 +24,7 @@ const reservationService = {
     }
   },
 
-  /**
-   * Récupérer les réservations d'un utilisateur
-   * @param {number} userId - ID de l'utilisateur
-   * @returns {Promise} Liste des réservations de l'utilisateur
-   */
+  
   getUserReservations: async (userId) => {
     try {
       const response = await api.get(`/reservations/user/${userId}`);
@@ -48,33 +35,73 @@ const reservationService = {
     }
   },
 
-  /**
-   * Créer une nouvelle réservation
-   * @param {Object} reservationData - Données de la réservation
-   * @returns {Promise} Réservation créée
-   */
+ 
   createReservation: async (reservationData) => {
     try {
+      console.log('📤 Envoi des données de réservation:', reservationData);
+      
+      // Vérifier si l'utilisateur est authentifié
+      const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
+      const token = await AsyncStorage.getItem('jwt_token');
+      
+      if (!token) {
+        console.error('❌ Pas de token JWT - utilisateur non authentifié');
+        throw new Error('Vous devez être connecté pour effectuer une réservation');
+      }
+      
+      console.log('🔑 Token présent, envoi de la requête...');
+      
       const response = await api.post('/reservations', {
         parkingId: reservationData.parkingId,
         userId: reservationData.userId,
         startDateTime: reservationData.startDateTime,
         endDateTime: reservationData.endDateTime,
-        paymentMethod: reservationData.paymentMethod || 'CARD',
+        paymentMethod: reservationData.paymentMethod || 'CARTE_BANCAIRE',
         selectedVehicles: reservationData.selectedVehicles || [],
       });
+      
+      console.log('✅ Réponse du backend:', response.data);
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la création de la réservation:', error);
+      
+      // Afficher plus de détails sur l'erreur
+      if (error.response) {
+        console.error('Détails de l\'erreur:', {
+          status: error.response.status,
+          data: error.response.data,
+          dataType: typeof error.response.data,
+          headers: error.response.headers
+        });
+        
+        // Extraire le message d'erreur
+        let errorMessage = 'Données de réservation invalides';
+        
+        if (typeof error.response.data === 'string' && error.response.data) {
+          errorMessage = error.response.data;
+        } else if (error.response.data?.message) {
+          errorMessage = error.response.data.message;
+        } else if (error.response.data?.error) {
+          errorMessage = error.response.data.error;
+        }
+        
+        // Messages d'erreur plus clairs
+        if (error.response.status === 401) {
+          throw new Error('Session expirée. Veuillez vous reconnecter.');
+        } else if (error.response.status === 400) {
+          throw new Error(`Erreur de validation: ${errorMessage}`);
+        } else if (error.response.status === 403) {
+          throw new Error('Accès refusé. Vérifiez vos permissions.');
+        } else if (error.response.status === 404) {
+          throw new Error('Parking ou utilisateur non trouvé.');
+        }
+      }
+      
       throw error;
     }
   },
 
-  /**
-   * Calculer le prix d'une réservation
-   * @param {Object} priceData - Données pour le calcul du prix
-   * @returns {Promise} Prix total
-   */
+  
   calculatePrice: async (priceData) => {
     try {
       const response = await api.post('/reservations/calculate-price', {
@@ -90,11 +117,7 @@ const reservationService = {
     }
   },
 
-  /**
-   * Vérifier la disponibilité d'un parking
-   * @param {Object} availabilityData - Données pour vérifier la disponibilité
-   * @returns {Promise<boolean>} true si disponible
-   */
+  
   checkAvailability: async (availabilityData) => {
     try {
       const response = await api.post('/reservations/check-availability', {
@@ -110,11 +133,7 @@ const reservationService = {
     }
   },
 
-  /**
-   * Filtrer les réservations
-   * @param {Object} filters - Filtres
-   * @returns {Promise} Liste des réservations filtrées
-   */
+  
   filterReservations: async (filters = {}) => {
     try {
       const params = {};
@@ -132,10 +151,7 @@ const reservationService = {
       throw error;
     }
   },
-  /**
-   * Test public endpoint
-   * @returns {Promise} Test response
-   */
+ 
   testPublicEndpoint: async () => {
     try {
       const response = await api.get('/reservations/test-public');
