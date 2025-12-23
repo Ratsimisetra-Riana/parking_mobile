@@ -1,5 +1,8 @@
 import api from '../config/api';
 
+// Base path pour l'API des parkings
+const BASE_PATH = '/parkings';
+
 /**
  * Service pour la gestion des parkings
  */
@@ -10,7 +13,7 @@ const parkingService = {
    */
   getAllParkings: async () => {
     try {
-      const response = await api.get('/parkings');
+      const response = await api.get(BASE_PATH);
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la récupération des parkings:', error);
@@ -25,7 +28,7 @@ const parkingService = {
    */
   getParkingById: async (id) => {
     try {
-      const response = await api.get(`/parkings/${id}`);
+      const response = await api.get(`${BASE_PATH}/${id}`);
       return response.data;
     } catch (error) {
       console.error(`Erreur lors de la récupération du parking ${id}:`, error);
@@ -41,7 +44,7 @@ const parkingService = {
   searchParkings: async (filters = {}) => {
     try {
       const params = {};
-      
+
       if (filters.startDate) params.startDate = filters.startDate;
       if (filters.endDate) params.endDate = filters.endDate;
       if (filters.minPrice) params.minPrice = filters.minPrice;
@@ -49,14 +52,14 @@ const parkingService = {
       if (filters.vehicleType) params.vehicleType = filters.vehicleType;
       if (filters.numberOfVehicles) params.numberOfVehicles = filters.numberOfVehicles;
       if (filters.sortBy) params.sortBy = filters.sortBy;
-      
+
       console.log('📡 Recherche parkings avec filtres:', filters);
       console.log('📡 Paramètres envoyés:', params);
-      
-      const response = await api.get('/parkings/search', { params });
-      
+
+      const response = await api.get(`${BASE_PATH}/search`, { params });
+
       console.log('✅ Résultats reçus:', response.data.length, 'parkings');
-      
+
       return response.data;
     } catch (error) {
       console.error('❌ Erreur lors de la recherche de parkings:', error);
@@ -73,7 +76,7 @@ const parkingService = {
    */
   createParking: async (parkingData) => {
     try {
-      const response = await api.post('/parkings', parkingData);
+      const response = await api.post(BASE_PATH, parkingData);
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la création du parking:', error);
@@ -138,7 +141,7 @@ const parkingService = {
       const params = {};
       if (startDateTime) params.startDateTime = startDateTime;
       if (endDateTime) params.endDateTime = endDateTime;
-      
+
       const response = await api.get(`/parkings/${parkingId}/availability`, { params });
       return response.data;
     } catch (error) {

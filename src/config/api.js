@@ -1,8 +1,17 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// ========================================
+// CONFIGURATION API - DÉVELOPPEMENT LOCAL
+// ========================================
 // Pour Android emulator: 10.0.2.2 = localhost de l'hôte Windows
-const BASE_URL = 'https://uparkbackfinal.onrender.com/api';
+// Pour appareil physique: utiliser l'IP locale (ex: 192.168.1.X:8080)
+// Pour iOS simulator: utiliser localhost:8080
+const BASE_URL = 'http://10.0.2.2:8080/api/v1';
+
+// PRODUCTION (Render) - Décommenter pour utiliser le backend en production
+// const BASE_URL = 'https://uparkbackfinal.onrender.com/api/v1';
+
 // Création de l'instance axios
 const api = axios.create({
   baseURL: BASE_URL,
@@ -17,24 +26,36 @@ api.interceptors.request.use(
     try {
       // Endpoints publics qui ne nécessitent PAS d'authentification
       const publicEndpoints = [
-        '/v1/auth/authenticate',
-        '/v1/auth/register',
+        '/auth/authenticate',
+        '/auth/register',
+        '/v1/auth/authenticate',      // Avec préfixe v1
+        '/v1/auth/register',          // Avec préfixe v1
         '/parkings',                   // Liste des parkings 
+        '/v1/parkings',                // Avec préfixe v1
         '/parkings/search',             // Recherche de parkings
+        '/v1/parkings/search',          // Avec préfixe v1
         '/parkings/search/address',     // Recherche par adresse
+        '/v1/parkings/search/address',  // Avec préfixe v1
         '/parkings/search/location',    // Recherche par localisation
+        '/v1/parkings/search/location', // Avec préfixe v1
         '/parkings/search/combined',    // Recherche combinée
+        '/v1/parkings/search/combined', // Avec préfixe v1
         '/parkings/*/availability',     // Disponibilité des parkings
+        '/v1/parkings/*/availability',  // Avec préfixe v1
         '/vehicles',                    // Liste des types de véhicules
+        '/v1/vehicles',                 // Avec préfixe v1
         '/reservations/calculate-price',  // Calcul du prix
+        '/v1/reservations/calculate-price', // Avec préfixe v1
         '/reservations/check-availability', // Vérification disponibilité
+        '/v1/reservations/check-availability', // Avec préfixe v1
         '/reservations/test-public',    // Test endpoint public
+        '/v1/reservations/test-public', // Avec préfixe v1
       ];
-      
+
       // Vérifier si l'URL correspond à un endpoint public
       const isPublicEndpoint = publicEndpoints.some(endpoint => {
         if (!config.url) return false;
-        
+
         // Gérer les wildcards (*)
         if (endpoint.includes('*')) {
           // Convertir le pattern en regex (échapper les caractères spéciaux sauf *)
@@ -42,13 +63,13 @@ api.interceptors.request.use(
           const regex = new RegExp('^' + regexPattern + '(/.*)?$');
           return regex.test(config.url);
         }
-        
+
         // Pour les endpoints normaux, vérifier une correspondance exacte ou avec paramètres
         return config.url === endpoint || config.url.startsWith(endpoint + '?') || config.url.startsWith(endpoint + '/');
       });
-      
+
       console.log('🔍 Vérification URL:', config.url, '| Public?', isPublicEndpoint);
-      
+
       if (!isPublicEndpoint) {
         const token = await AsyncStorage.getItem('jwt_token');
         if (token) {
@@ -83,21 +104,21 @@ api.interceptors.response.use(
     if (error.response) {
       // Le serveur a répondu avec un code d'erreur
       const { status, data } = error.response;
-      
+
       console.error(`❌ Erreur ${status} pour ${error.config?.url}:`);
       console.error('📋 Détails de l\'erreur:', typeof data === 'string' ? data : JSON.stringify(data, null, 2));
       console.error('📋 Type de données:', typeof data);
       console.error('📋 Headers de réponse:', JSON.stringify(error.response.headers, null, 2));
-      
+
       if (status === 401) {
         // Token expiré ou invalide - déconnecter l'utilisateur proprement
         console.warn('🚪 Token invalide ou expiré, déconnexion automatique...');
-        
+
         // Suppression complète des données d'authentification
         await AsyncStorage.removeItem('jwt_token');
         await AsyncStorage.removeItem('user');
         await AsyncStorage.removeItem('username');
-        
+
         console.log('✅ Données d\'authentification supprimées');
         // Note: La navigation vers Login doit être gérée dans les composants
       } else if (status === 403) {
@@ -114,7 +135,7 @@ api.interceptors.response.use(
       // Erreur lors de la configuration de la requête
       console.error('⚙️ Erreur configuration requête:', error.message);
     }
-    
+
     return Promise.reject(error);
   }
 );

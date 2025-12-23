@@ -2,6 +2,9 @@ import api from '../config/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
 
+// Base path pour l'API d'authentification
+const BASE_PATH = '/auth';
+
 /**
  * Service d'authentification
  */
@@ -14,7 +17,7 @@ const authService = {
    */
   login: async (user_name, password) => {
     try {
-      const response = await api.post('/v1/auth/authenticate', {
+      const response = await api.post(`${BASE_PATH}/authenticate`, {
         user_name,
         password,
       });
@@ -50,7 +53,7 @@ const authService = {
    */
   register: async (userData) => {
     try {
-      const response = await api.post('/v1/auth/register', {
+      const response = await api.post(`${BASE_PATH}/register`, {
         name: userData.name,
         first_name: userData.first_name,
         user_name: userData.user_name,

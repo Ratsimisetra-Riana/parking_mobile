@@ -1,5 +1,8 @@
 import api from '../config/api';
 
+// Base path pour l'API des véhicules
+const BASE_PATH = '/vehicles';
+
 /**
  * Service pour la gestion des types de véhicules
  */
@@ -10,7 +13,7 @@ const vehicleService = {
    */
   getAllVehicles: async () => {
     try {
-      const response = await api.get('/vehicles');
+      const response = await api.get(BASE_PATH);
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la récupération des types de véhicules:', error);
@@ -25,7 +28,7 @@ const vehicleService = {
    */
   getVehicleById: async (id) => {
     try {
-      const response = await api.get(`/vehicles/${id}`);
+      const response = await api.get(`${BASE_PATH}/${id}`);
       return response.data;
     } catch (error) {
       console.error(`Erreur lors de la récupération du véhicule ${id}:`, error);
