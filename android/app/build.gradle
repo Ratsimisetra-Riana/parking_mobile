@@ -120,3 +120,33 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+// Tâche pour afficher le Key Hash Facebook
+task getFacebookKeyHash {
+    doLast {
+        def keystoreFile = file('debug.keystore')
+        def keystorePassword = 'android'
+        def keyAlias = 'androiddebugkey'
+        def keyPassword = 'android'
+        
+        if (!keystoreFile.exists()) {
+            println "Keystore non trouvé: ${keystoreFile.absolutePath}"
+            return
+        }
+        
+        try {
+            def proc = "keytool -exportcert -alias ${keyAlias} -keystore ${keystoreFile.absolutePath} -storepass ${keystorePassword} -keypass ${keyPassword}".execute()
+            def certBytes = proc.inputStream.bytes
+            
+            def sha1 = java.security.MessageDigest.getInstance("SHA-1").digest(certBytes)
+            def keyHash = sha1.encodeBase64().toString()
+            
+            println "\n" + "="*60
+            println "Facebook Key Hash (debug.keystore):"
+            println keyHash
+            println "="*60 + "\n"
+        } catch (Exception e) {
+            println "Erreur: ${e.message}"
+        }
+    }
+}

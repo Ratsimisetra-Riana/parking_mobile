@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>QR Code Validation</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec13",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102210",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden font-display">
+<!-- Top App Bar -->
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-30">
+<div class="text-[#111811] dark:text-white flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</div>
+<h2 class="text-[#111811] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">Ticket d'entrée</h2>
+</div>
+<!-- Main Content -->
+<div class="flex-1 flex flex-col p-4 gap-4 items-center w-full max-w-md mx-auto pb-24">
+<!-- Ticket Card -->
+<div class="w-full bg-white dark:bg-[#1a2e1a] rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 flex flex-col items-center border border-gray-100 dark:border-[#2a4e2a] relative overflow-hidden">
+<!-- Active Indicator/Top Decor -->
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/50 via-primary to-primary/50"></div>
+<!-- Headline Text (Code ID) -->
+<h3 class="text-[#111811] dark:text-white tracking-widest text-2xl font-bold leading-tight text-center pt-2 pb-6">#9823-AFK</h3>
+<!-- QR Code Image -->
+<div class="w-64 h-64 bg-white p-2 rounded-xl mb-6 shadow-sm border border-gray-100">
+<div class="w-full h-full bg-center bg-no-repeat bg-cover rounded-lg" data-alt="Scan this QR code at the parking gate entrance" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAKU9xPdSBu5_Xvq3ZAVJK3Dl5ryVYlie6GPStXAi__E_b0kixdWN4U5bsBwqk5XwlEiCl2F2tccPZjCBvJ0AlwDsQT-lW0r6cYM1yReXzDKRganiP623t0sWM32Y1rwn_T1B2qswGoN-zQLmY9A_dDteXMkgLcxLX-VQu36hassfuwAG_tp2vtwVYXntrvjXEZgae9RIzJnzZs09jH4ZRWyex0IGDzMIGUwnQDUGkqHoCHaVZ1wzIsRrThdbU20Dzke3HZ2Ar4870");'>
+</div>
+</div>
+<!-- Body Text -->
+<p class="text-gray-500 dark:text-gray-400 text-sm font-normal leading-normal pb-3 text-center uppercase tracking-wide">Validité restante</p>
+<!-- Timer Component (Adapted for compact view) -->
+<div class="flex gap-3 justify-center w-full pb-2">
+<div class="flex flex-col items-center gap-2">
+<div class="flex h-14 w-16 items-center justify-center rounded-lg bg-[#f0f4f0] dark:bg-gray-800 border border-transparent dark:border-gray-700">
+<p class="text-[#111811] dark:text-primary text-xl font-bold leading-tight">14</p>
+</div>
+<p class="text-[#111811] dark:text-gray-400 text-xs font-normal">Minutes</p>
+</div>
+<div class="flex h-14 items-center justify-center pt-1">
+<span class="text-2xl font-bold text-gray-300 dark:text-gray-600">:</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="flex h-14 w-16 items-center justify-center rounded-lg bg-[#f0f4f0] dark:bg-gray-800 border border-transparent dark:border-gray-700">
+<p class="text-[#111811] dark:text-primary text-xl font-bold leading-tight animate-pulse">59</p>
+</div>
+<p class="text-[#111811] dark:text-gray-400 text-xs font-normal">Secondes</p>
+</div>
+</div>
+</div>
+<!-- Reservation Details Module -->
+<div class="w-full bg-white dark:bg-[#1a2e1a] rounded-xl shadow-sm border border-gray-100 dark:border-[#2a4e2a] divide-y divide-gray-100 dark:divide-[#2a4e2a]">
+<!-- Location Header -->
+<div class="p-4 flex gap-4 items-start">
+<div class="size-10 rounded-full bg-background-light dark:bg-background-dark flex items-center justify-center shrink-0 text-gray-600 dark:text-gray-300">
+<span class="material-symbols-outlined">local_parking</span>
+</div>
+<div>
+<h4 class="font-bold text-[#111811] dark:text-white text-base leading-tight">Parking Gare Saint-Lazare</h4>
+<p class="text-gray-500 dark:text-gray-400 text-sm mt-1">14 Rue d'Amsterdam, 75009 Paris</p>
+</div>
+</div>
+<!-- Time Block -->
+<div class="p-4 flex justify-between items-center">
+<div class="flex flex-col gap-1">
+<span class="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase">Entrée</span>
+<span class="font-bold text-[#111811] dark:text-white text-lg">14:00</span>
+<span class="text-xs text-gray-500">Aujourd'hui</span>
+</div>
+<div class="flex flex-col items-center gap-1 px-4">
+<div class="h-[1px] w-12 bg-gray-300 dark:bg-gray-600 relative">
+<div class="absolute right-0 top-1/2 -translate-y-1/2 size-1.5 rounded-full bg-primary"></div>
+</div>
+<span class="text-[10px] text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">4h</span>
+</div>
+<div class="flex flex-col gap-1 text-right">
+<span class="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase">Sortie</span>
+<span class="font-bold text-[#111811] dark:text-white text-lg">18:00</span>
+<span class="text-xs text-gray-500">Aujourd'hui</span>
+</div>
+</div>
+<!-- License Plate -->
+<div class="p-4 flex justify-between items-center bg-gray-50/50 dark:bg-[#152515]">
+<span class="text-sm text-gray-500 dark:text-gray-400">Véhicule enregistré</span>
+<div class="flex items-center gap-2 bg-white dark:bg-[#1a2e1a] border border-gray-200 dark:border-[#2a4e2a] px-3 py-1.5 rounded text-sm font-mono font-bold text-[#111811] dark:text-white">
+<span class="block w-1.5 h-1.5 rounded-full bg-primary"></span>
+                    AB-123-CD
+                </div>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="w-full mt-2 flex flex-col gap-3">
+<button class="w-full bg-primary hover:bg-[#0ecb0e] active:scale-[0.98] transition-all text-[#052805] font-bold text-base h-12 rounded-lg flex items-center justify-center gap-2 shadow-sm shadow-green-500/20">
+<span class="material-symbols-outlined">directions</span>
+                Itinéraire vers l'entrée
+            </button>
+<button class="w-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 text-sm font-medium h-10 rounded-lg flex items-center justify-center gap-2 transition-colors">
+                Besoin d'aide ?
+            </button>
+</div>
+</div>
+<!-- Bottom Navigation Bar -->
+<div class="fixed bottom-0 w-full bg-white dark:bg-[#1a2e1a] border-t border-gray-100 dark:border-[#2a4e2a] pb-safe pt-2 px-6 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] dark:shadow-none z-40">
+<div class="flex justify-between items-end pb-2">
+<button class="flex flex-col items-center gap-1 group w-16">
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-500 group-hover:text-primary transition-colors">home</span>
+<span class="text-[10px] font-medium text-gray-400 dark:text-gray-500 group-hover:text-primary">Accueil</span>
+</button>
+<button class="flex flex-col items-center gap-1 group w-16">
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-500 group-hover:text-primary transition-colors" data-location="City Map View">map</span>
+<span class="text-[10px] font-medium text-gray-400 dark:text-gray-500 group-hover:text-primary">Carte</span>
+</button>
+<button class="flex flex-col items-center gap-1 group w-16 relative">
+<div class="absolute -top-1 right-3 w-2 h-2 bg-primary rounded-full"></div>
+<span class="material-symbols-outlined text-primary fill-current">confirmation_number</span>
+<span class="text-[10px] font-bold text-primary">Réservations</span>
+</button>
+<button class="flex flex-col items-center gap-1 group w-16">
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-500 group-hover:text-primary transition-colors">person</span>
+<span class="text-[10px] font-medium text-gray-400 dark:text-gray-500 group-hover:text-primary">Profil</span>
+</button>
+</div>
+<!-- Safe area spacer for iOS home indicator -->
+<div class="h-4 w-full"></div>
+</div>
+</body></html>

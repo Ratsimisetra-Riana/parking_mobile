@@ -149,6 +149,21 @@ const parkingService = {
       throw error;
     }
   },
+
+  /**
+   * Récupérer les véhicules d'un parking
+   * @param {number} parkingId - ID du parking
+   * @returns {Promise} Liste des véhicules du parking
+   */
+  getParkingVehicles: async (parkingId) => {
+    try {
+      const response = await api.get(`${BASE_PATH}/${parkingId}/vehicles`);
+      return response.data;
+    } catch (error) {
+      console.error(`Erreur lors de la récupération des véhicules du parking ${parkingId}:`, error);
+      throw error;
+    }
+  },
 };
 
 export default parkingService;

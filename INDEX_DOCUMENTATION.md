@@ -289,6 +289,81 @@ Si vous souhaitez améliorer cette documentation :
 
 ---
 
+## 🎨 NOUVEAU - Documentation Refactoring Styles
+
+### RESUME_REFACTORING.md
+**Résumé exécutif du refactoring styles**
+
+**Contenu :**
+- Avant/Après comparaison
+- Infrastructure créée (theme/ + styles/)
+- Footer migré (exemple)
+- Bénéfices mesurables
+- Prochaines étapes
+
+**Pour qui :** Tous  
+**Temps de lecture :** 5 minutes  
+**Niveau :** 🟢 Débutant
+
+👉 [Lire le résumé refactoring](./RESUME_REFACTORING.md)
+
+---
+
+### REFACTORING_PLAN.md
+**Plan détaillé d'analyse et d'action**
+
+**Contenu :**
+- Analyse exhaustive des couleurs (87 couleurs)
+- Espacements, typographie, ombres
+- Structure proposée
+- Phases de migration
+- Ordre recommandé
+
+**Pour qui :** Développeurs, Tech Leads  
+**Temps de lecture :** 10 minutes  
+**Niveau :** 🟡 Intermédiaire
+
+👉 [Lire le plan](./REFACTORING_PLAN.md)
+
+---
+
+### GUIDE_MIGRATION_STYLES.md
+**Guide pratique de migration pas à pas**
+
+**Contenu :**
+- Process de migration détaillé
+- Mapping des couleurs
+- Checklist par composant
+- Bonnes pratiques
+- Exemples concrets
+
+**Pour qui :** Développeurs (guide de référence)  
+**Temps de lecture :** 15 minutes  
+**Niveau :** 🟡 Intermédiaire
+
+👉 [Lire le guide](./GUIDE_MIGRATION_STYLES.md)
+
+---
+
+### RECAP_REFACTORING_STYLES.md
+**Récapitulatif complet avec métriques**
+
+**Contenu :**
+- Problèmes identifiés
+- Solution implémentée
+- Fichiers créés (1372 lignes)
+- Palette de couleurs complète
+- Métriques avant/après
+- Progression détaillée
+
+**Pour qui :** Product Owners, Tech Leads, Développeurs  
+**Temps de lecture :** 20 minutes  
+**Niveau :** 🟡 Intermédiaire
+
+👉 [Lire le récapitulatif](./RECAP_REFACTORING_STYLES.md)
+
+---
+
 ## 🎓 Ressources Externes
 
 ### React Native
@@ -306,6 +381,7 @@ Si vous souhaitez améliorer cette documentation :
 ---
 
 **Date de création :** 20 novembre 2025  
-**Version :** 1.0  
+**Dernière mise à jour :** Décembre 2024 (Refactoring Styles)  
+**Version :** 2.0  
 **Analyste :** Expert en Développement Mobile  
-**Statut :** ✅ Documentation Complète
+**Statut :** ✅ Documentation Complète + Refactoring Infrastructure

@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">UPark</string>
+    
+    <!-- Google Sign-In Web Client ID -->
+    <string name="default_web_client_id">918409349260-uqfla9m7seh995bjgojo6t7mt7e9smj6.apps.googleusercontent.com</string>
+    
+    <!-- Facebook App ID -->
+    <string name="facebook_app_id">1522395478989208</string>
+    <string name="fb_login_protocol_scheme">fb1522395478989208</string>
+    <string name="facebook_client_token">c46cfbdb827f5ed80da34a21b3404597</string>
 </resources>

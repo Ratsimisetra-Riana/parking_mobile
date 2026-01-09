@@ -1,16 +1,21 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getApiUrl, getApiTimeout, log } from './environment';
 
 // ========================================
-// CONFIGURATION API - DÉVELOPPEMENT LOCAL
+// CONFIGURATION API - CENTRALISÉE
 // ========================================
-// Pour Android emulator: 10.0.2.2 = localhost de l'hôte Windows
-// Pour appareil physique: utiliser l'IP locale (ex: 192.168.1.X:8080)
-// Pour iOS simulator: utiliser localhost:8080
-const BASE_URL = 'http://10.0.2.2:8080/api/v1';
+// La configuration est maintenant gérée dans environment.js
+// Elle détecte automatiquement l'environnement (dev/prod)
+// et configure l'URL selon la plateforme (Android/iOS)
 
-// PRODUCTION (Render) - Décommenter pour utiliser le backend en production
-// const BASE_URL = 'https://uparkbackfinal.onrender.com/api/v1';
+// Récupération de la configuration depuis environment.js
+const BASE_URL = getApiUrl();
+const TIMEOUT = getApiTimeout();
+
+console.log('🔧 Configuration API chargée:');
+console.log('   - BASE_URL:', BASE_URL);
+console.log('   - TIMEOUT:', TIMEOUT + 'ms');
 
 // Création de l'instance axios
 const api = axios.create({
@@ -18,7 +23,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10 secondes
+  timeout: TIMEOUT,
 });
 
 api.interceptors.request.use(
@@ -30,18 +35,6 @@ api.interceptors.request.use(
         '/auth/register',
         '/v1/auth/authenticate',      // Avec préfixe v1
         '/v1/auth/register',          // Avec préfixe v1
-        '/parkings',                   // Liste des parkings 
-        '/v1/parkings',                // Avec préfixe v1
-        '/parkings/search',             // Recherche de parkings
-        '/v1/parkings/search',          // Avec préfixe v1
-        '/parkings/search/address',     // Recherche par adresse
-        '/v1/parkings/search/address',  // Avec préfixe v1
-        '/parkings/search/location',    // Recherche par localisation
-        '/v1/parkings/search/location', // Avec préfixe v1
-        '/parkings/search/combined',    // Recherche combinée
-        '/v1/parkings/search/combined', // Avec préfixe v1
-        '/parkings/*/availability',     // Disponibilité des parkings
-        '/v1/parkings/*/availability',  // Avec préfixe v1
         '/vehicles',                    // Liste des types de véhicules
         '/v1/vehicles',                 // Avec préfixe v1
         '/reservations/calculate-price',  // Calcul du prix
@@ -52,25 +45,79 @@ api.interceptors.request.use(
         '/v1/reservations/test-public', // Avec préfixe v1
       ];
 
-      // Vérifier si l'URL correspond à un endpoint public
-      const isPublicEndpoint = publicEndpoints.some(endpoint => {
+      // Endpoints protégés qui NÉCESSITENT l'authentification (même s'ils commencent par /parkings)
+      const protectedEndpoints = [
+        '/parkings/my-parkings',
+        '/v1/parkings/my-parkings',
+        '/parkings/user/',
+        '/v1/parkings/user/',
+      ];
+
+      // Endpoints parkings publics (pour la recherche)
+      const publicParkingEndpoints = [
+        '/parkings/search',             // Recherche de parkings
+        '/v1/parkings/search',          // Avec préfixe v1
+        '/parkings/search/address',     // Recherche par adresse
+        '/v1/parkings/search/address',  // Avec préfixe v1
+        '/parkings/search/location',    // Recherche par localisation
+        '/v1/parkings/search/location', // Avec préfixe v1
+        '/parkings/search/combined',    // Recherche combinée
+        '/v1/parkings/search/combined', // Avec préfixe v1
+        '/parkings/*/availability',     // Disponibilité des parkings
+        '/v1/parkings/*/availability',  // Avec préfixe v1
+      ];
+
+      // Vérifier d'abord si c'est un endpoint PROTÉGÉ (prioritaire)
+      const isProtectedEndpoint = protectedEndpoints.some(endpoint => {
+        if (!config.url) return false;
+        return config.url === endpoint || config.url.startsWith(endpoint);
+      });
+
+      // Si c'est protégé, on ne vérifie pas les publics
+      if (isProtectedEndpoint) {
+        const token = await AsyncStorage.getItem('jwt_token');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+          console.log('🔑 Endpoint protégé - Token ajouté pour:', config.url);
+        } else {
+          console.warn('⚠️ Endpoint protégé mais pas de token pour:', config.url);
+        }
+        return config;
+      }
+
+      // Vérifier si l'URL correspond à un endpoint public (parkings)
+      const isPublicParkingEndpoint = publicParkingEndpoints.some(endpoint => {
         if (!config.url) return false;
 
         // Gérer les wildcards (*)
         if (endpoint.includes('*')) {
-          // Convertir le pattern en regex (échapper les caractères spéciaux sauf *)
           const regexPattern = endpoint.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\\\*/g, '[^/]*');
           const regex = new RegExp('^' + regexPattern + '(/.*)?$');
           return regex.test(config.url);
         }
 
-        // Pour les endpoints normaux, vérifier une correspondance exacte ou avec paramètres
         return config.url === endpoint || config.url.startsWith(endpoint + '?') || config.url.startsWith(endpoint + '/');
       });
 
-      console.log('🔍 Vérification URL:', config.url, '| Public?', isPublicEndpoint);
+      // Vérifier les autres endpoints publics
+      const isPublicEndpoint = publicEndpoints.some(endpoint => {
+        if (!config.url) return false;
+        return config.url === endpoint || config.url.startsWith(endpoint + '?') || config.url.startsWith(endpoint + '/');
+      });
 
-      if (!isPublicEndpoint) {
+      // Vérifier si c'est un GET simple sur /parkings (liste publique) ou /parkings/{id}
+      const isParkingListOrDetail = config.method === 'get' && (
+        config.url === '/parkings' ||
+        config.url === '/v1/parkings' ||
+        /^\/v?1?\/parkings\/\d+$/.test(config.url) || // Match /parkings/123 ou /v1/parkings/123
+        /^\/v?1?\/parkings\/\d+\/vehicles$/.test(config.url) // Match /parkings/123/vehicles
+      );
+
+      const isTrulyPublic = isPublicEndpoint || isPublicParkingEndpoint || isParkingListOrDetail;
+
+      console.log('🔍 Vérification URL:', config.url, '| Méthode:', config.method, '| Public?', isTrulyPublic);
+
+      if (!isTrulyPublic) {
         const token = await AsyncStorage.getItem('jwt_token');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
@@ -81,8 +128,6 @@ api.interceptors.request.use(
           console.warn('⚠️ Cette requête nécessite une authentification mais aucun token n\'a été trouvé!');
         }
       } else {
-        // S'assurer qu'aucun header Authorization n'est envoyé
-        delete config.headers.Authorization;
         console.log('🌐 Endpoint public (pas de token):', config.url);
       }
     } catch (error) {

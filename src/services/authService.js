@@ -1,6 +1,8 @@
 import api from '../config/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
 
 // Base path pour l'API d'authentification
 const BASE_PATH = '/auth';
@@ -167,6 +169,130 @@ const authService = {
     } catch (error) {
       console.error('Erreur lors de la récupération de l\'utilisateur:', error);
       return null;
+    }
+  },
+
+  /**
+   * Connexion avec Google OAuth2
+   * @returns {Promise} Données de l'utilisateur et token
+   */
+  loginWithGoogle: async () => {
+    try {
+      console.log('🔵 Démarrage connexion Google...');
+
+      // 1. Configurer Google Sign-In (si pas déjà fait)
+      await GoogleSignin.configure({
+        webClientId: '918409349260-uqfla9m7seh995bjgojo6t7mt7e9smj6.apps.googleusercontent.com',
+        offlineAccess: false,
+      });
+
+      // 2. Vérifier si Google Play Services est disponible
+      await GoogleSignin.hasPlayServices();
+
+      // 3. Démarrer le processus de connexion Google
+      const userInfo = await GoogleSignin.signIn();
+      console.log('✅ Connexion Google réussie:', userInfo);
+
+      // 4. Récupérer le token ID
+      const tokens = await GoogleSignin.getTokens();
+      const idToken = tokens.idToken;
+      console.log('🎟️ Token Google récupéré');
+
+      // 5. Envoyer le token au backend
+      const response = await api.post(`${BASE_PATH}/oauth/google`, {
+        token: idToken,
+        provider: 'google',
+      });
+
+      const { token, userId, userName, email } = response.data;
+
+      // 6. Stocker le token JWT et les données utilisateur
+      if (token) {
+        await AsyncStorage.setItem('jwt_token', token);
+        
+        const userData = {
+          Id_Users: userId,
+          user_name: userName,
+          email: email,
+          oauth_provider: 'google',
+        };
+        
+        await AsyncStorage.setItem('user', JSON.stringify(userData));
+        await AsyncStorage.setItem('username', userName);
+      }
+
+      console.log('✅ Connexion Google complète');
+      return response.data;
+    } catch (error) {
+      console.error('❌ Erreur connexion Google:', error);
+      
+      if (error.code === 'SIGN_IN_CANCELLED') {
+        throw new Error('Connexion annulée');
+      } else if (error.code === 'IN_PROGRESS') {
+        throw new Error('Connexion en cours');
+      } else if (error.code === 'PLAY_SERVICES_NOT_AVAILABLE') {
+        throw new Error('Google Play Services non disponible');
+      }
+      
+      throw error;
+    }
+  },
+
+  /**
+   * Connexion avec Facebook OAuth2
+   * @returns {Promise} Données de l'utilisateur et token
+   */
+  loginWithFacebook: async () => {
+    try {
+      console.log('🔵 Démarrage connexion Facebook...');
+
+      // 1. Démarrer le processus de connexion Facebook
+      const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
+
+      if (result.isCancelled) {
+        throw new Error('Connexion Facebook annulée');
+      }
+
+      console.log('✅ Connexion Facebook réussie');
+
+      // 2. Récupérer le token d'accès
+      const data = await AccessToken.getCurrentAccessToken();
+
+      if (!data) {
+        throw new Error('Impossible de récupérer le token Facebook');
+      }
+
+      const accessToken = data.accessToken;
+      console.log('🎟️ Token Facebook récupéré');
+
+      // 3. Envoyer le token au backend
+      const response = await api.post(`${BASE_PATH}/oauth/facebook`, {
+        token: accessToken,
+        provider: 'facebook',
+      });
+
+      const { token, userId, userName, email } = response.data;
+
+      // 4. Stocker le token JWT et les données utilisateur
+      if (token) {
+        await AsyncStorage.setItem('jwt_token', token);
+        
+        const userData = {
+          Id_Users: userId,
+          user_name: userName,
+          email: email,
+          oauth_provider: 'facebook',
+        };
+        
+        await AsyncStorage.setItem('user', JSON.stringify(userData));
+        await AsyncStorage.setItem('username', userName);
+      }
+
+      console.log('✅ Connexion Facebook complète');
+      return response.data;
+    } catch (error) {
+      console.error('❌ Erreur connexion Facebook:', error);
+      throw error;
     }
   },
 };

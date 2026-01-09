@@ -5,3 +5,8 @@ export { default as authService } from './authService';
 export { default as parkingService } from './parkingService';
 export { default as vehicleService } from './vehicleService';
 export { default as reservationService } from './reservationService';
+export { default as reservationRequestService } from './reservationRequestService';
+export { default as ownerService } from './ownerService';
+export { default as announcementService } from './announcementService';
+export { default as ratingService } from './ratingService';
+export { default as imageService } from './imageService';
