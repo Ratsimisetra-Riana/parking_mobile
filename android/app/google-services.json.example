@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "3320401216",
-    "project_id": "upark-c2eb4",
-    "storage_bucket": "upark-c2eb4.firebasestorage.app"
+    "project_number": "VOTRE_PROJECT_NUMBER",
+    "project_id": "VOTRE_PROJECT_ID",
+    "storage_bucket": "VOTRE_STORAGE_BUCKET"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:3320401216:android:52cedf6852a2b2d9233ea5",
+        "mobilesdk_app_id": "VOTRE_MOBILE_SDK_APP_ID",
         "android_client_info": {
           "package_name": "com.upark"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyD5sNShXHxGy6so1Zj6PwG7v2DvWUafJpU"
+          "current_key": "VOTRE_API_KEY_FIREBASE"
         }
       ],
       "services": {

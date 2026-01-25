@@ -34,6 +34,10 @@ local.properties
 *.keystore
 !debug.keystore
 
+# Firebase Configuration (contient des clés sensibles)
+google-services.json
+GoogleService-Info.plist
+
 # node.js
 #
 node_modules/
