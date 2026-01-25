@@ -27,14 +27,14 @@ const reservationRequestService = {
         startDateTime: requestData.startDateTime,
         endDateTime: requestData.endDateTime,
         totalGain: requestData.totalGain,
-        selectedVehicles: requestData.selectedVehicles // 🚗 Ajout des véhicules sélectionnés
+        selectedVehicles: requestData.selectedVehicles //  Ajout des véhicules sélectionnés
       });
 
-      console.log('✅ Demande créée:', response.data);
-      console.log('🚗 Véhicules sélectionnés:', requestData.selectedVehicles);
+      console.log(' Demande créée:', response.data);
+      console.log(' Véhicules sélectionnés:', requestData.selectedVehicles);
       return response.data;
     } catch (error) {
-      console.error('❌ Erreur création demande:', error);
+      console.error('Erreur: Erreur création demande:', error);
       
       if (error.response?.status === 401) {
         throw new Error('Session expirée. Reconnectez-vous.');
@@ -61,7 +61,7 @@ const reservationRequestService = {
         ownerId = user?.Id_Users;
         
         if (!ownerId) {
-          console.warn('⚠️ Aucun utilisateur connecté pour getRequestsByOwner');
+          console.warn(' Aucun utilisateur connecté pour getRequestsByOwner');
           return [];
         }
       }
@@ -70,7 +70,7 @@ const reservationRequestService = {
       console.log(`📥 Demandes reçues pour propriétaire ${ownerId}:`, response.data.length);
       return response.data;
     } catch (error) {
-      console.error('❌ Erreur récupération demandes propriétaire:', error);
+      console.error('Erreur: Erreur récupération demandes propriétaire:', error);
       throw error;
     }
   },
@@ -90,7 +90,7 @@ const reservationRequestService = {
         requesterId = user?.Id_Users;
         
         if (!requesterId) {
-          console.warn('⚠️ Aucun utilisateur connecté pour getRequestsByRequester');
+          console.warn(' Aucun utilisateur connecté pour getRequestsByRequester');
           return [];
         }
       }
@@ -99,7 +99,7 @@ const reservationRequestService = {
       console.log(`📥 Demandes envoyées par client ${requesterId}:`, response.data.length);
       return response.data;
     } catch (error) {
-      console.error('❌ Erreur récupération demandes client:', error);
+      console.error('Erreur: Erreur récupération demandes client:', error);
       throw error;
     }
   },
@@ -114,7 +114,7 @@ const reservationRequestService = {
       const response = await api.get(`${BASE_PATH}/status/${state}`);
       return response.data;
     } catch (error) {
-      console.error('❌ Erreur récupération demandes par statut:', error);
+      console.error('Erreur: Erreur récupération demandes par statut:', error);
       throw error;
     }
   },
@@ -126,12 +126,12 @@ const reservationRequestService = {
    */
   acceptRequest: async (requestId) => {
     try {
-      console.log(`✅ Acceptation demande ${requestId}`);
+      console.log(` Acceptation demande ${requestId}`);
       const response = await api.put(`${BASE_PATH}/${requestId}/accept`);
-      console.log('✅ Demande acceptée:', response.data);
+      console.log(' Demande acceptée:', response.data);
       return response.data;
     } catch (error) {
-      console.error('❌ Erreur acceptation demande:', error);
+      console.error('Erreur: Erreur acceptation demande:', error);
       throw new Error('Impossible d\'accepter la demande');
     }
   },
@@ -143,12 +143,12 @@ const reservationRequestService = {
    */
   rejectRequest: async (requestId) => {
     try {
-      console.log(`❌ Refus demande ${requestId}`);
+      console.log(`Erreur: Refus demande ${requestId}`);
       const response = await api.put(`${BASE_PATH}/${requestId}/reject`);
-      console.log('✅ Demande refusée:', response.data);
+      console.log(' Demande refusée:', response.data);
       return response.data;
     } catch (error) {
-      console.error('❌ Erreur refus demande:', error);
+      console.error('Erreur: Erreur refus demande:', error);
       throw new Error('Impossible de refuser la demande');
     }
   },
@@ -165,10 +165,10 @@ const reservationRequestService = {
       const response = await api.post(
         `${BASE_PATH}/${requestId}/finalize?paymentMethod=${paymentMethod}`
       );
-      console.log('✅ Réservation finalisée:', response.data);
+      console.log(' Réservation finalisée:', response.data);
       return response.data;
     } catch (error) {
-      console.error('❌ Erreur finalisation:', error);
+      console.error('Erreur: Erreur finalisation:', error);
       
       if (error.response?.data?.includes('expiré')) {
         throw new Error('Le délai de paiement est expiré (24h)');
@@ -187,9 +187,9 @@ const reservationRequestService = {
     try {
       console.log(`🗑️ Annulation demande ${requestId}`);
       await api.delete(`${BASE_PATH}/${requestId}`);
-      console.log('✅ Demande annulée');
+      console.log(' Demande annulée');
     } catch (error) {
-      console.error('❌ Erreur annulation demande:', error);
+      console.error('Erreur: Erreur annulation demande:', error);
       throw new Error('Impossible d\'annuler la demande');
     }
   },
@@ -204,7 +204,7 @@ const reservationRequestService = {
       const response = await api.get(`${BASE_PATH}/${requestId}`);
       return response.data;
     } catch (error) {
-      console.error('❌ Erreur récupération demande:', error);
+      console.error('Erreur: Erreur récupération demande:', error);
       throw error;
     }
   }

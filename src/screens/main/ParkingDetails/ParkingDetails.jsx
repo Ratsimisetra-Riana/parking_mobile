@@ -26,7 +26,7 @@ const getVehicleIcon = (iconName) => {
 export default function ParkingDetails({ route, navigation }) {
   const { parkingId, title: initialTitle, address: initialAddress, price: initialPrice, rating: initialRating, image } = route.params;
   
-  console.log('🎯 ParkingDetails - Paramètres reçus:');
+  console.log(' ParkingDetails - Paramètres reçus:');
   console.log('  - parkingId:', parkingId);
   console.log('  - initialTitle:', initialTitle);
   console.log('  - route.params:', route.params);
@@ -47,7 +47,7 @@ export default function ParkingDetails({ route, navigation }) {
       console.log('📡 Chargement parking ID:', parkingId);
       
       if (!parkingId) {
-        console.warn('⚠️ parkingId est undefined, utilisation des données initiales');
+        console.warn(' parkingId est undefined, utilisation des données initiales');
         setParking({
           label: initialTitle,
           description: initialAddress,
@@ -57,7 +57,7 @@ export default function ParkingDetails({ route, navigation }) {
       }
       
       const data = await parkingService.getParkingById(parkingId);
-      console.log('✅ Réponse API détails parking:', data);
+      console.log(' Réponse API détails parking:', data);
       console.log('   - ID retourné:', data.Id_Parking || data.id_Parking || data.id);
       console.log('   - Label retourné:', data.label);
       console.log('   - User retourné:', data.user);
@@ -66,7 +66,7 @@ export default function ParkingDetails({ route, navigation }) {
       // Charger les images du parking
       try {
         const parkingImages = await imageService.getParkingImages(parkingId);
-        console.log(`📸 ${parkingImages.length} image(s) chargée(s)`);
+        console.log(` ${parkingImages.length} image(s) chargée(s)`);
         parkingImages.forEach((img, i) => {
           console.log(`   Image ${i + 1}: ${img.fileUrl}`);
         });
@@ -74,21 +74,21 @@ export default function ParkingDetails({ route, navigation }) {
         const imagesWithProxy = convertImagesToProxy(parkingImages);
         setImages(imagesWithProxy);
       } catch (imgError) {
-        console.error('⚠️ Erreur chargement images:', imgError);
+        console.error(' Erreur chargement images:', imgError);
         // Ne pas bloquer si les images ne peuvent pas être chargées
       }
 
       // Charger la disponibilité du parking
       try {
         const availabilityData = await parkingService.getParkingAvailability(parkingId);
-        console.log('✅ Disponibilité parking:', availabilityData);
+        console.log(' Disponibilité parking:', availabilityData);
         setAvailability(availabilityData);
       } catch (availError) {
-        console.error('⚠️ Erreur chargement disponibilité:', availError);
+        console.error(' Erreur chargement disponibilité:', availError);
         // Ne pas bloquer si la disponibilité n'est pas disponible
       }
     } catch (error) {
-      console.error('❌ Erreur chargement détails:', error);
+      console.error('Erreur: Erreur chargement détails:', error);
       console.error('   Type erreur:', error.response?.status, error.message);
       // Ne pas afficher d'alerte, utiliser les données initiales
       setParking({

@@ -98,7 +98,7 @@ const AddEditParking = ({ navigation, route }) => {
       // Charger les véhicules associés
       try {
         const parkingVehicles = await ownerService.getParkingVehicles(parkingId);
-        console.log('🚗 Données véhicules reçues du backend:', JSON.stringify(parkingVehicles, null, 2));
+        console.log(' Données véhicules reçues du backend:', JSON.stringify(parkingVehicles, null, 2));
         
         const vehiclesData = parkingVehicles.map((pv) => {
           console.log('🔍 Parsing vehicle:', pv);
@@ -109,7 +109,7 @@ const AddEditParking = ({ navigation, route }) => {
           
           const count = pv.numbers || 1;
           
-          console.log(`✅ Véhicule mappé - ID: ${vehicleId}, Count: ${count}`);
+          console.log(` Véhicule mappé - ID: ${vehicleId}, Count: ${count}`);
           
           return {
             vehicleId,
@@ -117,22 +117,22 @@ const AddEditParking = ({ navigation, route }) => {
           };
         });
         
-        console.log('📋 Véhicules finaux:', vehiclesData);
+        console.log(' Véhicules finaux:', vehiclesData);
         setSelectedVehicles(vehiclesData);
       } catch (error) {
-        console.error('❌ Erreur chargement véhicules:', error);
+        console.error('Erreur: Erreur chargement véhicules:', error);
         // Ne pas bloquer si les véhicules ne peuvent pas être chargés
       }
       
       // Charger les photos existantes
       try {
         const images = await imageService.getParkingImages(parkingId);
-        console.log(`📸 ${images.length} photo(s) existante(s) chargée(s)`);
+        console.log(` ${images.length} photo(s) existante(s) chargée(s)`);
         // Convertir les URLs Supabase en URLs proxy
         const imagesWithProxy = convertImagesToProxy(images);
         setExistingPhotos(imagesWithProxy);
       } catch (error) {
-        console.error('❌ Erreur chargement photos:', error);
+        console.error('Erreur: Erreur chargement photos:', error);
         // Ne pas bloquer si les photos ne peuvent pas être chargées
       }
     } catch (error) {
@@ -310,7 +310,7 @@ const AddEditParking = ({ navigation, route }) => {
 
   const uploadPhotos = async (parkingIdToUse) => {
     try {
-      console.log('🚀 Début upload photos - Parking ID:', parkingIdToUse, 'User ID:', userId);
+      console.log(' Début upload photos - Parking ID:', parkingIdToUse, 'User ID:', userId);
       setUploadingPhotos(true);
       
       // Vérifier si une photo principale existe déjà
@@ -329,13 +329,13 @@ const AddEditParking = ({ navigation, route }) => {
           userId,
           isPrimary
         );
-        console.log('✅ Photo uploadée:', uploadedData.fileUrl);
+        console.log(' Photo uploadée:', uploadedData.fileUrl);
       }
       
-      console.log(`✅ ${selectedPhotos.length} photo(s) uploadée(s) avec succès`);
+      console.log(` ${selectedPhotos.length} photo(s) uploadée(s) avec succès`);
     } catch (error) {
-      console.error('❌ Erreur upload photos:', error);
-      console.error('❌ Détails erreur:', error.message, error.response?.data);
+      console.error('Erreur: Erreur upload photos:', error);
+      console.error('Erreur: Détails erreur:', error.message, error.response?.data);
       Alert.alert('Attention', 'Certaines photos n\'ont pas pu être uploadées: ' + error.message);
     } finally {
       setUploadingPhotos(false);
@@ -406,32 +406,32 @@ const AddEditParking = ({ navigation, route }) => {
 
       let savedParking;
       if (isEditMode) {
-        console.log('📝 Mode édition - ID parking:', parkingId);
+        console.log(' Mode édition - ID parking:', parkingId);
         savedParking = await ownerService.updateParking(parkingId, parkingData);
-        console.log('✅ Parking mis à jour:', savedParking);
+        console.log(' Parking mis à jour:', savedParking);
         
         // Upload photos si nouvelles photos sélectionnées
         if (selectedPhotos.length > 0) {
-          console.log(`📸 Upload de ${selectedPhotos.length} photo(s) pour parking ID:`, parkingId);
+          console.log(` Upload de ${selectedPhotos.length} photo(s) pour parking ID:`, parkingId);
           await uploadPhotos(parkingId);
         }
         
         Alert.alert('Succès', 'Parking modifié avec succès');
       } else {
-        console.log('➕ Mode création - User ID:', userId);
+        console.log(' Mode création - User ID:', userId);
         parkingData.userId = userId; // Pour la création, on envoie userId
         savedParking = await ownerService.createParking(parkingData);
-        console.log('✅ Parking créé:', savedParking);
+        console.log(' Parking créé:', savedParking);
         
         // Upload photos après création
         if (selectedPhotos.length > 0) {
           const parkingIdToUse = savedParking?.Id_Parking || savedParking?.id_parking || savedParking?.idParking;
-          console.log(`📸 Upload de ${selectedPhotos.length} photo(s) pour parking ID:`, parkingIdToUse);
+          console.log(` Upload de ${selectedPhotos.length} photo(s) pour parking ID:`, parkingIdToUse);
           
           if (parkingIdToUse) {
             await uploadPhotos(parkingIdToUse);
           } else {
-            console.error('❌ Impossible de récupérer l\'ID du parking créé:', savedParking);
+            console.error('Erreur: Impossible de récupérer l\'ID du parking créé:', savedParking);
             Alert.alert('Attention', 'Les photos n\'ont pas pu être uploadées');
           }
         }
@@ -628,10 +628,10 @@ const AddEditParking = ({ navigation, route }) => {
                   <Ionicons name="checkmark-circle" size={24} color="#16a34a" />
                   <View style={styles.locationCoords}>
                     <Text style={styles.locationText}>
-                      📍 Lat: {latitude.toFixed(6)}
+                       Lat: {latitude.toFixed(6)}
                     </Text>
                     <Text style={styles.locationText}>
-                      📍 Lng: {longitude.toFixed(6)}
+                       Lng: {longitude.toFixed(6)}
                     </Text>
                   </View>
                 </View>

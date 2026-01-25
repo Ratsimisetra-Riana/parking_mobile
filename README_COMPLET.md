@@ -9,15 +9,15 @@ Application mobile de gestion de parking développée avec React Native. Permet 
 
 ---
 
-## 🎯 Fonctionnalités
+##  Fonctionnalités
 
-### ✅ Authentification
+###  Authentification
 - Inscription utilisateur
 - Connexion sécurisée (JWT)
 - Déconnexion
 - Gestion de session
 
-### ✅ Recherche de Parkings
+###  Recherche de Parkings
 - Liste de tous les parkings disponibles
 - Recherche par texte (nom, adresse)
 - Filtres avancés :
@@ -29,7 +29,7 @@ Application mobile de gestion de parking développée avec React Native. Permet 
 - Carte interactive avec markers
 - Pull-to-refresh
 
-### ✅ Réservation
+###  Réservation
 - Sélection de dates/heures
 - Affichage des horaires d'ouverture
 - Sélection de véhicules avec disponibilités en temps réel
@@ -38,7 +38,7 @@ Application mobile de gestion de parking développée avec React Native. Permet 
 - Paiement (simulation)
 - Confirmation de réservation
 
-### ✅ Gestion des Réservations
+###  Gestion des Réservations
 - Liste de toutes les réservations
 - Filtres par statut (À venir, En cours, Terminée, Annulée)
 - Filtres par période (Aujourd'hui, Cette semaine, Ce mois, Historique)
@@ -88,7 +88,7 @@ src/
 
 ---
 
-## 🚀 Installation
+##  Installation
 
 ### Prérequis
 
@@ -149,7 +149,7 @@ Consultez la documentation détaillée dans le dossier racine :
 - **[BONNES_PRATIQUES.md](./BONNES_PRATIQUES.md)** - Guide des bonnes pratiques
 - **[CONFORMITE_MES_RESERVATIONS.md](./CONFORMITE_MES_RESERVATIONS.md)** - Conformité au CDC
 
-### 🎯 Par où commencer ?
+###  Par où commencer ?
 
 **Nouveaux développeurs :**
 1. Lire [RECAPITULATIF_ANALYSE.md](./RECAPITULATIF_ANALYSE.md)
@@ -181,7 +181,7 @@ L'application utilise JWT (JSON Web Token) pour l'authentification :
 
 ---
 
-## 🎨 Design System
+##  Design System
 
 ### Couleurs
 
@@ -211,7 +211,7 @@ Error:      #F44336  // Rouge (Annulé)
 
 ### Actuellement
 
-⚠️ Aucun test implémenté
+ Aucun test implémenté
 
 ### Recommandations
 
@@ -236,7 +236,7 @@ Lignes de code : ~5000
 ├── Services :     530 (11%)
 └── Config :       123 (2%)
 
-Conformité CDC : 100% ✅
+Conformité CDC : 100% 
 Note globale :   9/10 ⭐
 ```
 
@@ -312,7 +312,7 @@ Voir [BONNES_PRATIQUES.md](./BONNES_PRATIQUES.md) pour :
 
 ---
 
-## 📝 Licence
+##  Licence
 
 Ce projet est sous licence privée.
 
@@ -336,12 +336,12 @@ Pour toute question ou problème :
 
 ---
 
-## 🎯 Statut du Projet
+##  Statut du Projet
 
 **Version :** 1.0.0  
-**Statut :** ✅ Production Ready (avec améliorations recommandées)  
+**Statut :**  Production Ready (avec améliorations recommandées)  
 **Dernière mise à jour :** 20 novembre 2025  
-**Conformité CDC :** 100% ✅  
+**Conformité CDC :** 100%   
 **Note globale :** 9/10 ⭐
 
 ---

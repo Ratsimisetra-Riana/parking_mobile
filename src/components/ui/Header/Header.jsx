@@ -63,7 +63,7 @@ const Header = ({ navigation }) => {
       // Utiliser le service d'authentification pour déconnecter
       await authService.logout();
       
-      console.log('✅ Déconnexion réussie - Token supprimé');
+      console.log(' Déconnexion réussie - Token supprimé');
       
       if (navigation) {
         // Réinitialiser la navigation pour empêcher le retour arrière
@@ -73,7 +73,7 @@ const Header = ({ navigation }) => {
         });
       }
     } catch (error) {
-      console.error('❌ Erreur lors de la déconnexion:', error);
+      console.error('Erreur: Erreur lors de la déconnexion:', error);
       // En cas d'erreur, forcer la suppression et rediriger quand même
       await AsyncStorage.clear();
       if (navigation) {
@@ -141,10 +141,6 @@ const Header = ({ navigation }) => {
                 </View>
                 <View style={styles.userInfo}>
                   <Text style={styles.userName}>{userName}</Text>
-                  <Text style={styles.userSubtitle}>Membre depuis 2024</Text>
-                  <View style={styles.verifiedBadge}>
-                    <Text style={styles.verifiedText}>CONDUCTEUR VÉRIFIÉ</Text>
-                  </View>
                 </View>
               </View>
             </View>
@@ -266,7 +262,7 @@ const Header = ({ navigation }) => {
               </TouchableOpacity>
 
               {/* Version */}
-              <Text style={styles.versionText}>ParkingApp v2.4.0</Text>
+              <Text style={styles.versionText}>Upark</Text>
             </ScrollView>
           </Animated.View>
 

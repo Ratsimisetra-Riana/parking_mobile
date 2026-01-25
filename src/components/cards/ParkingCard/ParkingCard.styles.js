@@ -1,5 +1,5 @@
 /**
- * 🎨 PARKING CARD STYLES
+ *  PARKING CARD STYLES
  * Styles pour le composant ParkingCard
  */
 

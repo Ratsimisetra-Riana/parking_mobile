@@ -38,10 +38,10 @@ export default function ReservationList () {
     // Mapping des statuts backend (labels exacts de la DB) vers l'affichage
     // Backend labels: "à venir" (value=10), "En cours" (value=15), "Terminée" (value=20), "Annulée" (value=25)
     const statusMapping = {
-      'à venir': { status: 'À venir', color: 'green', value: 10 },      // ✅ Vert selon CDC
-      'En cours': { status: 'En cours', color: 'blue', value: 15 },     // ✅ Bleu selon CDC
-      'Terminée': { status: 'Terminée', color: 'gray', value: 20 },     // ✅ Gris selon CDC
-      'Annulée': { status: 'Annulée', color: 'red', value: 25 },        // ✅ Rouge selon CDC
+      'à venir': { status: 'À venir', color: 'green', value: 10 },      //  Vert selon CDC
+      'En cours': { status: 'En cours', color: 'blue', value: 15 },     //  Bleu selon CDC
+      'Terminée': { status: 'Terminée', color: 'gray', value: 20 },     //  Gris selon CDC
+      'Annulée': { status: 'Annulée', color: 'red', value: 25 },        //  Rouge selon CDC
     };
 
     // Si le statut backend existe, l'utiliser
@@ -55,11 +55,11 @@ export default function ReservationList () {
     const endDate = new Date(reservation.endDateTime);
 
     if (now < startDate) {
-      return { status: 'À venir', color: 'green' };    // ✅ Vert
+      return { status: 'À venir', color: 'green' };    //  Vert
     } else if (now >= startDate && now <= endDate) {
-      return { status: 'En cours', color: 'blue' };    // ✅ Bleu
+      return { status: 'En cours', color: 'blue' };    //  Bleu
     } else {
-      return { status: 'Terminé', color: 'gray' };     // ✅ Gris
+      return { status: 'Terminé', color: 'gray' };     //  Gris
     }
   };
 
@@ -118,8 +118,8 @@ export default function ReservationList () {
 
       const data = await reservationService.getUserReservations(userId);
       
-      console.log('📋 Réservations reçues:', data);
-      console.log('📋 Nombre de réservations:', data?.length || 0);
+      console.log(' Réservations reçues:', data);
+      console.log(' Nombre de réservations:', data?.length || 0);
       
       // Vérifier que data est un tableau
       if (!Array.isArray(data)) {
@@ -147,7 +147,7 @@ export default function ReservationList () {
 
   // Ouvrir le modal de notation
   const handleOpenRatingModal = (reservation) => {
-    console.log('📝 Ouverture modal notation pour:', reservation.name);
+    console.log(' Ouverture modal notation pour:', reservation.name);
     setSelectedReservation(reservation);
     setRatingModalVisible(true);
   };
@@ -179,9 +179,9 @@ export default function ReservationList () {
       // Marquer la réservation comme notée
       setRatedReservations(prev => new Set([...prev, selectedReservation?.id]));
       
-      console.log('✅ Notation soumise avec succès');
+      console.log(' Notation soumise avec succès');
     } catch (error) {
-      console.error('❌ Erreur soumission notation:', error);
+      console.error('Erreur: Erreur soumission notation:', error);
       throw error; // Propager l'erreur pour que le modal l'affiche
     }
   };
@@ -357,7 +357,7 @@ export default function ReservationList () {
       <SafeAreaView style={styles.container}>
         <Header navigation={navigation} />
         <View style={styles.centerContainer}>
-          <Text style={styles.errorText}>❌ {error}</Text>
+          <Text style={styles.errorText}>Erreur: {error}</Text>
           <TouchableOpacity 
             style={styles.retryButton}
             onPress={loadReservations}

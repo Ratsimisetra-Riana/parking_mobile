@@ -1,6 +1,6 @@
 # 📡 Guide d'utilisation de la couche API
 
-## 🎯 Architecture
+##  Architecture
 
 ```
 src/
@@ -26,7 +26,7 @@ const BASE_URL = 'http://10.0.2.2:8080/api';
 ```
 
 **Selon votre environnement :**
-- ✅ **Android Emulator** : `http://10.0.2.2:8080/api` (déjà configuré)
+-  **Android Emulator** : `http://10.0.2.2:8080/api` (déjà configuré)
 - 📱 **Device physique Android/iOS** : Remplacer par l'IP de votre PC (ex: `http://192.168.1.100:8080/api`)
 - 🍎 **iOS Simulator** : `http://localhost:8080/api`
 
@@ -312,10 +312,10 @@ useEffect(() => {
 ## 🔒 Gestion du Token JWT
 
 Le token JWT est **géré automatiquement** :
-- ✅ **Stockage** après login/register dans AsyncStorage
-- ✅ **Ajout automatique** dans les headers de chaque requête (interceptor)
-- ✅ **Suppression** lors du logout
-- ✅ **Redirection** si 401 (token expiré)
+-  **Stockage** après login/register dans AsyncStorage
+-  **Ajout automatique** dans les headers de chaque requête (interceptor)
+-  **Suppression** lors du logout
+-  **Redirection** si 401 (token expiré)
 
 ---
 
@@ -352,7 +352,7 @@ const fetchData = async () => {
 
 ---
 
-## 📝 Format des dates
+##  Format des dates
 
 Les APIs backend attendent des dates au format ISO 8601 :
 ```
@@ -381,30 +381,30 @@ const formattedDate = formatDateForAPI(startDate);
 
 ---
 
-## ✅ Checklist avant de tester
+##  Checklist avant de tester
 
-1. ✅ Backend démarré sur `http://localhost:8080`
-2. ✅ Base de données PostgreSQL avec données de test
-3. ✅ Android Emulator lancé (ou device physique avec IP configurée)
-4. ✅ Metro bundler démarré (`npm start`)
-5. ✅ App installée sur émulateur (`npm run android`)
+1.  Backend démarré sur `http://localhost:8080`
+2.  Base de données PostgreSQL avec données de test
+3.  Android Emulator lancé (ou device physique avec IP configurée)
+4.  Metro bundler démarré (`npm start`)
+5.  App installée sur émulateur (`npm run android`)
 
 ---
 
 ## 🐛 Troubleshooting
 
 ### Erreur: "Network request failed"
-- ❌ Backend non démarré
-- ❌ Mauvaise URL (vérifier `src/config/api.js`)
-- ❌ Firewall bloquant le port 8080
+- Erreur: Backend non démarré
+- Erreur: Mauvaise URL (vérifier `src/config/api.js`)
+- Erreur: Firewall bloquant le port 8080
 
 ### Erreur: "401 Unauthorized"
-- ❌ Token expiré → se reconnecter
-- ❌ Token invalide → vérifier AsyncStorage
+- Erreur: Token expiré → se reconnecter
+- Erreur: Token invalide → vérifier AsyncStorage
 
 ### Erreur: "404 Not Found"
-- ❌ Endpoint incorrect → vérifier l'URL dans le service
-- ❌ Ressource n'existe pas (ID invalide)
+- Erreur: Endpoint incorrect → vérifier l'URL dans le service
+- Erreur: Ressource n'existe pas (ID invalide)
 
 ---
 

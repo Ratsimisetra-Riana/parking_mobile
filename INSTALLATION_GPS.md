@@ -1,17 +1,17 @@
 # Installation GPS pour AddEditParking
 
-## ✅ Modifications Terminées
+##  Modifications Terminées
 
-### 1. **AndroidManifest.xml** ✅
+### 1. **AndroidManifest.xml** 
 - Ajouté permissions `ACCESS_FINE_LOCATION` et `ACCESS_COARSE_LOCATION`
 
-### 2. **ParkingMapPicker.jsx** ✅
+### 2. **ParkingMapPicker.jsx** 
 - Nouveau composant de carte interactive
 - Marqueur draggable (déplaçable)
 - Clic sur la carte pour repositionner
 - Callback `onLocationChange(lat, lng)`
 
-### 3. **AddEditParking.jsx** ✅
+### 3. **AddEditParking.jsx** 
 - États pour `latitude`, `longitude`, `showMapModal`
 - Fonction `getCurrentLocation()` avec Geolocation
 - Fonction `requestLocationPermission()` pour Android
@@ -47,10 +47,10 @@ npx react-native run-android
 
 ---
 
-## 🎯 Fonctionnalités Implémentées
+##  Fonctionnalités Implémentées
 
 ### **Option 1 : GPS Automatique**
-- Bouton "📍 Ma position GPS"
+- Bouton " Ma position GPS"
 - Demande permission automatiquement
 - Récupère latitude/longitude actuelles
 - Affichage avec précision 6 décimales
@@ -88,7 +88,7 @@ Création de Parking
 
 ---
 
-## 📍 Format des Données
+##  Format des Données
 
 ### Frontend (État)
 ```javascript
@@ -149,7 +149,7 @@ npx react-native run-android
 
 ---
 
-## 📝 Notes Importantes
+##  Notes Importantes
 
 1. **Permissions Android** : L'app demande automatiquement la permission la première fois
 2. **Émulateur Android** : Peut simuler une position GPS depuis les paramètres
@@ -158,7 +158,7 @@ npx react-native run-android
 
 ---
 
-## 🚀 Prochaines Étapes
+##  Prochaines Étapes
 
 Après installation de `@react-native-community/geolocation`:
 1. Rebuild l'app Android

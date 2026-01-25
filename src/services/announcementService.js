@@ -78,11 +78,11 @@ const announcementService = {
     try {
       console.log('📡 Création annonce complète:', announcementData);
       const response = await api.post('/announcements/complete', announcementData);
-      console.log('✅ Annonce créée:', response.data);
+      console.log(' Annonce créée:', response.data);
       return response.data;
     } catch (error) {
-      console.error('❌ Erreur lors de la création de l\'annonce:', error);
-      console.error('❌ Réponse:', error.response?.data);
+      console.error('Erreur: Erreur lors de la création de l\'annonce:', error);
+      console.error('Erreur: Réponse:', error.response?.data);
       throw error;
     }
   },

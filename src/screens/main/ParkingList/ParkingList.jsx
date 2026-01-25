@@ -57,7 +57,7 @@ export default function ParkingList({ navigation }) {
     try {
       setLoading(true);
       const data = await announcementService.getPublishedAnnouncements();
-      // console.log('📋 Annonces publiées chargées:', data);
+      // console.log(' Annonces publiées chargées:', data);
       setAllAnnouncements(data); // Stocker toutes les annonces
       setAnnouncements(data);
     } catch (error) {
@@ -236,7 +236,7 @@ export default function ParkingList({ navigation }) {
             const parkingId = parking?.id_Parking || parking?.Id_Parking;
             
             if (!announcementId || !parkingId) {
-              console.error('❌ ATTENTION: Données manquantes!', announcement);
+              console.error('Erreur: ATTENTION: Données manquantes!', announcement);
             }
             
             // Récupérer l'image principale du parking (depuis Supabase)

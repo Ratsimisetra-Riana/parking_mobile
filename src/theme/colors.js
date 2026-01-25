@@ -1,5 +1,5 @@
 /**
- * 🎨 THEME - COLORS
+ *  THEME - COLORS
  * Palette de couleurs centralisée pour l'application
  * Toutes les valeurs proviennent de l'analyse exhaustive du code existant
  */

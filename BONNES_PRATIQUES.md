@@ -1,16 +1,16 @@
 # 📚 Guide des Bonnes Pratiques - Parking Mobile
 
-## 🎯 Introduction
+##  Introduction
 
 Ce document présente les bonnes pratiques de développement observées dans le projet Parking Mobile et les recommandations pour maintenir la qualité du code.
 
 ---
 
-## ✅ Bonnes Pratiques Actuelles
+##  Bonnes Pratiques Actuelles
 
 ### 1. Architecture en Couches
 
-**✅ Ce qui est bien fait :**
+** Ce qui est bien fait :**
 
 ```javascript
 // Séparation claire des responsabilités
@@ -32,10 +32,10 @@ src/
 
 ### 2. Services API Centralisés
 
-**✅ Pattern Service :**
+** Pattern Service :**
 
 ```javascript
-// ✅ BON : Centralisation de la logique
+//  BON : Centralisation de la logique
 const authService = {
   login: async (username, password) => {
     const response = await api.post('/v1/auth/authenticate', {
@@ -50,7 +50,7 @@ const authService = {
   }
 };
 
-// ❌ MAUVAIS : Logique dans le composant
+// Erreur: MAUVAIS : Logique dans le composant
 const LoginScreen = () => {
   const handleLogin = async () => {
     const response = await axios.post('http://...', { ... });
@@ -69,7 +69,7 @@ const LoginScreen = () => {
 
 ### 3. Gestion des Erreurs
 
-**✅ Gestion exhaustive :**
+** Gestion exhaustive :**
 
 ```javascript
 try {
@@ -107,7 +107,7 @@ try {
 
 ### 4. Validation des Données
 
-**✅ Validation côté client :**
+** Validation côté client :**
 
 ```javascript
 const handleRegister = async () => {
@@ -149,7 +149,7 @@ const handleRegister = async () => {
 
 ### 5. Loading States
 
-**✅ Feedback visuel :**
+** Feedback visuel :**
 
 ```javascript
 const [loading, setLoading] = useState(false);
@@ -184,10 +184,10 @@ return (
 
 ### 6. Composants Réutilisables
 
-**✅ DRY (Don't Repeat Yourself) :**
+** DRY (Don't Repeat Yourself) :**
 
 ```javascript
-// ✅ BON : Composant réutilisable
+//  BON : Composant réutilisable
 <FilterButton 
   icon="calendar-outline" 
   label="Date de début" 
@@ -202,7 +202,7 @@ return (
   value={endDate ? endDate.toLocaleString() : "Sélectionner"} 
 />
 
-// ❌ MAUVAIS : Code dupliqué
+// Erreur: MAUVAIS : Code dupliqué
 <TouchableOpacity onPress={() => openPicker('start')}>
   <Ionicons name="calendar-outline" size={20} />
   <Text>Date de début</Text>
@@ -220,10 +220,10 @@ return (
 
 ### 7. Hooks Personnalisés
 
-**✅ Logique partagée :**
+** Logique partagée :**
 
 ```javascript
-// ✅ BON : Hook personnalisé
+//  BON : Hook personnalisé
 const useFilters = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -267,7 +267,7 @@ const ParkingList = () => {
 
 ### 8. Intercepteurs Axios
 
-**✅ Injection automatique du token :**
+** Injection automatique du token :**
 
 ```javascript
 api.interceptors.request.use(async (config) => {
@@ -299,13 +299,13 @@ api.interceptors.request.use(async (config) => {
 
 ---
 
-## 🚀 Recommandations d'Amélioration
+##  Recommandations d'Amélioration
 
 ### 1. Tests Unitaires
 
-**❌ Actuellement : Pas de tests**
+**Erreur: Actuellement : Pas de tests**
 
-**✅ Recommandation : Ajouter Jest**
+** Recommandation : Ajouter Jest**
 
 ```javascript
 // authService.test.js
@@ -353,19 +353,19 @@ describe('authService', () => {
 
 ### 2. Mémoisation
 
-**❌ Actuellement : Pas de mémoisation**
+**Erreur: Actuellement : Pas de mémoisation**
 
-**✅ Recommandation : Utiliser useMemo et useCallback**
+** Recommandation : Utiliser useMemo et useCallback**
 
 ```javascript
-// ❌ AVANT : Recalcul à chaque render
+// Erreur: AVANT : Recalcul à chaque render
 const ParkingList = ({ parkings }) => {
   const filteredParkings = parkings.filter(p => p.price < 10);
   
   return <FlatList data={filteredParkings} />;
 };
 
-// ✅ APRÈS : Mémoisation
+//  APRÈS : Mémoisation
 const ParkingList = ({ parkings }) => {
   const filteredParkings = useMemo(() => {
     return parkings.filter(p => p.price < 10);
@@ -376,7 +376,7 @@ const ParkingList = ({ parkings }) => {
 ```
 
 ```javascript
-// ❌ AVANT : Nouvelle fonction à chaque render
+// Erreur: AVANT : Nouvelle fonction à chaque render
 const ParkingCard = ({ parking, onPress }) => {
   return (
     <TouchableOpacity onPress={() => onPress(parking.id)}>
@@ -385,7 +385,7 @@ const ParkingCard = ({ parking, onPress }) => {
   );
 };
 
-// ✅ APRÈS : Fonction mémorisée
+//  APRÈS : Fonction mémorisée
 const ParkingList = () => {
   const handlePress = useCallback((id) => {
     navigation.navigate('Details', { parkingId: id });
@@ -401,9 +401,9 @@ const ParkingList = () => {
 
 ### 3. State Management Global
 
-**❌ Actuellement : Prop drilling**
+**Erreur: Actuellement : Prop drilling**
 
-**✅ Recommandation : Context API**
+** Recommandation : Context API**
 
 ```javascript
 // UserContext.js
@@ -462,17 +462,17 @@ const Header = () => {
 
 ### 4. Accessibilité
 
-**❌ Actuellement : Pas de labels accessibles**
+**Erreur: Actuellement : Pas de labels accessibles**
 
-**✅ Recommandation : Ajouter accessibilityLabel**
+** Recommandation : Ajouter accessibilityLabel**
 
 ```javascript
-// ❌ AVANT
+// Erreur: AVANT
 <TouchableOpacity onPress={handleLogin}>
   <Text>Se connecter</Text>
 </TouchableOpacity>
 
-// ✅ APRÈS
+//  APRÈS
 <TouchableOpacity 
   onPress={handleLogin}
   accessibilityLabel="Bouton de connexion"
@@ -487,9 +487,9 @@ const Header = () => {
 
 ### 5. Internationalisation
 
-**❌ Actuellement : Textes en dur**
+**Erreur: Actuellement : Textes en dur**
 
-**✅ Recommandation : i18next**
+** Recommandation : i18next**
 
 ```javascript
 // i18n.js
@@ -542,9 +542,9 @@ const Login = () => {
 
 ### 6. Pagination
 
-**❌ Actuellement : Toutes les données chargées**
+**Erreur: Actuellement : Toutes les données chargées**
 
-**✅ Recommandation : Pagination**
+** Recommandation : Pagination**
 
 ```javascript
 const ParkingList = () => {
@@ -582,9 +582,9 @@ const ParkingList = () => {
 
 ### 7. Monitoring des Erreurs
 
-**❌ Actuellement : Pas de monitoring**
+**Erreur: Actuellement : Pas de monitoring**
 
-**✅ Recommandation : Sentry**
+** Recommandation : Sentry**
 
 ```javascript
 // sentry.js
@@ -616,7 +616,7 @@ try {
 
 ---
 
-## 📋 Checklist de Qualité
+##  Checklist de Qualité
 
 ### Avant de Commit
 
@@ -652,18 +652,18 @@ try {
 
 ---
 
-## 🎯 Conventions de Nommage
+##  Conventions de Nommage
 
 ### Fichiers
 
 ```
-✅ BON
+ BON
 ParkingList.jsx
 ReservationCard.jsx
 authService.js
 useFilters.jsx
 
-❌ MAUVAIS
+Erreur: MAUVAIS
 parkinglist.jsx
 reservationcard.jsx
 auth-service.js
@@ -673,13 +673,13 @@ use_filters.jsx
 ### Variables et Fonctions
 
 ```javascript
-// ✅ BON : camelCase
+//  BON : camelCase
 const userName = 'John';
 const totalPrice = 25.50;
 const handleSubmit = () => {};
 const isAuthenticated = true;
 
-// ❌ MAUVAIS
+// Erreur: MAUVAIS
 const user_name = 'John';
 const TotalPrice = 25.50;
 const HandleSubmit = () => {};
@@ -689,11 +689,11 @@ const is_authenticated = true;
 ### Composants
 
 ```javascript
-// ✅ BON : PascalCase
+//  BON : PascalCase
 const ParkingCard = () => {};
 const ReservationList = () => {};
 
-// ❌ MAUVAIS
+// Erreur: MAUVAIS
 const parkingCard = () => {};
 const reservation_list = () => {};
 ```
@@ -701,30 +701,30 @@ const reservation_list = () => {};
 ### Constantes
 
 ```javascript
-// ✅ BON : UPPER_SNAKE_CASE
+//  BON : UPPER_SNAKE_CASE
 const BASE_URL = 'https://api.example.com';
 const MAX_RETRIES = 3;
 
-// ❌ MAUVAIS
+// Erreur: MAUVAIS
 const baseUrl = 'https://api.example.com';
 const maxRetries = 3;
 ```
 
 ---
 
-## 📝 Commentaires
+##  Commentaires
 
 ### Quand Commenter
 
 ```javascript
-// ✅ BON : Expliquer le "pourquoi"
+//  BON : Expliquer le "pourquoi"
 // Utiliser 10.0.2.2 pour Android emulator (localhost de l'hôte)
 const BASE_URL = 'http://10.0.2.2:8080/api';
 
 // Ajouter une marge de 60 secondes pour éviter les expirations prématurées
 return decoded.exp < (currentTime + 60);
 
-// ❌ MAUVAIS : Expliquer le "quoi" (évident)
+// Erreur: MAUVAIS : Expliquer le "quoi" (évident)
 // Définir la base URL
 const BASE_URL = 'http://10.0.2.2:8080/api';
 
@@ -756,31 +756,31 @@ const calculatePrice = async (data) => {
 ### Ne JAMAIS
 
 ```javascript
-// ❌ JAMAIS : Stocker des données sensibles en clair
+// Erreur: JAMAIS : Stocker des données sensibles en clair
 const password = 'password123'; // Hardcodé
 await AsyncStorage.setItem('password', password);
 
-// ❌ JAMAIS : Logger des données sensibles
+// Erreur: JAMAIS : Logger des données sensibles
 console.log('Token:', token);
 console.log('Password:', password);
 
-// ❌ JAMAIS : Exposer des clés API
+// Erreur: JAMAIS : Exposer des clés API
 const API_KEY = 'sk_live_123456789';
 ```
 
 ### TOUJOURS
 
 ```javascript
-// ✅ TOUJOURS : Utiliser des variables d'environnement
+//  TOUJOURS : Utiliser des variables d'environnement
 const API_KEY = process.env.REACT_APP_API_KEY;
 
-// ✅ TOUJOURS : Valider les entrées utilisateur
+//  TOUJOURS : Valider les entrées utilisateur
 const validateEmail = (email) => {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return regex.test(email);
 };
 
-// ✅ TOUJOURS : Gérer les erreurs
+//  TOUJOURS : Gérer les erreurs
 try {
   await api.post('/endpoint', data);
 } catch (error) {
@@ -795,7 +795,7 @@ try {
 ### Optimisations
 
 ```javascript
-// ✅ BON : FlatList pour les longues listes
+//  BON : FlatList pour les longues listes
 <FlatList
   data={parkings}
   renderItem={({ item }) => <ParkingCard parking={item} />}
@@ -805,19 +805,19 @@ try {
   windowSize={5}
 />
 
-// ❌ MAUVAIS : ScrollView pour les longues listes
+// Erreur: MAUVAIS : ScrollView pour les longues listes
 <ScrollView>
   {parkings.map(p => <ParkingCard key={p.id} parking={p} />)}
 </ScrollView>
 ```
 
 ```javascript
-// ✅ BON : Mémoisation des composants
+//  BON : Mémoisation des composants
 const ParkingCard = React.memo(({ parking }) => {
   return <View>{/* ... */}</View>;
 });
 
-// ✅ BON : Mémoisation des calculs
+//  BON : Mémoisation des calculs
 const totalPrice = useMemo(() => {
   return reservations.reduce((sum, r) => sum + r.price, 0);
 }, [reservations]);

@@ -20,13 +20,13 @@ const SupabaseImage = ({ uri, style, resizeMode = 'cover', placeholder, ...props
   };
 
   const handleLoad = () => {
-    console.log('✅ SupabaseImage chargée:', uri);
+    console.log(' SupabaseImage chargée:', uri);
     setLoading(false);
     setError(false);
   };
 
   const handleError = (e) => {
-    console.error('❌ Erreur SupabaseImage:', uri, e);
+    console.error('Erreur: Erreur SupabaseImage:', uri, e);
     setLoading(false);
     setError(true);
   };

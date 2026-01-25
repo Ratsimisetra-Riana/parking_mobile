@@ -1,5 +1,5 @@
 /**
- * 🎨 SOCIAL LOGIN BUTTONS STYLES
+ *  SOCIAL LOGIN BUTTONS STYLES
  * Styles pour le composant SocialLoginButtons
  */
 

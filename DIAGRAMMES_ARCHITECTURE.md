@@ -494,7 +494,7 @@
 
 ---
 
-## 🎯 Design Patterns Visuels
+##  Design Patterns Visuels
 
 ### Service Pattern
 ```

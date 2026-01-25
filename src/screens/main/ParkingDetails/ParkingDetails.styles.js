@@ -153,39 +153,10 @@ export const parkingDetailsStyles = StyleSheet.create({
   scheduleText: {
     fontSize: typography.fontSize.base,
     color: colors.text.secondary,
-    flex: 1,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: spacing.xxl,
-    paddingTop: spacing.lg,
-    borderTopWidth: 1,
-    borderTopColor: colors.border.light,
-  },
-  price: {
-    fontSize: typography.fontSize.xxl,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.primary.main,
-  },
-  reserveButton: {
-    backgroundColor: colors.primary.bright,
-    paddingVertical: spacing.sm2,
-    paddingHorizontal: spacing.xxl,
-    borderRadius: radius.lg2,
-  },
-  reserveButtonText: {
-    textAlign: 'center',
-    fontWeight: typography.fontWeight.bold,
-    fontSize: typography.fontSize.md,
-    color: colors.text.primary,
   },
   availabilitySection: {
     marginTop: spacing.lg,
-    paddingTop: spacing.lg,
-    borderTopWidth: 1,
-    borderTopColor: colors.border.light,
+    paddingTop: spacing.md,
   },
   availabilityTitle: {
     fontSize: typography.fontSize.lg,
@@ -198,8 +169,6 @@ export const parkingDetailsStyles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: spacing.md2,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.background.grayLight,
   },
   vehicleInfo: {
     flexDirection: 'row',
@@ -229,5 +198,66 @@ export const parkingDetailsStyles = StyleSheet.create({
     fontSize: typography.fontSize.xs,
     color: colors.status.error,
     marginTop: 2,
+  },
+  
+  // Section avis
+  reviewsSection: {
+    marginTop: spacing.xl,
+    marginBottom: spacing.lg,
+  },
+  reviewsTitle: {
+    fontSize: typography.fontSize.lg,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.text.primary,
+    marginBottom: spacing.md,
+  },
+  reviewsList: {
+    gap: spacing.md,
+  },
+  viewAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    backgroundColor: colors.background.offWhite,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border.medium,
+    marginTop: spacing.sm,
+  },
+  viewAllButtonText: {
+    fontSize: typography.fontSize.md,
+    fontWeight: typography.fontWeight.medium,
+    color: colors.primary.main,
+    marginRight: spacing.xs,
+  },
+  
+  // Footer avec prix et bouton
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: spacing.lg,
+    marginTop: spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: colors.border.light,
+  },
+  price: {
+    fontSize: typography.fontSize.xxl,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.primary.main,
+  },
+  reserveButton: {
+    backgroundColor: colors.primary.main,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    borderRadius: radius.lg,
+    ...shadows.medium,
+  },
+  reserveButtonText: {
+    color: colors.background.white,
+    fontSize: typography.fontSize.md,
+    fontWeight: typography.fontWeight.semibold,
   },
 });

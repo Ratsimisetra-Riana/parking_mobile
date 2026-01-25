@@ -1,5 +1,5 @@
 /**
- * 🎨 VEHICLE COUNT MODAL STYLES
+ *  VEHICLE COUNT MODAL STYLES
  * Styles pour le composant VehicleCountModal
  */
 

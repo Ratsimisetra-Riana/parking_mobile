@@ -1,4 +1,4 @@
-# 🎨 PLAN DE REFACTORING - ARCHITECTURE STYLES
+#  PLAN DE REFACTORING - ARCHITECTURE STYLES
 
 ## 📊 ANALYSE EXHAUSTIVE DU CODE EXISTANT
 
@@ -69,7 +69,7 @@
 
 ---
 
-## 🎯 STRUCTURE PROPOSÉE
+##  STRUCTURE PROPOSÉE
 
 ```
 src/
@@ -90,7 +90,7 @@ src/
 
 ---
 
-## ✅ PHASE 1 : CRÉATION STRUCTURE
+##  PHASE 1 : CRÉATION STRUCTURE
 
 ### 1.1 Créer theme/colors.js
 - Mapper toutes les couleurs vers des noms sémantiques
@@ -112,7 +112,7 @@ src/
 
 ---
 
-## ✅ PHASE 2 : STYLES COMMUNS
+##  PHASE 2 : STYLES COMMUNS
 
 ### 2.1 Créer styles/common.styles.js
 Extraire les patterns répétés:
@@ -134,16 +134,16 @@ Extraire les patterns répétés:
 
 ---
 
-## ⚠️ GARANTIES
+##  GARANTIES
 
-1. ✅ **Aucun changement visuel** - Valeurs exactement identiques
-2. ✅ **Migration progressive** - Fichier par fichier
-3. ✅ **Tests après chaque migration** - Vérifier l'affichage
-4. ✅ **Backward compatible** - Anciens styles fonctionnent pendant migration
+1.  **Aucun changement visuel** - Valeurs exactement identiques
+2.  **Migration progressive** - Fichier par fichier
+3.  **Tests après chaque migration** - Vérifier l'affichage
+4.  **Backward compatible** - Anciens styles fonctionnent pendant migration
 
 ---
 
-## 📋 ORDRE DE MIGRATION
+##  ORDRE DE MIGRATION
 
 1. Créer structure theme/
 2. Créer styles/common.styles.js

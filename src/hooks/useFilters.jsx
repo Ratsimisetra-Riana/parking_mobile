@@ -26,9 +26,9 @@ export default function useFilters() {
         }));
         
         setVehicleOptions(formattedVehicles);
-        console.log('✅ Types de véhicules chargés:', formattedVehicles);
+        console.log(' Types de véhicules chargés:', formattedVehicles);
       } catch (error) {
-        console.error('❌ Erreur chargement types de véhicules:', error);
+        console.error('Erreur: Erreur chargement types de véhicules:', error);
         // En cas d'erreur, utiliser des valeurs par défaut
         setVehicleOptions([
           { id: 1, name: "Voiture", icon: "car-icon" },

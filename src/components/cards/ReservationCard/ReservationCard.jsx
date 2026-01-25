@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { reservationCardStyles as rateButtonStyles } from './ReservationCard.styles';
 import { colors } from '../../../theme';
+import { useNavigation } from '@react-navigation/native';
 
 // --- ReservationCard Component ---
 /**
@@ -9,8 +10,11 @@ import { colors } from '../../../theme';
  * @param {Object} styles - Styles externes du parent
  * @param {function} onRate - Callback quand on clique sur "Noter" (optionnel)
  * @param {boolean} hasRated - Indique si déjà noté (optionnel)
+ * @param {boolean} hasDispute - Indique si un litige existe déjà (optionnel)
  */
-export function ReservationCard ({ reservation, styles, onRate, hasRated = false }) {
+export function ReservationCard ({ reservation, styles, onRate, hasRated = false, hasDispute = false }) {
+  const navigation = useNavigation();
+  
   // Determine card style based on color
   const getCardStyle = (color) => {
     switch (color) {
@@ -51,6 +55,10 @@ export function ReservationCard ({ reservation, styles, onRate, hasRated = false
   // Seulement si statut = "Terminée" et pas encore noté
   const canRate = reservation.status === 'Terminée' && !hasRated && onRate;
 
+  // Vérifier si le bouton "Signaler" doit être affiché
+  // Visible si statut = "Terminée" ou "En cours" et pas déjà de litige
+  const canReport = (reservation.status === 'Terminée' || reservation.status === 'En cours') && !hasDispute;
+
   return (
     <View style={[styles.card, getCardStyle(reservation.color)]}>
       <View style={{ flex: 1 }}>
@@ -86,11 +94,46 @@ export function ReservationCard ({ reservation, styles, onRate, hasRated = false
           </TouchableOpacity>
         )}
 
+        {/* Bouton QR Code - visible pour réservations "À venir" et "En cours" */}
+        {(reservation.status === 'À venir' || reservation.status === 'En cours') && (
+          <TouchableOpacity
+            style={rateButtonStyles.qrButton}
+            onPress={() => navigation.navigate('QRCodeDisplay', { reservation })}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="qr-code-outline" size={16} color={colors.primary.green} />
+            <Text style={rateButtonStyles.qrButtonText}>Voir QR Code</Text>
+          </TouchableOpacity>
+        )}
+
         {/* Badge "Déjà noté" - visible si terminée et déjà notée */}
         {reservation.status === 'Terminée' && hasRated && (
           <View style={rateButtonStyles.ratedBadge}>
             <Ionicons name="checkmark-circle" size={14} color={colors.primary.bright} />
             <Text style={rateButtonStyles.ratedBadgeText}>Avis envoyé</Text>
+          </View>
+        )}
+
+        {/* Bouton Signaler - visible si réservation en cours ou terminée */}
+        {canReport && (
+          <TouchableOpacity
+            style={rateButtonStyles.reportButton}
+            onPress={() => navigation.navigate('ReportIssue', { 
+              reservationId: reservation.id,
+              reservationData: reservation
+            })}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="warning-outline" size={16} color="#F44336" />
+            <Text style={rateButtonStyles.reportButtonText}>Signaler</Text>
+          </TouchableOpacity>
+        )}
+
+        {/* Badge "Litige signalé" - visible si un litige existe */}
+        {hasDispute && (
+          <View style={rateButtonStyles.disputeBadge}>
+            <Ionicons name="alert-circle" size={14} color="#FFA500" />
+            <Text style={rateButtonStyles.disputeBadgeText}>Litige signalé</Text>
           </View>
         )}
       </View>

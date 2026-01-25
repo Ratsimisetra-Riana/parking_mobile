@@ -1,6 +1,6 @@
 # Récapitulatif - Système de Gestion des Annonces
 
-## 📋 Vue d'ensemble
+##  Vue d'ensemble
 Implémentation complète du système de publication d'annonces permettant aux propriétaires de publier leurs parkings et aux clients de les consulter sur la page d'accueil.
 
 ---
@@ -108,27 +108,27 @@ CLIENT
 
 ---
 
-## 🎯 Fonctionnalités Clés
+##  Fonctionnalités Clés
 
 ### CreateAnnouncement.jsx
-- ✅ Chargement dynamique des véhicules du parking via `/parkings/{id}/vehicles`
-- ✅ Sélection des véhicules à proposer
-- ✅ Définition de capacité par type (max = capacité parking)
-- ✅ Validation côté client avant envoi
-- ✅ Publication directe (toujours `published: true`)
-- ✅ Redirection vers accueil après succès
+-  Chargement dynamique des véhicules du parking via `/parkings/{id}/vehicles`
+-  Sélection des véhicules à proposer
+-  Définition de capacité par type (max = capacité parking)
+-  Validation côté client avant envoi
+-  Publication directe (toujours `published: true`)
+-  Redirection vers accueil après succès
 
 ### MyAnnouncements.jsx
-- ✅ Liste des annonces de l'utilisateur
-- ✅ Affichage des capacités par véhicule
-- ✅ Suppression avec confirmation
-- ✅ Icônes véhicules dynamiques
+-  Liste des annonces de l'utilisateur
+-  Affichage des capacités par véhicule
+-  Suppression avec confirmation
+-  Icônes véhicules dynamiques
 
 ### ParkingList.jsx (Accueil)
-- ✅ Affichage des annonces publiées uniquement
-- ✅ Carte interactive avec marqueurs
-- ✅ Recherche par label parking et description
-- ✅ Navigation vers détails avec `announcementId` + `parkingId`
+-  Affichage des annonces publiées uniquement
+-  Carte interactive avec marqueurs
+-  Recherche par label parking et description
+-  Navigation vers détails avec `announcementId` + `parkingId`
 
 ---
 
@@ -169,7 +169,7 @@ CLIENT
 
 ---
 
-## 📝 Notes Importantes
+##  Notes Importantes
 
 - **Capacité**: `parking.vehicles.count` ≥ `announcement.vehicles.numbers` (validé backend)
 - **Workflow simplifié**: Pas de gestion de brouillons, publication directe

@@ -3,6 +3,8 @@ import { useNavigation } from "@react-navigation/native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { parkingCardStyles as styles } from './ParkingCard.styles';
 import { colors } from '../../../theme';
+import SupabaseImage from '../../ui/SupabaseImage/SupabaseImage';
+import { convertToProxyUrl } from '../../../utils/imageUtils';
 
 export function ParkingCard({ title, address, price, rating, image, onPress, parkingId }) {
   const navigation = useNavigation();

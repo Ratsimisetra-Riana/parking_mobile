@@ -1,5 +1,5 @@
 /**
- * 🎯 COMMON STYLES
+ *  COMMON STYLES
  * Styles réutilisables communs à travers l'application
  */
 

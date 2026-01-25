@@ -214,7 +214,7 @@ export default function Registration({ navigation }) {
                 <SocialLoginButtons 
                   navigation={navigation}
                   onSuccess={(response) => {
-                    console.log('✅ Inscription sociale réussie:', response);
+                    console.log(' Inscription sociale réussie:', response);
                     navigation.replace('Liste des parkings');
                   }}
                   onError={(error) => {

@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  StyleSheet,
   Alert,
   ActivityIndicator,
   Switch,
@@ -16,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ownerService from '../../../services/ownerService';
 import parkingService from '../../../services/parkingService';
 import announcementService from '../../../services/announcementService';
+import { createAnnouncementStyles as styles } from './CreateAnnouncement.styles';
 
 const CreateAnnouncement = ({ route, navigation }) => {
   const insets = useSafeAreaInsets();
@@ -81,18 +81,18 @@ const CreateAnnouncement = ({ route, navigation }) => {
       console.log('📡 Chargement véhicules du parking ID:', parkingId);
       // Charger les véhicules via l'endpoint spécifique
       const vehicles = await parkingService.getParkingVehicles(parkingId);
-      console.log('✅ Véhicules reçus:', vehicles);
+      console.log(' Véhicules reçus:', vehicles);
       
       if (vehicles && vehicles.length > 0) {
         setParkingVehicles(vehicles);
         // Réinitialiser la sélection
         setSelectedVehicles([]);
       } else {
-        console.warn('⚠️ Aucun véhicule trouvé pour ce parking');
+        console.warn(' Aucun véhicule trouvé pour ce parking');
         setParkingVehicles([]);
       }
     } catch (error) {
-      console.error('❌ Erreur chargement véhicules:', error);
+      console.error('Erreur: Erreur chargement véhicules:', error);
       setParkingVehicles([]);
     }
   };

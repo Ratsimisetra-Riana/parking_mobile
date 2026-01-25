@@ -1,6 +1,6 @@
-# 🚗 Mapping des Icônes de Véhicules
+#  Mapping des Icônes de Véhicules
 
-## 📋 Icônes Disponibles dans Ionicons
+##  Icônes Disponibles dans Ionicons
 
 ### Voitures
 - `car` - Voiture simple
@@ -54,7 +54,7 @@ const iconMap = {
 
 ---
 
-## 🎯 Fallback Intelligent
+##  Fallback Intelligent
 
 Si l'icône n'est pas trouvée dans le mapping, le système utilise un fallback basé sur le nom du type de véhicule :
 
@@ -76,7 +76,7 @@ if (type.includes('voiture') || type.includes('car')) {
 
 ---
 
-## 📝 Comment Ajouter un Nouveau Type de Véhicule
+##  Comment Ajouter un Nouveau Type de Véhicule
 
 ### Étape 1 : Vérifier les icônes disponibles
 Consultez la liste complète des icônes Ionicons : https://ionic.io/ionicons
@@ -103,7 +103,7 @@ Si une icône ne s'affiche pas :
 
 1. Vérifier les logs dans la console :
    ```
-   🚗 Véhicule: [nom] - Icône backend: [icon] - Icône mappée: [iconName]
+    Véhicule: [nom] - Icône backend: [icon] - Icône mappée: [iconName]
    ```
 
 2. Vérifier que l'icône existe dans Ionicons

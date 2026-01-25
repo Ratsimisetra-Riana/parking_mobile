@@ -58,13 +58,13 @@ const parkingService = {
 
       const response = await api.get(`${BASE_PATH}/search`, { params });
 
-      console.log('✅ Résultats reçus:', response.data.length, 'parkings');
+      console.log(' Résultats reçus:', response.data.length, 'parkings');
 
       return response.data;
     } catch (error) {
-      console.error('❌ Erreur lors de la recherche de parkings:', error);
-      console.error('❌ Status:', error.response?.status);
-      console.error('❌ Data:', error.response?.data);
+      console.error('Erreur: Erreur lors de la recherche de parkings:', error);
+      console.error('Erreur: Status:', error.response?.status);
+      console.error('Erreur: Data:', error.response?.data);
       throw error;
     }
   },

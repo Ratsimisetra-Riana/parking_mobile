@@ -1,5 +1,5 @@
 /**
- * 🎨 PHONE NUMBER INPUT STYLES
+ *  PHONE NUMBER INPUT STYLES
  * Styles pour le composant PhoneNumberInput
  */
 

@@ -114,12 +114,18 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 
+    // Google ML Kit for barcode scanning
+    implementation 'com.google.mlkit:barcode-scanning:17.2.0'
+
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {
         implementation jscFlavor
     }
 }
+
+// Plugin Google Services DOIT être appliqué APRÈS le bloc dependencies
+apply plugin: 'com.google.gms.google-services'
 
 // Tâche pour afficher le Key Hash Facebook
 task getFacebookKeyHash {

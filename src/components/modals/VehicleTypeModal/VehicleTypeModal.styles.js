@@ -1,5 +1,5 @@
 /**
- * 🎨 VEHICLE TYPE MODAL STYLES
+ *  VEHICLE TYPE MODAL STYLES
  * Styles pour le composant VehicleTypeModal
  */
 

@@ -62,7 +62,7 @@ const ConfirmationScreen = () => {
           <Text style={styles.confirmationText}>
             Réservation confirmée
           </Text>
-          <Text style={styles.checkmark}>✅</Text>
+          <Text style={styles.checkmark}></Text>
         </View>
 
         {/* Booking Details Card */}

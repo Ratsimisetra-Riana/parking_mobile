@@ -1,5 +1,5 @@
 /**
- * 🎨 STYLES - INDEX
+ *  STYLES - INDEX
  * Export centralisé de tous les styles réutilisables
  * 
  * Usage:

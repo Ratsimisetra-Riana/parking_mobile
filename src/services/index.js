@@ -10,3 +10,5 @@ export { default as ownerService } from './ownerService';
 export { default as announcementService } from './announcementService';
 export { default as ratingService } from './ratingService';
 export { default as imageService } from './imageService';
+export { default as qrcodeService } from './qrcodeService';
+export { default as disputeService } from './disputeService';

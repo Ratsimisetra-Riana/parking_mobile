@@ -1,5 +1,5 @@
 /**
- * 📝 THEME - TYPOGRAPHY
+ *  THEME - TYPOGRAPHY
  * Typographie centralisée : tailles, poids, hauteurs de ligne
  */
 

@@ -1,10 +1,10 @@
-# 📝 Récapitulatif Session - Corrections Types de Véhicules
+#  Récapitulatif Session - Corrections Types de Véhicules
 
 **Date** : 29 décembre 2025
 
 ---
 
-## 🎯 Problème Initial
+##  Problème Initial
 
 Lors de l'affichage des types de véhicules dans le formulaire d'ajout de parking, les véhicules ne s'affichaient pas correctement.
 
@@ -32,18 +32,18 @@ Lors de l'affichage des types de véhicules dans le formulaire d'ajout de parkin
 
 ---
 
-## ✅ Corrections Appliquées
+##  Corrections Appliquées
 
 ### 📱 Frontend : `AddEditParking.jsx`
 
 **1. Champs corrigés**
 ```jsx
 // Avant
-vehicle.Vehicule_Type  ❌
+vehicle.Vehicule_Type  Erreur:
 
 // Après  
-vehicle.types          ✅
-vehicle.icon           ✅
+vehicle.types          
+vehicle.icon           
 ```
 
 **2. Section Types de Véhicules reconstruite**
@@ -93,21 +93,21 @@ private int Id_Vehicles;
 
 ---
 
-## 🎨 Fonctionnalités Ajoutées
+##  Fonctionnalités Ajoutées
 
-- ✅ Affichage icônes pour chaque type de véhicule
-- ✅ Sélection individuelle de véhicules (chip vert au clic)
-- ✅ Input numérique "Places" pour chaque type sélectionné
-- ✅ Validation : max 2 chiffres, clavier numérique
-- ✅ Mapping icônes : voiture 🚗, moto 🏍️, bus 🚐, camion 🚛
+-  Affichage icônes pour chaque type de véhicule
+-  Sélection individuelle de véhicules (chip vert au clic)
+-  Input numérique "Places" pour chaque type sélectionné
+-  Validation : max 2 chiffres, clavier numérique
+-  Mapping icônes : voiture , moto 🏍️, bus 🚐, camion 🚛
 
 ---
 
 ## 🧪 Tests Réussis
 
-- ✅ Pas d'erreurs ESLint
-- ✅ Pas d'erreurs React (warning "unique key" corrigé)
-- ✅ `Id_Vehicles` correctement récupéré du backend
-- ✅ Sélection individuelle fonctionnelle
+-  Pas d'erreurs ESLint
+-  Pas d'erreurs React (warning "unique key" corrigé)
+-  `Id_Vehicles` correctement récupéré du backend
+-  Sélection individuelle fonctionnelle
 
 ---

@@ -51,6 +51,8 @@ api.interceptors.request.use(
         '/v1/parkings/my-parkings',
         '/parkings/user/',
         '/v1/parkings/user/',
+        '/user-notes',              // Endpoints de notation
+        '/v1/user-notes',
       ];
 
       // Endpoints parkings publics (pour la recherche)
@@ -80,7 +82,7 @@ api.interceptors.request.use(
           config.headers.Authorization = `Bearer ${token}`;
           console.log('🔑 Endpoint protégé - Token ajouté pour:', config.url);
         } else {
-          console.warn('⚠️ Endpoint protégé mais pas de token pour:', config.url);
+          console.warn(' Endpoint protégé mais pas de token pour:', config.url);
         }
         return config;
       }
@@ -124,8 +126,8 @@ api.interceptors.request.use(
           console.log('🔑 Token ajouté pour:', config.url);
           console.log('🔑 Token (premiers caractères):', token.substring(0, 20) + '...');
         } else {
-          console.warn('⚠️ Pas de token pour:', config.url);
-          console.warn('⚠️ Cette requête nécessite une authentification mais aucun token n\'a été trouvé!');
+          console.warn(' Pas de token pour:', config.url);
+          console.warn(' Cette requête nécessite une authentification mais aucun token n\'a été trouvé!');
         }
       } else {
         console.log('🌐 Endpoint public (pas de token):', config.url);
@@ -150,10 +152,10 @@ api.interceptors.response.use(
       // Le serveur a répondu avec un code d'erreur
       const { status, data } = error.response;
 
-      console.error(`❌ Erreur ${status} pour ${error.config?.url}:`);
-      console.error('📋 Détails de l\'erreur:', typeof data === 'string' ? data : JSON.stringify(data, null, 2));
-      console.error('📋 Type de données:', typeof data);
-      console.error('📋 Headers de réponse:', JSON.stringify(error.response.headers, null, 2));
+      console.error(`Erreur: Erreur ${status} pour ${error.config?.url}:`);
+      console.error(' Détails de l\'erreur:', typeof data === 'string' ? data : JSON.stringify(data, null, 2));
+      console.error(' Type de données:', typeof data);
+      console.error(' Headers de réponse:', JSON.stringify(error.response.headers, null, 2));
 
       if (status === 401) {
         // Token expiré ou invalide - déconnecter l'utilisateur proprement
@@ -164,12 +166,12 @@ api.interceptors.response.use(
         await AsyncStorage.removeItem('user');
         await AsyncStorage.removeItem('username');
 
-        console.log('✅ Données d\'authentification supprimées');
+        console.log(' Données d\'authentification supprimées');
         // Note: La navigation vers Login doit être gérée dans les composants
       } else if (status === 403) {
         console.error('🚫 Accès refusé (403) - Vérifiez les permissions');
       } else if (status === 400) {
-        console.error('⚠️ Requête invalide (400) - Vérifiez les données envoyées');
+        console.error(' Requête invalide (400) - Vérifiez les données envoyées');
         console.error('📦 Données de la requête:', error.config?.data);
       }
     } else if (error.request) {

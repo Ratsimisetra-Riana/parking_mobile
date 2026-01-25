@@ -47,7 +47,7 @@ const reservationService = {
       const token = await AsyncStorage.getItem('jwt_token');
 
       if (!token) {
-        console.error('❌ Pas de token JWT - utilisateur non authentifié');
+        console.error('Erreur: Pas de token JWT - utilisateur non authentifié');
         throw new Error('Vous devez être connecté pour effectuer une réservation');
       }
 
@@ -62,7 +62,7 @@ const reservationService = {
         selectedVehicles: reservationData.selectedVehicles || [],
       });
 
-      console.log('✅ Réponse du backend:', response.data);
+      console.log(' Réponse du backend:', response.data);
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la création de la réservation:', error);

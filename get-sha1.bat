@@ -39,7 +39,7 @@ if exist "C:\Program Files\Android\Android Studio\jbr\bin\keytool.exe" (
 )
 
 echo.
-echo ❌ ERREUR: Impossible de trouver keytool
+echo Erreur: ERREUR: Impossible de trouver keytool
 echo.
 echo Solutions:
 echo 1. Installez un JDK: https://adoptium.net/
@@ -53,7 +53,7 @@ goto end
 :success
 echo.
 echo ============================================
-echo ✅ SHA-1 récupéré avec succès!
+echo  SHA-1 récupéré avec succès!
 echo ============================================
 echo.
 echo Copiez le SHA1 ci-dessus et allez sur:

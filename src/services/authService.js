@@ -89,15 +89,43 @@ const authService = {
   },
 
   /**
-   * Déconnexion utilisateur
+   * Déconnexion utilisateur complète (app + Google + Facebook)
    */
   logout: async () => {
     try {
+      console.log('🔴 Déconnexion complète en cours...');
+      
+      // 1. Supprimer les données de l'app
       await AsyncStorage.removeItem('jwt_token');
       await AsyncStorage.removeItem('user');
       await AsyncStorage.removeItem('username');
+      console.log(' Données de l\'app supprimées');
+      
+      // 2. Déconnecter Google (si connecté avec Google)
+      try {
+        const isGoogleSignedIn = await GoogleSignin.isSignedIn();
+        if (isGoogleSignedIn) {
+          await GoogleSignin.signOut();
+          console.log(' Déconnexion Google effectuée');
+        }
+      } catch (googleError) {
+        console.log('ℹ️ Pas de session Google active');
+      }
+      
+      // 3. Déconnecter Facebook (si connecté avec Facebook)
+      try {
+        const fbToken = await AccessToken.getCurrentAccessToken();
+        if (fbToken) {
+          await LoginManager.logOut();
+          console.log(' Déconnexion Facebook effectuée');
+        }
+      } catch (facebookError) {
+        console.log('ℹ️ Pas de session Facebook active');
+      }
+      
+      console.log(' Déconnexion complète terminée');
     } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
+      console.error('Erreur: Erreur lors de la déconnexion:', error);
     }
   },
 
@@ -189,16 +217,24 @@ const authService = {
       // 2. Vérifier si Google Play Services est disponible
       await GoogleSignin.hasPlayServices();
 
-      // 3. Démarrer le processus de connexion Google
-      const userInfo = await GoogleSignin.signIn();
-      console.log('✅ Connexion Google réussie:', userInfo);
+      // 3. Se déconnecter d'abord pour forcer un nouveau token (évite tokens expirés)
+      try {
+        await GoogleSignin.signOut();
+        console.log('🔄 Déconnexion Google précédente effectuée');
+      } catch (signOutError) {
+        console.log('ℹ️ Pas de session Google précédente');
+      }
 
-      // 4. Récupérer le token ID
+      // 4. Démarrer le processus de connexion Google (obtient un nouveau token)
+      const userInfo = await GoogleSignin.signIn();
+      console.log(' Connexion Google réussie:', userInfo);
+
+      // 5. Récupérer le token ID FRAIS
       const tokens = await GoogleSignin.getTokens();
       const idToken = tokens.idToken;
-      console.log('🎟️ Token Google récupéré');
+      console.log('🎟️ Token Google récupéré (nouveau)');
 
-      // 5. Envoyer le token au backend
+      // 6. Envoyer le token au backend
       const response = await api.post(`${BASE_PATH}/oauth/google`, {
         token: idToken,
         provider: 'google',
@@ -206,7 +242,7 @@ const authService = {
 
       const { token, userId, userName, email } = response.data;
 
-      // 6. Stocker le token JWT et les données utilisateur
+      // 7. Stocker le token JWT et les données utilisateur
       if (token) {
         await AsyncStorage.setItem('jwt_token', token);
         
@@ -221,10 +257,10 @@ const authService = {
         await AsyncStorage.setItem('username', userName);
       }
 
-      console.log('✅ Connexion Google complète');
+      console.log(' Connexion Google complète');
       return response.data;
     } catch (error) {
-      console.error('❌ Erreur connexion Google:', error);
+      console.error('Erreur: Erreur connexion Google:', error);
       
       if (error.code === 'SIGN_IN_CANCELLED') {
         throw new Error('Connexion annulée');
@@ -253,7 +289,7 @@ const authService = {
         throw new Error('Connexion Facebook annulée');
       }
 
-      console.log('✅ Connexion Facebook réussie');
+      console.log(' Connexion Facebook réussie');
 
       // 2. Récupérer le token d'accès
       const data = await AccessToken.getCurrentAccessToken();
@@ -288,10 +324,10 @@ const authService = {
         await AsyncStorage.setItem('username', userName);
       }
 
-      console.log('✅ Connexion Facebook complète');
+      console.log(' Connexion Facebook complète');
       return response.data;
     } catch (error) {
-      console.error('❌ Erreur connexion Facebook:', error);
+      console.error('Erreur: Erreur connexion Facebook:', error);
       throw error;
     }
   },

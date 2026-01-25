@@ -138,7 +138,7 @@ const imageService = {
         isPrimary: isPrimary
       });
 
-      console.log('✅ Image uploadée avec succès:', uploadResponse.data);
+      console.log(' Image uploadée avec succès:', uploadResponse.data);
 
       return {
         filePath: uploadResponse.data.filePath,
@@ -146,8 +146,8 @@ const imageService = {
         fileSize: uploadResponse.data.fileSize,
       };
     } catch (error) {
-      console.error('❌ Erreur upload image:', error);
-      console.error('❌ Détails:', error.response?.data);
+      console.error('Erreur: Erreur upload image:', error);
+      console.error('Erreur: Détails:', error.response?.data);
       throw error;
     }
   },
@@ -257,6 +257,55 @@ const imageService = {
       );
     });
   },
-};
 
-export default imageService;
+  /**
+   * Upload une image de preuve de litige vers Supabase
+   * @param {string} imageUri - URI de l'image à uploader
+   * @param {number} disputeId - ID du litige
+   * @param {number} userId - ID de l'utilisateur
+   * @returns {Promise<Object>} - Résultat avec success, imageUrl ou error
+   */
+  uploadDisputeProofImage: async (imageUri, disputeId, userId) => {
+    try {
+      const fileName = `proof_${Date.now()}.jpg`;
+
+      console.log('📤 Upload preuve litige - Dispute:', disputeId);
+
+      // Convertir l'image en base64
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64String = reader.result.split(',')[1];
+          resolve(base64String);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+
+      // Envoyer au backend
+      const uploadResponse = await api.post(`/dispute-proofs/${disputeId}/upload`, {
+        imageBase64: base64,
+        fileName: fileName,
+        userId: userId,
+        disputeId: disputeId
+      });
+
+      console.log(' Preuve uploadée:', uploadResponse.data);
+
+      return {
+        success: true,
+        imageUrl: uploadResponse.data.proofUrl,
+        data: uploadResponse.data
+      };
+    } catch (error) {
+      console.error('Erreur: Erreur upload preuve:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  },
+};

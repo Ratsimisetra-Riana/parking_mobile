@@ -1,5 +1,5 @@
 /**
- * 🎨 PAYMENT FINALIZATION STYLES
+ *  PAYMENT FINALIZATION STYLES
  * Styles pour l'écran de finalisation de paiement
  */
 

@@ -1,5 +1,5 @@
 /**
- * 🎨 FILTER BUTTON STYLES
+ *  FILTER BUTTON STYLES
  * Styles pour le composant FilterButton
  */
 

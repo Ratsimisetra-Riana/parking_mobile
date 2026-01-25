@@ -21,7 +21,7 @@ const ENV = {
     }),
     
     // Configuration images
-    USE_IMAGE_PROXY: true,  // ✅ ACTIVÉ: Utiliser le proxy backend pour éviter problèmes SSL
+    USE_IMAGE_PROXY: true,  //  ACTIVÉ: Utiliser le proxy backend pour éviter problèmes SSL
     SUPABASE_URL: 'https://fbpefbjoxzkxombdcqif.supabase.co',
     
     // Autres configs dev
@@ -38,7 +38,7 @@ const ENV = {
     SUPABASE_URL: 'https://fbpefbjoxzkxombdcqif.supabase.co',
     
     // Autres configs prod
-    ENABLE_LOGS: false,
+    ENABLE_LOGS: true,
     TIMEOUT: 15000, // 15 secondes
   },
   
@@ -57,7 +57,7 @@ const ENV = {
  * À utiliser quand on teste sur un vrai téléphone
  */
 const PHYSICAL_DEVICE_CONFIG = {
-  // ⚠️ REMPLACER PAR VOTRE IP LOCALE
+  //  REMPLACER PAR VOTRE IP LOCALE
   // Pour trouver votre IP: Windows > cmd > ipconfig
   // Chercher "Adresse IPv4" de votre carte réseau WiFi/Ethernet
   API_URL: 'http://192.168.88.9:8080',  // 🔧 MODIFIER CETTE IP

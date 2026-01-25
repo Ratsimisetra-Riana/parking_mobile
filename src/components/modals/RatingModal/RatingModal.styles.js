@@ -1,5 +1,5 @@
 /**
- * 🎨 RATING MODAL STYLES
+ *  RATING MODAL STYLES
  * Styles pour le composant RatingModal
  */
 

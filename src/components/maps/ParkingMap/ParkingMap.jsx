@@ -159,7 +159,7 @@ const ParkingMap = ({ parkings, onMarkerPress, scrollEnabled }) => {
     // Créer une icône personnalisée
     const customIcon = L.divIcon({
       className: 'custom-marker',
-      html: '📍',
+      html: '',
       iconSize: [30, 30],
       iconAnchor: [15, 15],
       popupAnchor: [0, -15]

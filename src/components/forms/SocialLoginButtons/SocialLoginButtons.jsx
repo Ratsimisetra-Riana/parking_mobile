@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, Text, ActivityIndicator, Alert } from 'react-native';
+import { View, TouchableOpacity, Text, ActivityIndicator, Alert, Platform } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import authService from '../../../services/authService';
 import { socialLoginButtonsStyles as styles } from './SocialLoginButtons.styles';
+import { getFCMToken } from '../../../config/firebase';
+import { registerDeviceToken } from '../../../services/notificationService';
 
 const SocialLoginButtons = ({ navigation, onSuccess, onError }) => {
   const [loadingGoogle, setLoadingGoogle] = useState(false);
@@ -16,9 +18,20 @@ const SocialLoginButtons = ({ navigation, onSuccess, onError }) => {
     try {
       console.log('🔵 Tentative de connexion Google...');
       const response = await authService.loginWithGoogle();
-      
-      console.log('✅ Connexion Google réussie:', response);
-      
+
+      console.log(' Connexion Google réussie:', response);
+
+      // Enregistrer le token FCM après connexion réussie
+      try {
+        const fcmToken = await getFCMToken();
+        if (fcmToken && response.userId) {
+          await registerDeviceToken(response.userId, fcmToken, Platform.OS);
+          console.log(' Token FCM enregistré après login Google');
+        }
+      } catch (fcmError) {
+        console.warn(' Erreur enregistrement FCM (non bloquant):', fcmError);
+      }
+
       if (onSuccess) {
         onSuccess(response);
       } else {
@@ -26,10 +39,10 @@ const SocialLoginButtons = ({ navigation, onSuccess, onError }) => {
         navigation.replace('Home');
       }
     } catch (error) {
-      console.error('❌ Erreur Google login:', error);
-      
+      console.error('Erreur: Erreur Google login:', error);
+
       const errorMessage = error.message || 'Erreur lors de la connexion avec Google';
-      
+
       if (onError) {
         onError(errorMessage);
       } else {
@@ -48,9 +61,9 @@ const SocialLoginButtons = ({ navigation, onSuccess, onError }) => {
     try {
       console.log('🔵 Tentative de connexion Facebook...');
       const response = await authService.loginWithFacebook();
-      
-      console.log('✅ Connexion Facebook réussie:', response);
-      
+
+      console.log(' Connexion Facebook réussie:', response);
+
       if (onSuccess) {
         onSuccess(response);
       } else {
@@ -58,10 +71,10 @@ const SocialLoginButtons = ({ navigation, onSuccess, onError }) => {
         navigation.replace('Home');
       }
     } catch (error) {
-      console.error('❌ Erreur Facebook login:', error);
-      
+      console.error('Erreur: Erreur Facebook login:', error);
+
       const errorMessage = error.message || 'Erreur lors de la connexion avec Facebook';
-      
+
       if (onError) {
         onError(errorMessage);
       } else {

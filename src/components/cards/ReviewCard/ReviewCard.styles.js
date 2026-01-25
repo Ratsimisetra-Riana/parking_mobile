@@ -1,5 +1,5 @@
 /**
- * 🎨 REVIEW CARD STYLES
+ *  REVIEW CARD STYLES
  * Styles pour le composant ReviewCard
  */
 

@@ -1,5 +1,5 @@
 /**
- * 🎨 ADD EDIT PARKING STYLES
+ *  ADD EDIT PARKING STYLES
  * Styles pour l'écran d'ajout/modification de parking
  */
 

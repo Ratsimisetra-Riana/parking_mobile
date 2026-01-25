@@ -38,14 +38,14 @@ export default function ReservationRequests({ navigation }) {
 
       const data = await reservationRequestService.getRequestsByOwner(ownerId);
       
-      console.log('📋 Demandes reçues:', data.length);
+      console.log(' Demandes reçues:', data.length);
       
       // Trier par date (plus récentes en premier)
       const sorted = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       
       setRequests(sorted);
     } catch (error) {
-      console.error('❌ Erreur chargement demandes:', error);
+      console.error('Erreur: Erreur chargement demandes:', error);
       Alert.alert('Erreur', 'Impossible de charger les demandes');
     } finally {
       setLoading(false);
@@ -82,7 +82,7 @@ export default function ReservationRequests({ navigation }) {
               Alert.alert('Succès', 'Demande acceptée ! Le client a été notifié.');
               loadRequests();
             } catch (error) {
-              console.error('❌ Erreur acceptation:', error);
+              console.error('Erreur: Erreur acceptation:', error);
               Alert.alert('Erreur', error.message || 'Impossible d\'accepter la demande');
             } finally {
               setProcessingId(null);
@@ -109,7 +109,7 @@ export default function ReservationRequests({ navigation }) {
               Alert.alert('Demande refusée', 'Le client a été notifié.');
               loadRequests();
             } catch (error) {
-              console.error('❌ Erreur refus:', error);
+              console.error('Erreur: Erreur refus:', error);
               Alert.alert('Erreur', error.message || 'Impossible de refuser la demande');
             } finally {
               setProcessingId(null);

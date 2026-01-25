@@ -1,5 +1,5 @@
 /**
- * 🎨 CREATE ANNOUNCEMENT STYLES
+ *  CREATE ANNOUNCEMENT STYLES
  * Styles pour l'écran de création d'annonce
  */
 

@@ -1,5 +1,5 @@
 /**
- * 🎨 FOOTER STYLES
+ *  FOOTER STYLES
  * Styles pour le composant Footer (navigation bottom)
  */
 

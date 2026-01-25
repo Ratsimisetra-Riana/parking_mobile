@@ -87,25 +87,23 @@ export default function PaymentFinalization({ route, navigation }) {
       
       const reservation = await reservationRequestService.finalizeReservation(requestId, method);
       
-      console.log('✅ Paiement finalisé, réservation créée:', reservation);
+      console.log(' Paiement finalisé, réservation créée:', reservation);
 
-      Alert.alert(
-        'Paiement réussi !',
-        'Votre réservation est confirmée.',
-        [
-          {
-            text: 'Voir mes réservations',
-            onPress: () => {
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'Mes réservations' }],
-              });
-            }
-          }
-        ]
-      );
+      // Navigation directe vers l'écran QR Code avec les données de la réservation
+      navigation.replace('QRCodeDisplay', { 
+        reservation: {
+          id: reservation.id_Reservation,
+          name: parkingName,
+          location: reservation.parking?.address || requestData?.announcement?.parking?.address,
+          startDateTime: reservation.startDateTime,
+          endDateTime: reservation.endDateTime,
+          parking: reservation.parking,
+          status: reservation.status || 'À venir',
+          totalPrice: totalGain
+        }
+      });
     } catch (error) {
-      console.error('❌ Erreur paiement:', error);
+      console.error('Erreur: Erreur paiement:', error);
       Alert.alert('Erreur', error.message || 'Impossible de finaliser le paiement');
     } finally {
       setLoading(false);

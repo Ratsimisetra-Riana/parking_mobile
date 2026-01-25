@@ -1,5 +1,5 @@
 /**
- * 🎨 THEME - INDEX
+ *  THEME - INDEX
  * Export centralisé de tous les tokens de design
  * 
  * Usage:

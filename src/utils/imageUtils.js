@@ -46,7 +46,7 @@ export const convertToProxyUrl = (supabaseUrl) => {
   const proxyUrl = `${BACKEND_URL}/api/images/proxy?path=${encodeURIComponent(path)}`;
   
   log.info('🔄 Mode PROXY - URL Supabase:', supabaseUrl);
-  log.info('✅ Mode PROXY - URL Proxy:', proxyUrl);
+  log.info(' Mode PROXY - URL Proxy:', proxyUrl);
   
   return proxyUrl;
 };

@@ -61,7 +61,7 @@ const ParkingMapPicker = ({ latitude, longitude, onLocationChange }) => {
 </head>
 <body>
   <div class="info-box">
-    <div class="info-title">📍 Déplacez le marqueur</div>
+    <div class="info-title"> Déplacez le marqueur</div>
     <div class="info-coords" id="coords">Lat: ${defaultLat.toFixed(6)}, Lng: ${defaultLng.toFixed(6)}</div>
   </div>
   <div id="map"></div>
@@ -91,7 +91,7 @@ const ParkingMapPicker = ({ latitude, longitude, onLocationChange }) => {
       autoPan: true
     }).addTo(map);
     
-    marker.bindPopup('🎯 Position du parking').openPopup();
+    marker.bindPopup(' Position du parking').openPopup();
     
     // Fonction pour envoyer les coordonnées à React Native
     function sendCoordinates(lat, lng) {

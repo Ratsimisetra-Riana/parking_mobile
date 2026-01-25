@@ -78,11 +78,11 @@ export default function ReservationScreen({ route, navigation }) {
       availabilityMap.schedule = data.availabilitySchedule; // Stocker les horaires
       data.vehicleAvailabilities.forEach(vehicle => {
         availabilityMap[vehicle.vehicleTypeId] = vehicle;
-        console.log(`   🚗 Véhicule ${vehicle.vehicleType} (ID ${vehicle.vehicleTypeId}): ${vehicle.availableCapacity}/${vehicle.totalCapacity} places`);
+        console.log(`    Véhicule ${vehicle.vehicleType} (ID ${vehicle.vehicleTypeId}): ${vehicle.availableCapacity}/${vehicle.totalCapacity} places`);
       });
 
       setAvailabilities(availabilityMap);
-      console.log('✅ Disponibilités stockées:', availabilityMap);
+      console.log(' Disponibilités stockées:', availabilityMap);
     } catch (error) {
       console.error('Erreur chargement disponibilités:', error);
     } finally {
@@ -257,8 +257,8 @@ export default function ReservationScreen({ route, navigation }) {
         quantity: 1
       }));
 
-      console.log('🚗 Véhicules sélectionnés:', selectedVehicles);
-      console.log('📋 selectedTypes:', selectedTypes);
+      console.log(' Véhicules sélectionnés:', selectedVehicles);
+      console.log(' selectedTypes:', selectedTypes);
 
       const formattedStartDate = formatDateForBackend(startDate);
       const formattedEndDate = formatDateForBackend(endDate);
@@ -413,7 +413,7 @@ export default function ReservationScreen({ route, navigation }) {
                   const userJson = await AsyncStorage.getItem('user');
                   const user = userJson ? JSON.parse(userJson) : null;
                   Alert.alert(
-                    '✅ Connexion',
+                    ' Connexion',
                     `Token: ${token ? token.substring(0, 20) + '...' : 'Aucun'}\nUtilisateur ID: ${user?.Id_Users || 'N/A'}\nUsername: ${user?.user_name || 'N/A'}`
                   );
                 }}
@@ -427,7 +427,7 @@ export default function ReservationScreen({ route, navigation }) {
                   try {
                     setShowMenu(false);
                     await authService.logout();
-                    console.log('✅ Déconnexion réussie - Token supprimé');
+                    console.log(' Déconnexion réussie - Token supprimé');
                     Alert.alert('Déconnecté', 'Vous avez été déconnecté avec succès', [
                       {
                         text: 'OK', onPress: () => navigation.reset({
@@ -437,7 +437,7 @@ export default function ReservationScreen({ route, navigation }) {
                       }
                     ]);
                   } catch (error) {
-                    console.error('❌ Erreur lors de la déconnexion:', error);
+                    console.error('Erreur: Erreur lors de la déconnexion:', error);
                     await AsyncStorage.clear();
                     navigation.navigate('Login');
                   }

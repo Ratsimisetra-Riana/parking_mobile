@@ -27,7 +27,7 @@ export default function Notifications({ navigation }) {
       // Pour l'instant, on suppose que l'utilisateur peut voir les deux types de notifications
       setUserType('both');
     } catch (error) {
-      console.error('❌ Erreur détermination type user:', error);
+      console.error('Erreur: Erreur détermination type user:', error);
     }
   };
 
@@ -42,7 +42,7 @@ export default function Notifications({ navigation }) {
         receivedRequests = Array.isArray(received) ? received : [];
         console.log('📥 Demandes reçues par propriétaire:', receivedRequests.length);
       } catch (error) {
-        console.log('⚠️ Pas de demandes reçues:', error.message);
+        console.log(' Pas de demandes reçues:', error.message);
         receivedRequests = [];
       }
 
@@ -53,7 +53,7 @@ export default function Notifications({ navigation }) {
         sentRequests = Array.isArray(sent) ? sent : [];
         console.log('📤 Demandes envoyées par client:', sentRequests.length);
       } catch (error) {
-        console.log('⚠️ Pas de demandes envoyées:', error.message);
+        console.log(' Pas de demandes envoyées:', error.message);
         sentRequests = [];
       }
 
@@ -80,9 +80,9 @@ export default function Notifications({ navigation }) {
       allNotifications.sort((a, b) => new Date(b.date) - new Date(a.date));
 
       setNotifications(allNotifications);
-      console.log(`✅ ${allNotifications.length} notifications chargées`);
+      console.log(` ${allNotifications.length} notifications chargées`);
     } catch (error) {
-      console.error('❌ Erreur chargement notifications:', error);
+      console.error('Erreur: Erreur chargement notifications:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);

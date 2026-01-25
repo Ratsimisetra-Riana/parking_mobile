@@ -44,7 +44,7 @@ const MyAnnouncements = ({ navigation }) => {
     try {
       setLoading(true);
       const data = await announcementService.getMyAnnouncements(uid);
-      console.log('📋 Annonces chargées:', data);
+      console.log(' Annonces chargées:', data);
       setAnnouncements(data);
     } catch (error) {
       Alert.alert('Erreur', 'Impossible de charger vos annonces');

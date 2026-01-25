@@ -1,5 +1,5 @@
 /**
- * 🎨 HEADER STYLES
+ *  HEADER STYLES
  * Styles pour le composant Header (navigation drawer menu)
  */
 
