@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { reservationRequestService } from '../../../services';
+import notificationService from '../../../services/notificationService';
 import Header from '../../../components/ui/Header/Header';
 import Footer from '../../../components/ui/Footer/Footer';
 import { notificationsStyles as styles } from './Notifications.styles';
@@ -12,191 +12,151 @@ export default function Notifications({ navigation }) {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [userType, setUserType] = useState(null); // 'owner' ou 'requester'
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
-    loadNotifications();
-    determineUserType();
+    initializeUser();
   }, []);
 
-  const determineUserType = async () => {
+  useEffect(() => {
+    if (userId) {
+      loadNotifications();
+    }
+  }, [userId]);
+
+  const initializeUser = async () => {
     try {
       const userJson = await AsyncStorage.getItem('user');
       const user = userJson ? JSON.parse(userJson) : null;
-      // Cette logique peut être améliorée selon votre modèle de données
-      // Pour l'instant, on suppose que l'utilisateur peut voir les deux types de notifications
-      setUserType('both');
+      if (user?.Id_Users) {
+        setUserId(user.Id_Users);
+      } else {
+        console.warn('⚠️ Utilisateur non connecté');
+        setLoading(false);
+      }
     } catch (error) {
-      console.error('Erreur: Erreur détermination type user:', error);
+      console.error('Erreur: Erreur récupération utilisateur:', error);
+      setLoading(false);
     }
   };
 
   const loadNotifications = async () => {
+    if (!userId) return;
+
     try {
       setLoading(true);
+      const data = await notificationService.getNotifications(userId, 50);
 
-      // Charger les demandes reçues (si propriétaire)
-      let receivedRequests = [];
-      try {
-        const received = await reservationRequestService.getRequestsByOwner();
-        receivedRequests = Array.isArray(received) ? received : [];
-        console.log('📥 Demandes reçues par propriétaire:', receivedRequests.length);
-      } catch (error) {
-        console.log(' Pas de demandes reçues:', error.message);
-        receivedRequests = [];
-      }
+      // Mapper les notifications pour l'affichage
+      const mappedNotifications = (data || []).map(notif => ({
+        id: notif.id,
+        title: notif.title || 'Notification',
+        message: notif.message || '',
+        type: notif.type || 'system',
+        isRead: notif.read || false,
+        date: notif.sentAt || new Date().toISOString(),
+        data: notif.data || {},
+        icon: getIconForType(notif.type),
+        color: getColorForType(notif.type),
+      }));
 
-      // Charger les demandes envoyées (si client)
-      let sentRequests = [];
-      try {
-        const sent = await reservationRequestService.getRequestsByRequester();
-        sentRequests = Array.isArray(sent) ? sent : [];
-        console.log('📤 Demandes envoyées par client:', sentRequests.length);
-      } catch (error) {
-        console.log(' Pas de demandes envoyées:', error.message);
-        sentRequests = [];
-      }
-
-      // Convertir en notifications
-      const allNotifications = [];
-
-      // Demandes reçues -> notifications pour propriétaire
-      if (Array.isArray(receivedRequests)) {
-        receivedRequests.forEach(request => {
-          const notif = createNotificationFromRequest(request, 'received');
-          if (notif) allNotifications.push(notif);
-        });
-      }
-
-      // Demandes envoyées -> notifications pour client
-      if (Array.isArray(sentRequests)) {
-        sentRequests.forEach(request => {
-          const notif = createNotificationFromRequest(request, 'sent');
-          if (notif) allNotifications.push(notif);
-        });
-      }
-
-      // Trier par date (plus récent en premier)
-      allNotifications.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-      setNotifications(allNotifications);
-      console.log(` ${allNotifications.length} notifications chargées`);
+      setNotifications(mappedNotifications);
+      console.log(`📬 ${mappedNotifications.length} notification(s) chargée(s)`);
     } catch (error) {
       console.error('Erreur: Erreur chargement notifications:', error);
+      setNotifications([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
 
-  const createNotificationFromRequest = (request, type) => {
-    if (!request) return null;
+  const getIconForType = (type) => {
+    switch (type) {
+      case 'reservation_accepted':
+        return 'checkmark-circle-outline';
+      case 'reservation_rejected':
+        return 'close-circle-outline';
+      case 'reservation_request':
+        return 'mail-unread-outline';
+      case 'payment_confirmed':
+        return 'shield-checkmark-outline';
+      case 'dispute':
+        return 'warning-outline';
+      case 'system':
+      default:
+        return 'notifications-outline';
+    }
+  };
 
-    const state = request.state;
-    let title = '';
-    let message = '';
-    let icon = 'notifications-outline';
-    let color = '#666';
-    let isRead = false;
+  const getColorForType = (type) => {
+    switch (type) {
+      case 'reservation_accepted':
+      case 'payment_confirmed':
+        return '#4CAF50'; // Vert
+      case 'reservation_rejected':
+        return '#F44336'; // Rouge
+      case 'reservation_request':
+        return '#2196F3'; // Bleu
+      case 'dispute':
+        return '#FF9800'; // Orange
+      case 'system':
+      default:
+        return '#666';
+    }
+  };
 
-    if (type === 'received') {
-      // Notifications pour le propriétaire
-      const requesterName = request.requester?.user_name || 'Un utilisateur';
-      const parkingName = request.announcement?.parking?.label || 'Votre parking';
-
-      if (state === 10) {
-        title = 'Nouvelle demande';
-        message = `${requesterName} souhaite réserver ${parkingName}`;
-        icon = 'mail-unread-outline';
-        color = '#2196F3';
-        isRead = false;
-      } else if (state === 40) {
-        title = 'Réservation finalisée';
-        message = `${requesterName} a finalisé le paiement pour ${parkingName}`;
-        icon = 'checkmark-circle-outline';
-        color = '#4CAF50';
-        isRead = true;
-      } else if (state === 35) {
-        title = 'Demande expirée';
-        message = `La demande de ${requesterName} pour ${parkingName} a expiré`;
-        icon = 'time-outline';
-        color = '#FF9800';
-        isRead = true;
-      }
-    } else {
-      // Notifications pour le client
-      const parkingName = request.announcement?.parking?.label || 'Un parking';
-
-      if (state === 20) {
-        title = 'Demande acceptée !';
-        message = `Votre demande pour ${parkingName} a été acceptée. Finalisez le paiement avant 24h.`;
-        icon = 'checkmark-circle-outline';
-        color = '#4CAF50';
-        isRead = false;
-      } else if (state === 25) {
-        title = 'Demande refusée';
-        message = `Votre demande pour ${parkingName} a été refusée`;
-        icon = 'close-circle-outline';
-        color = '#F44336';
-        isRead = true;
-      } else if (state === 35) {
-        title = 'Demande expirée';
-        message = `Votre demande pour ${parkingName} a expiré`;
-        icon = 'time-outline';
-        color = '#FF9800';
-        isRead = true;
-      } else if (state === 40) {
-        title = 'Paiement confirmé';
-        message = `Votre réservation pour ${parkingName} est confirmée`;
-        icon = 'shield-checkmark-outline';
-        color = '#4CAF50';
-        isRead = true;
-      } else if (state === 10) {
-        title = 'Demande en attente';
-        message = `Votre demande pour ${parkingName} est en attente de réponse`;
-        icon = 'hourglass-outline';
-        color = '#FF9800';
-        isRead = true;
+  const handleNotificationPress = async (notification) => {
+    // Marquer comme lue si non lue
+    if (!notification.isRead) {
+      try {
+        await notificationService.markAsRead(notification.id);
+        // Mettre à jour l'état local
+        setNotifications(prev =>
+          prev.map(n =>
+            n.id === notification.id ? { ...n, isRead: true } : n
+          )
+        );
+      } catch (error) {
+        console.error('Erreur: Erreur marquage notification:', error);
       }
     }
 
-    if (!title) return null;
+    // Navigation selon le type
+    const { type, data } = notification;
 
-    return {
-      id: `${type}-${request.id}`,
-      requestId: request.id,
-      type,
-      title,
-      message,
-      icon,
-      color,
-      isRead,
-      date: request.createdAt || new Date().toISOString(),
-      request // Garder la requête complète pour navigation
-    };
-  };
-
-  const handleNotificationPress = (notification) => {
-    if (notification.type === 'received' && notification.request.state === 10) {
-      // Demande en attente -> aller vers ReservationRequests
-      navigation.navigate('ReservationRequests');
-    } else if (notification.type === 'sent' && notification.request.state === 20) {
-      // Demande acceptée -> aller vers PaymentFinalization
+    if (type === 'reservation_accepted' && data?.requestId) {
       navigation.navigate('PaymentFinalization', {
-        requestId: notification.requestId,
-        requestData: notification.request
+        requestId: parseInt(data.requestId),
       });
-    } else if (notification.request.state === 40) {
-      // Réservation finalisée -> aller vers Mes Réservations
+    } else if (type === 'reservation_request') {
+      navigation.navigate('ReservationRequests');
+    } else if (type === 'payment_confirmed' || type === 'reservation_rejected') {
       navigation.navigate('Mes réservations');
+    } else if (type === 'dispute' && data?.disputeId) {
+      navigation.navigate('MyDisputes');
     }
-    // Autres états: juste afficher la notification sans action
   };
 
-  const onRefresh = () => {
+  const handleMarkAllAsRead = async () => {
+    if (!userId || notifications.length === 0) return;
+
+    try {
+      await notificationService.markAllAsRead(userId);
+      // Mettre à jour l'état local
+      setNotifications(prev =>
+        prev.map(n => ({ ...n, isRead: true }))
+      );
+      console.log('✅ Toutes les notifications marquées comme lues');
+    } catch (error) {
+      console.error('Erreur: Erreur marquage toutes notifications:', error);
+    }
+  };
+
+  const onRefresh = useCallback(() => {
     setRefreshing(true);
     loadNotifications();
-  };
+  }, [userId]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -234,7 +194,7 @@ export default function Notifications({ navigation }) {
           <Text style={styles.notificationTitle}>{item.title}</Text>
           {!item.isRead && <View style={styles.unreadDot} />}
         </View>
-        <Text style={styles.notificationMessage}>{item.message}</Text>
+        <Text style={styles.notificationMessage} numberOfLines={2}>{item.message}</Text>
         <Text style={styles.notificationDate}>{formatDate(item.date)}</Text>
       </View>
     </TouchableOpacity>
@@ -244,7 +204,7 @@ export default function Notifications({ navigation }) {
     <View style={styles.emptyContainer}>
       <Ionicons name="notifications-off-outline" size={64} color="#ccc" />
       <Text style={styles.emptyText}>Aucune notification</Text>
-      <Text style={styles.emptySubtext}>Vous serez notifié des demandes de réservation</Text>
+      <Text style={styles.emptySubtext}>Vous serez notifié des demandes de réservation et autres événements</Text>
     </View>
   );
 
@@ -258,11 +218,22 @@ export default function Notifications({ navigation }) {
 
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Notifications</Text>
-        {unreadCount > 0 && (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{unreadCount}</Text>
-          </View>
-        )}
+        <View style={styles.headerActions}>
+          {unreadCount > 0 && (
+            <>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{unreadCount}</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.markAllButton}
+                onPress={handleMarkAllAsRead}
+              >
+                <Ionicons name="checkmark-done-outline" size={20} color={colors.primary.main} />
+                <Text style={styles.markAllText}>Tout lire</Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
       </View>
 
       {loading && !refreshing ? (
@@ -273,7 +244,7 @@ export default function Notifications({ navigation }) {
         <FlatList
           data={notifications}
           renderItem={renderNotification}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => String(item.id)}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={renderEmpty}
           refreshControl={
@@ -286,7 +257,7 @@ export default function Notifications({ navigation }) {
         />
       )}
 
-      <Footer navigation={navigation} />
+      <Footer navigation={navigation} activeRoute="Notifications" />
     </View>
   );
 }

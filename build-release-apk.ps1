@@ -1,74 +1,75 @@
 #!/usr/bin/env pwsh
 # ========================================
-# 📦 SCRIPT DE BUILD APK RELEASE
+# SCRIPT DE BUILD APK RELEASE
 # ========================================
-# Génère l'APK de production prêt à distribuer
+# Genere l'APK de production pret a distribuer
 # Usage: .\build-release-apk.ps1
 # ========================================
 
-Write-Host "`n BUILD APK RELEASE - PARKING MOBILE`n" -ForegroundColor Cyan
+Write-Host "`n=== BUILD APK RELEASE - PARKING MOBILE ===`n" -ForegroundColor Cyan
 
-# Vérifier qu'on est dans le bon répertoire
+# Verifier qu'on est dans le bon repertoire
 if (-not (Test-Path "android\app\build.gradle")) {
-    Write-Host " Erreur: Veuillez exécuter ce script depuis la racine du projet parking_mobile" -ForegroundColor Red
+    Write-Host "[ERREUR] Veuillez executer ce script depuis la racine du projet parking_mobile" -ForegroundColor Red
     exit 1
 }
 
-# Vérifier que Node modules sont installés
+# Verifier que Node modules sont installes
 if (-not (Test-Path "node_modules")) {
-    Write-Host "  node_modules non trouvé. Installation des dépendances...`n" -ForegroundColor Yellow
+    Write-Host "[INFO] node_modules non trouve. Installation des dependances...`n" -ForegroundColor Yellow
     npm install
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "`n Erreur lors de l'installation des dépendances" -ForegroundColor Red
+        Write-Host "`n[ERREUR] Erreur lors de l'installation des dependances" -ForegroundColor Red
         exit 1
     }
 }
 
-# Nettoyer les builds précédents
-Write-Host "🧹 Nettoyage des builds précédents...`n" -ForegroundColor Yellow
+# Build Release APK (sans clean pour preserver le cache debug)
+Write-Host "`n[BUILD] Generation de l'APK Release...`n" -ForegroundColor Cyan
+Write-Host "[INFO] Cela peut prendre 2-5 minutes...`n" -ForegroundColor Gray
+
 Set-Location android
-.\gradlew clean
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "`n Erreur lors du nettoyage" -ForegroundColor Red
-    Set-Location ..
-    exit 1
-}
-
-# Build Release APK
-Write-Host "`n Génération de l'APK Release...`n" -ForegroundColor Cyan
-Write-Host " Cela peut prendre 2-5 minutes...`n" -ForegroundColor Gray
-
 .\gradlew assembleRelease
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "`n Erreur lors de la génération de l'APK" -ForegroundColor Red
+    Write-Host "`n[ERREUR] Erreur lors de la generation de l'APK" -ForegroundColor Red
     Set-Location ..
     exit 1
 }
 
 Set-Location ..
 
-# Vérifier que l'APK a été généré
-$apkPath = "android\app\build\outputs\apk\release\app-release.apk"
-if (Test-Path $apkPath) {
-    $apkSize = [math]::Round((Get-Item $apkPath).Length / 1MB, 2)
+# Verifier que les APK ont ete generes (avec splits ABI)
+$apkFolder = "android\app\build\outputs\apk\release"
+$allApkFiles = Get-ChildItem -Path $apkFolder -Filter "*.apk" -ErrorAction SilentlyContinue
+# Filtrer uniquement les APK ARM (ignorer x86/x86_64 pour emulateurs)
+$apkFiles = $allApkFiles | Where-Object { $_.Name -match "arm" }
+
+if ($apkFiles.Count -gt 0) {
+    Write-Host "`n[SUCCESS] BUILD REUSSI !`n" -ForegroundColor Green
+    Write-Host "[APK] Fichiers generes (optimises par architecture):`n" -ForegroundColor Cyan
     
-    Write-Host "`n BUILD RÉUSSI !`n" -ForegroundColor Green
-    Write-Host " APK généré:" -ForegroundColor Cyan
-    Write-Host "   Fichier: $apkPath" -ForegroundColor White
-    Write-Host "   Taille:  $apkSize MB`n" -ForegroundColor White
+    foreach ($apk in $apkFiles) {
+        $apkSize = [math]::Round($apk.Length / 1MB, 2)
+        $archType = if ($apk.Name -match "arm64") { "[ARM64] Smartphones modernes 2017+" } else { "[ARMv7] Anciens appareils" }
+        
+        Write-Host "   Fichier: $($apk.Name)" -ForegroundColor White
+        Write-Host "   Taille:  $apkSize MB" -ForegroundColor Yellow
+        Write-Host "   Type:    $archType`n" -ForegroundColor Gray
+    }
     
-    Write-Host " Pour installer sur un appareil connecté:" -ForegroundColor Yellow
-    Write-Host "   adb install $apkPath`n" -ForegroundColor Gray
+    Write-Host "[INSTALL] Pour installer sur un appareil connecte:" -ForegroundColor Cyan
+    Write-Host "   ARM64 (recommande): adb install $apkFolder\app-arm64-v8a-release.apk" -ForegroundColor White
+    Write-Host "   ARMv7 (ancien):     adb install $apkFolder\app-armeabi-v7a-release.apk`n" -ForegroundColor Gray
     
-    Write-Host " Ouvrir le dossier de l'APK?" -ForegroundColor Cyan
+    Write-Host "[?] Ouvrir le dossier des APK?" -ForegroundColor Cyan
     $response = Read-Host "   (O/N)"
     if ($response -eq "O" -or $response -eq "o") {
-        Invoke-Item "android\app\build\outputs\apk\release"
+        Invoke-Item $apkFolder
     }
 } else {
-    Write-Host "`n APK non trouvé dans le dossier de sortie" -ForegroundColor Red
+    Write-Host "`n[ERREUR] APK non trouve dans le dossier de sortie" -ForegroundColor Red
     exit 1
 }
 
-Write-Host "`n Terminé !`n" -ForegroundColor Green
+Write-Host "`n[DONE] Termine !`n" -ForegroundColor Green

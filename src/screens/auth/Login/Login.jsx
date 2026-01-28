@@ -94,7 +94,6 @@ export default function Login({ navigation }) {
             editable={!loading}
           />
         </View>
-        <Text style={styles.remember}>Se souvenir de moi</Text>
         <Button
           mode="contained"
           style={styles.submit}
@@ -106,7 +105,12 @@ export default function Login({ navigation }) {
           {loading ? <ActivityIndicator color="#fff" /> : 'Valider'}
         </Button>
         <View style={styles.linkContainer}>
-          <Text style={styles.forgot}>Mot de passe oublié?</Text>
+          <Text
+            style={styles.forgot}
+            onPress={() => navigation.navigate("ForgotPassword")}
+          >
+            Mot de passe oublié?
+          </Text>
           <Text
             style={styles.register}
             onPress={() => navigation.navigate("Registration")}

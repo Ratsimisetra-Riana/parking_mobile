@@ -37,6 +37,28 @@ export const footerStyles = StyleSheet.create({
     color: colors.primary.dark,
     fontWeight: typography.fontWeight.semibold,
   },
+
+  // Badge de notification
+  notificationBadge: {
+    position: 'absolute',
+    top: -6,
+    right: -10,
+    backgroundColor: '#F44336',
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 2,
+    borderColor: colors.background.white,
+  },
+
+  notificationBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
 });
 
 export default footerStyles;

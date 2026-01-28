@@ -23,24 +23,24 @@ const authService = {
         user_name,
         password,
       });
-      
+
       const { token, userId, userName, email } = response.data;
-      
+
       // Stocker le token
       if (token) {
         await AsyncStorage.setItem('jwt_token', token);
-        
+
         // Stocker les données utilisateur reçues du backend
         const userData = {
           Id_Users: userId,
           user_name: userName,
           email: email,
         };
-        
+
         await AsyncStorage.setItem('user', JSON.stringify(userData));
         await AsyncStorage.setItem('username', userName);
       }
-      
+
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la connexion:', error);
@@ -64,23 +64,23 @@ const authService = {
         phone_number: userData.phone_number,
         role: 'USER', // Par défaut
       });
-      
+
       const { token, userId, userName, email } = response.data;
-      
+
       // Stocker le token et les données utilisateur après inscription
       if (token) {
         await AsyncStorage.setItem('jwt_token', token);
-        
+
         const userInfo = {
           Id_Users: userId,
           user_name: userName,
           email: email,
         };
-        
+
         await AsyncStorage.setItem('user', JSON.stringify(userInfo));
         await AsyncStorage.setItem('username', userName);
       }
-      
+
       return response.data;
     } catch (error) {
       console.error('Erreur lors de l\'inscription:', error);
@@ -94,13 +94,13 @@ const authService = {
   logout: async () => {
     try {
       console.log('🔴 Déconnexion complète en cours...');
-      
+
       // 1. Supprimer les données de l'app
       await AsyncStorage.removeItem('jwt_token');
       await AsyncStorage.removeItem('user');
       await AsyncStorage.removeItem('username');
       console.log(' Données de l\'app supprimées');
-      
+
       // 2. Déconnecter Google (si connecté avec Google)
       try {
         const isGoogleSignedIn = await GoogleSignin.isSignedIn();
@@ -111,7 +111,7 @@ const authService = {
       } catch (googleError) {
         console.log('ℹ️ Pas de session Google active');
       }
-      
+
       // 3. Déconnecter Facebook (si connecté avec Facebook)
       try {
         const fbToken = await AccessToken.getCurrentAccessToken();
@@ -122,7 +122,7 @@ const authService = {
       } catch (facebookError) {
         console.log('ℹ️ Pas de session Facebook active');
       }
-      
+
       console.log(' Déconnexion complète terminée');
     } catch (error) {
       console.error('Erreur: Erreur lors de la déconnexion:', error);
@@ -177,7 +177,7 @@ const authService = {
 
       const decoded = jwtDecode(token);
       const currentTime = Date.now() / 1000; // Convertir en secondes
-      
+
       // Vérifier si le token est expiré (avec une marge de 60 secondes)
       return decoded.exp < (currentTime + 60);
     } catch (error) {
@@ -245,14 +245,14 @@ const authService = {
       // 7. Stocker le token JWT et les données utilisateur
       if (token) {
         await AsyncStorage.setItem('jwt_token', token);
-        
+
         const userData = {
           Id_Users: userId,
           user_name: userName,
           email: email,
           oauth_provider: 'google',
         };
-        
+
         await AsyncStorage.setItem('user', JSON.stringify(userData));
         await AsyncStorage.setItem('username', userName);
       }
@@ -261,7 +261,7 @@ const authService = {
       return response.data;
     } catch (error) {
       console.error('Erreur: Erreur connexion Google:', error);
-      
+
       if (error.code === 'SIGN_IN_CANCELLED') {
         throw new Error('Connexion annulée');
       } else if (error.code === 'IN_PROGRESS') {
@@ -269,7 +269,7 @@ const authService = {
       } else if (error.code === 'PLAY_SERVICES_NOT_AVAILABLE') {
         throw new Error('Google Play Services non disponible');
       }
-      
+
       throw error;
     }
   },
@@ -312,14 +312,14 @@ const authService = {
       // 4. Stocker le token JWT et les données utilisateur
       if (token) {
         await AsyncStorage.setItem('jwt_token', token);
-        
+
         const userData = {
           Id_Users: userId,
           user_name: userName,
           email: email,
           oauth_provider: 'facebook',
         };
-        
+
         await AsyncStorage.setItem('user', JSON.stringify(userData));
         await AsyncStorage.setItem('username', userName);
       }
@@ -331,6 +331,66 @@ const authService = {
       throw error;
     }
   },
+
+  // ========================================
+  // PASSWORD RESET METHODS
+  // ========================================
+
+  /**
+   * Demande de réinitialisation de mot de passe
+   * @param {string} email - Email de l'utilisateur
+   * @returns {Promise} Résultat de la demande
+   */
+  forgotPassword: async (email) => {
+    try {
+      console.log('📧 Demande de réinitialisation pour:', email);
+      const response = await api.post(`${BASE_PATH}/forgot-password`, { email });
+      return response.data;
+    } catch (error) {
+      console.error('Erreur forgot-password:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Vérification du code de réinitialisation
+   * @param {string} email - Email de l'utilisateur
+   * @param {string} code - Code reçu par email
+   * @returns {Promise} Résultat de la vérification
+   */
+  verifyResetCode: async (email, code) => {
+    try {
+      console.log('🔐 Vérification du code pour:', email);
+      const response = await api.post(`${BASE_PATH}/verify-reset-code`, { email, code });
+      return response.data;
+    } catch (error) {
+      console.error('Erreur verify-reset-code:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Réinitialisation du mot de passe
+   * @param {string} email - Email de l'utilisateur
+   * @param {string} code - Code de vérification
+   * @param {string} newPassword - Nouveau mot de passe
+   * @returns {Promise} Résultat de la réinitialisation
+   */
+  resetPassword: async (email, code, newPassword) => {
+    try {
+      console.log('🔑 Réinitialisation du mot de passe pour:', email);
+      const response = await api.post(`${BASE_PATH}/reset-password`, {
+        email,
+        code,
+        newPassword
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Erreur reset-password:', error);
+      throw error;
+    }
+  },
 };
 
 export default authService;
+

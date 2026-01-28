@@ -2,40 +2,40 @@ import { StyleSheet } from 'react-native';
 import { colors, spacing, radius } from '../../../theme';
 
 export const loginStyles = StyleSheet.create({
-  container: { 
+  container: {
     padding: spacing.xl2,
     backgroundColor: colors.background.white,
   },
-  
-  logoContainer: { 
+
+  logoContainer: {
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
     height: 200,
     marginBottom: spacing.lg,
   },
-  
-  logo: { 
+
+  logo: {
     width: 180,
     height: 180,
     resizeMode: 'contain',
   },
-  
-  title: { 
+
+  title: {
     fontSize: 30,
     fontFamily: 'Figtree-Regular',
   },
-  
-  description: { 
+
+  description: {
     fontSize: 17,
     marginTop: spacing.xs,
     fontFamily: 'Figtree-Regular',
   },
-  
+
   inputContainer: {
     marginTop: spacing.lg,
   },
-  
+
   input: {
     height: 60,
     borderWidth: 1,
@@ -45,23 +45,18 @@ export const loginStyles = StyleSheet.create({
     marginVertical: spacing.sm,
     fontFamily: 'Figtree-Regular',
   },
-  
-  remember: {
-    marginTop: spacing.xs2,
-    fontFamily: 'Figtree-Regular',
-  },
-  
+
   submit: {
     marginTop: spacing.base,
     height: 70,
     borderRadius: radius.xl2,
   },
-  
+
   submitContent: {
     height: 70,
     justifyContent: 'center',
   },
-  
+
   linkContainer: {
     marginTop: spacing.xl3,
     display: 'flex',
@@ -69,17 +64,17 @@ export const loginStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   register: {
     marginLeft: spacing.xs,
     fontWeight: 'bold',
     fontFamily: 'Figtree-Regular',
   },
-  
+
   forgot: {
     fontFamily: 'Figtree-Regular',
   },
-  
+
   body: {
     marginTop: spacing.base,
   },

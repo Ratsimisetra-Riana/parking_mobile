@@ -228,7 +228,7 @@ const Header = ({ navigation }) => {
 
                 <TouchableOpacity 
                   style={styles.menuItem}
-                  disabled={true}
+                  onPress={() => handleNavigate('Dashboard')}
                 >
                   <View style={styles.menuIconContainer}>
                     <Ionicons name="stats-chart-outline" size={22} color={colors.text.gray.slate.dark} />

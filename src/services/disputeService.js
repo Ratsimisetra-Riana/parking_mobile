@@ -6,8 +6,8 @@
 import api from '../config/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BASE_PATH = '/v1/disputes';
-const PROOFS_PATH = '/v1/dispute-proofs';
+const BASE_PATH = '/disputes';
+const PROOFS_PATH = '/dispute-proofs';
 
 // Types de motifs disponibles
 export const DISPUTE_MOTIFS = [
@@ -41,7 +41,7 @@ const disputeService = {
         motif: disputeData.motif,
         description: disputeData.description || '',
         reservation: {
-          Id_Reservation: disputeData.reservationId,
+          id_Reservation: disputeData.reservationId,
         },
       };
 
@@ -87,13 +87,13 @@ const disputeService = {
         createdAt: dispute.createdAt,
         reservation: dispute.reservation
           ? {
-              id: dispute.reservation.Id_Reservation,
-              parkingName: dispute.reservation.parking?.label || 'Parking',
-              parkingAddress: dispute.reservation.parking?.description || '',
-              startDateTime: dispute.reservation.startDatetime,
-              endDateTime: dispute.reservation.endDatetime,
-              totalPrice: dispute.reservation.totalPrice,
-            }
+            id: dispute.reservation.Id_Reservation,
+            parkingName: dispute.reservation.parking?.label || 'Parking',
+            parkingAddress: dispute.reservation.parking?.description || '',
+            startDateTime: dispute.reservation.startDatetime,
+            endDateTime: dispute.reservation.endDatetime,
+            totalPrice: dispute.reservation.totalPrice,
+          }
           : null,
       }));
 

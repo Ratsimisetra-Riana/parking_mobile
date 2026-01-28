@@ -19,6 +19,40 @@ const announcementService = {
   },
 
   /**
+   * Recherche avancée d'annonces avec filtres
+   * @param {Object} filters - Filtres de recherche
+   * @param {string} filters.searchText - Texte de recherche (nom parking, adresse, description)
+   * @param {number} filters.vehicleTypeId - ID du type de véhicule
+   * @param {number} filters.minPlaces - Nombre minimum de places
+   * @returns {Promise} Liste des annonces filtrées
+   */
+  searchAnnouncements: async (filters = {}) => {
+    try {
+      const params = new URLSearchParams();
+
+      if (filters.searchText) {
+        params.append('searchText', filters.searchText);
+      }
+      if (filters.vehicleTypeId) {
+        params.append('vehicleTypeId', filters.vehicleTypeId);
+      }
+      if (filters.minPlaces) {
+        params.append('minPlaces', filters.minPlaces);
+      }
+
+      const queryString = params.toString();
+      const url = queryString ? `/announcements/search?${queryString}` : '/announcements/search';
+
+      console.log('🔍 Recherche annonces:', url);
+      const response = await api.get(url);
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la recherche des annonces:', error);
+      throw error;
+    }
+  },
+
+  /**
    * Récupérer les annonces d'un utilisateur
    * @param {number} userId - ID de l'utilisateur
    * @returns {Promise} Liste des annonces de l'utilisateur

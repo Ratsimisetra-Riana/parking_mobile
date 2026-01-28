@@ -1,6 +1,6 @@
 //interface
 import * as React from 'react';
-import { Platform } from 'react-native';
+import { Platform, Alert } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -21,12 +21,16 @@ import {
 } from './src/config/firebase';
 import { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import { registerDeviceToken } from './src/services/notificationService';
+import { navigationRef, navigateFromNotification } from './src/services/navigationService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 //screens
 import Login from './src/screens/auth/Login/Login'; // relative path
 import Home from './src/screens/main/Home/Home'; // relative path
 import Registration from './src/screens/auth/Registration/Registration'; // relative path
+import ForgotPassword from './src/screens/auth/ForgotPassword/ForgotPassword';
+import VerifyResetCode from './src/screens/auth/VerifyResetCode/VerifyResetCode';
+import ResetPassword from './src/screens/auth/ResetPassword/ResetPassword';
 import ParkingList from './src/screens/main/ParkingList/ParkingList'; // relative path
 import ParkingDetails from "./src/screens/main/ParkingDetails/ParkingDetails";
 import MyParkingDetails from "./src/screens/main/ParkingDetails/MyParkingDetails";
@@ -44,6 +48,7 @@ import QRCodeDisplay from "./src/screens/process/QRCodeDisplay/QRCodeDisplay";
 import QRCodeScanner from "./src/screens/process/QRCodeScanner/QRCodeScanner";
 import ReportIssue from "./src/screens/forms/ReportIssue/ReportIssue";
 import MyDisputes from "./src/screens/lists/MyDisputes/MyDisputes";
+import Dashboard from "./src/screens/main/Dashboard/Dashboard";
 
 
 const Stack = createNativeStackNavigator();
@@ -51,32 +56,34 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   // Initialiser FCM au démarrage de l'app
   React.useEffect(() => {
-    console.log(' DÉBUT initialisation FCM...');
+    console.log('🚀 DÉBUT initialisation FCM...');
     const initializeFCM = async () => {
       try {
-        console.log(' Étape 1: Demande permissions...');
+        console.log('📝 Étape 1: Demande permissions...');
         // 1. Demander les permissions
         const hasPermission = await requestUserPermission();
-        console.log(' Permissions résultat:', hasPermission);
-        console.log(' Permissions résultat:', hasPermission);
+        console.log('✅ Permissions résultat:', hasPermission);
         if (!hasPermission) {
-          console.warn(' Permissions notifications non accordées');
+          console.warn('⚠️ Permissions notifications non accordées');
           return;
         }
 
-        console.log(' Étape 2: Récupération token FCM...');
+        console.log('🔑 Étape 2: Récupération token FCM...');
         // 2. Obtenir le token FCM
         const fcmToken = await getFCMToken();
-        console.log(' Token FCM reçu:', fcmToken ? 'OUI' : 'NON');
+        console.log('✅ Token FCM reçu:', fcmToken ? 'OUI' : 'NON');
         if (fcmToken) {
           // Récupérer l'ID utilisateur depuis AsyncStorage (après login)
-          const userDataString = await AsyncStorage.getItem('userData');
-          if (userDataString) {
-            const userData = JSON.parse(userDataString);
-            const userId = userData.id || userData.Id_Users;
-            
-            // Enregistrer le token dans le backend
-            await registerDeviceToken(userId, fcmToken, Platform.OS);
+          const userJson = await AsyncStorage.getItem('user');
+          if (userJson) {
+            const userData = JSON.parse(userJson);
+            const userId = userData.Id_Users || userData.id;
+
+            if (userId) {
+              // Enregistrer le token dans le backend
+              await registerDeviceToken(userId, fcmToken, Platform.OS);
+              console.log('✅ Token FCM enregistré pour user:', userId);
+            }
           } else {
             console.log('ℹ️ Utilisateur non connecté, token sera enregistré après login');
           }
@@ -84,33 +91,59 @@ export default function App() {
 
         // 3. Écouter les rafraîchissements de token
         const unsubscribeTokenRefresh = onTokenRefresh(async (newToken: string) => {
-          const userDataString = await AsyncStorage.getItem('userData');
-          if (userDataString) {
-            const userData = JSON.parse(userDataString);
-            const userId = userData.id || userData.Id_Users;
-            await registerDeviceToken(userId, newToken, Platform.OS);
+          const userJson = await AsyncStorage.getItem('user');
+          if (userJson) {
+            const userData = JSON.parse(userJson);
+            const userId = userData.Id_Users || userData.id;
+            if (userId) {
+              await registerDeviceToken(userId, newToken, Platform.OS);
+            }
           }
         });
 
-        // 4. Écouter les notifications en foreground
+        // 4. Écouter les notifications en foreground (app ouverte)
         const unsubscribeForeground = onForegroundMessage((remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
-          console.log(' Notification reçue:', remoteMessage.notification?.title);
-          // TODO: Afficher une notification locale ou un toast
+          console.log('📬 Notification foreground reçue:', remoteMessage.notification?.title);
+
+          // Afficher une alerte avec option de navigation
+          const title = remoteMessage.notification?.title || 'Nouvelle notification';
+          const body = remoteMessage.notification?.body || '';
+          const data = remoteMessage.data || {};
+
+          Alert.alert(
+            title,
+            body,
+            [
+              { text: 'Ignorer', style: 'cancel' },
+              {
+                text: 'Voir',
+                onPress: () => {
+                  // Naviguer vers l'écran approprié selon le type
+                  navigateFromNotification(data);
+                }
+              },
+            ],
+            { cancelable: true }
+          );
         });
 
         // 5. Handler pour les notifications en background
         setBackgroundMessageHandler();
 
-        // 6. Écouter les clics sur notifications (app fermée)
+        // 6. Écouter les clics sur notifications (app en background)
         onNotificationOpenedApp((remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
-          console.log(' Notification cliquée:', remoteMessage.data);
-          // TODO: Naviguer vers l'écran approprié
+          console.log('👆 Notification cliquée (app background):', remoteMessage.data);
+          // Naviguer vers l'écran approprié
+          navigateFromNotification(remoteMessage.data || {});
         });
 
-        // 7. Vérifier si l'app a été ouverte via une notification
+        // 7. Vérifier si l'app a été ouverte via une notification (app fermée)
         getInitialNotification((remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
-          console.log(' App ouverte via notification:', remoteMessage.data);
-          // TODO: Naviguer vers l'écran approprié
+          console.log('🚀 App ouverte via notification:', remoteMessage.data);
+          // Attendre un peu que la navigation soit prête puis naviguer
+          setTimeout(() => {
+            navigateFromNotification(remoteMessage.data || {});
+          }, 1000);
         });
 
         // Cleanup
@@ -118,9 +151,9 @@ export default function App() {
           unsubscribeTokenRefresh();
           unsubscribeForeground();
         };
-      } catch (error) {
-        console.error('Erreur: Erreur initialisation FCM:', error);
-        console.error('Erreur: Stack trace:', error.stack);
+      } catch (error: any) {
+        console.error('❌ Erreur initialisation FCM:', error);
+        console.error('❌ Stack trace:', error?.stack);
       }
     };
 
@@ -131,39 +164,43 @@ export default function App() {
     <SafeAreaProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <PaperProvider>
-          <NavigationContainer>
+          <NavigationContainer ref={navigationRef}>
 
-          <Stack.Navigator
-            initialRouteName="Login"
-            screenOptions={{
-              headerShown: false
-            }}
-          >
-            <Stack.Screen name="Home" component={Home} />
-            <Stack.Screen name="Login" component={Login} />
-            <Stack.Screen name="Registration" component={Registration} />
-            <Stack.Screen name="Liste des parkings" component={ParkingList} />
-            <Stack.Screen name="Détails du parking" component={ParkingDetails} />
-            <Stack.Screen name="MyParkingDetails" component={MyParkingDetails} />
-            <Stack.Screen name="Réservation" component={Reservation} />
-            <Stack.Screen name="Confirmation de la réservation" component={ReservationConfirmation} />
-            <Stack.Screen name="Mes réservations" component={ReservationList} />
-            <Stack.Screen name="Mes Parkings" component={MyParkings} />
-            <Stack.Screen name="AddEditParking" component={AddEditParking} />
-            <Stack.Screen name="MyAnnouncements" component={MyAnnouncements} />
-            <Stack.Screen name="CreateAnnouncement" component={CreateAnnouncement} />
-            <Stack.Screen name="ReservationRequests" component={ReservationRequests} />
-            <Stack.Screen name="Mes Demandes" component={ReservationRequests} />
-            <Stack.Screen name="PaymentFinalization" component={PaymentFinalization} />
-            <Stack.Screen name="Notifications" component={Notifications} />
-            <Stack.Screen name="QRCodeDisplay" component={QRCodeDisplay} />
-            <Stack.Screen name="QRCodeScanner" component={QRCodeScanner} />
-            <Stack.Screen name="ReportIssue" component={ReportIssue} />
-            <Stack.Screen name="MyDisputes" component={MyDisputes} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </PaperProvider>
-    </GestureHandlerRootView>
+            <Stack.Navigator
+              initialRouteName="Login"
+              screenOptions={{
+                headerShown: false
+              }}
+            >
+              <Stack.Screen name="Home" component={Home} />
+              <Stack.Screen name="Login" component={Login} />
+              <Stack.Screen name="Registration" component={Registration} />
+              <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+              <Stack.Screen name="VerifyResetCode" component={VerifyResetCode} />
+              <Stack.Screen name="ResetPassword" component={ResetPassword} />
+              <Stack.Screen name="Liste des parkings" component={ParkingList} />
+              <Stack.Screen name="Détails du parking" component={ParkingDetails} />
+              <Stack.Screen name="MyParkingDetails" component={MyParkingDetails} />
+              <Stack.Screen name="Réservation" component={Reservation} />
+              <Stack.Screen name="Confirmation de la réservation" component={ReservationConfirmation} />
+              <Stack.Screen name="Mes réservations" component={ReservationList} />
+              <Stack.Screen name="Mes Parkings" component={MyParkings} />
+              <Stack.Screen name="AddEditParking" component={AddEditParking} />
+              <Stack.Screen name="MyAnnouncements" component={MyAnnouncements} />
+              <Stack.Screen name="CreateAnnouncement" component={CreateAnnouncement} />
+              <Stack.Screen name="ReservationRequests" component={ReservationRequests} />
+              <Stack.Screen name="Mes Demandes" component={ReservationRequests} />
+              <Stack.Screen name="PaymentFinalization" component={PaymentFinalization} />
+              <Stack.Screen name="Notifications" component={Notifications} />
+              <Stack.Screen name="QRCodeDisplay" component={QRCodeDisplay} />
+              <Stack.Screen name="QRCodeScanner" component={QRCodeScanner} />
+              <Stack.Screen name="ReportIssue" component={ReportIssue} />
+              <Stack.Screen name="MyDisputes" component={MyDisputes} />
+              <Stack.Screen name="Dashboard" component={Dashboard} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </PaperProvider>
+      </GestureHandlerRootView>
     </SafeAreaProvider>
   );
 }

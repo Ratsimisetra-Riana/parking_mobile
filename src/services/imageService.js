@@ -116,7 +116,7 @@ const imageService = {
       // Convertir l'image en base64
       const response = await fetch(fileUri);
       const blob = await response.blob();
-      
+
       // Lire le blob comme base64
       const base64 = await new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -207,7 +207,7 @@ const imageService = {
 
       // Supprimer metadata de PostgreSQL
       await api.delete(`/parking-images/${parkingId}/file?filePath=${encodeURIComponent(filePath)}`);
-      
+
       console.log('Image supprimée avec succès');
       return { success: true };
     } catch (error) {
@@ -274,7 +274,7 @@ const imageService = {
       // Convertir l'image en base64
       const response = await fetch(imageUri);
       const blob = await response.blob();
-      
+
       const base64 = await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -309,3 +309,5 @@ const imageService = {
     }
   },
 };
+
+export default imageService;

@@ -19,7 +19,7 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { disputeService, DISPUTE_MOTIFS } from '../../../services/disputeService';
+import disputeService, { DISPUTE_MOTIFS } from '../../../services/disputeService';
 import { reservationService, imageService } from '../../../services';
 import { reportIssueStyles as styles } from './ReportIssue.styles';
 
@@ -30,7 +30,7 @@ export default function ReportIssue({ route, navigation }) {
   const [selectedMotif, setSelectedMotif] = useState(null);
   const [description, setDescription] = useState('');
   const [photos, setPhotos] = useState([]);
-  
+
   // États UI
   const [loading, setLoading] = useState(false);
   const [loadingReservation, setLoadingReservation] = useState(false);
@@ -83,7 +83,7 @@ export default function ReportIssue({ route, navigation }) {
 
     try {
       const result = await imageService.showImagePickerOptions();
-      
+
       if (result.images && result.images.length > 0) {
         // Limiter le nombre de photos ajoutées
         const remainingSlots = 5 - photos.length;
@@ -133,9 +133,9 @@ export default function ReportIssue({ route, navigation }) {
       setSubmitting(true);
 
       // Récupérer l'ID utilisateur
-      const userDataString = await AsyncStorage.getItem('userData');
-      const userData = userDataString ? JSON.parse(userDataString) : null;
-      const userId = userData?.id;
+      const userJson = await AsyncStorage.getItem('user');
+      const user = userJson ? JSON.parse(userJson) : null;
+      const userId = user?.Id_Users;
 
       if (!userId) {
         Alert.alert('Erreur', 'Impossible de récupérer vos informations utilisateur');

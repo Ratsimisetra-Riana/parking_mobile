@@ -5,7 +5,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 
 import useFilters from "../../../hooks/useFilters";
 import FilterButton from "../../../components/forms/FilterButton/FilterButton";
-import {ParkingCard} from "../../../components/cards/ParkingCard/ParkingCard";
+import { ParkingCard } from "../../../components/cards/ParkingCard/ParkingCard";
 import VehicleTypeModal from "../../../components/modals/VehicleTypeModal/VehicleTypeModal";
 import Header from "../../../components/ui/Header/Header";
 import Footer from "../../../components/ui/Footer/Footer";
@@ -83,45 +83,40 @@ export default function ParkingList({ navigation }) {
   const handleSearch = async () => {
     try {
       setLoading(true);
-      
-      // Formater les dates pour l'API (si elles sont définies)
-      const formatDateForAPI = (date) => {
-        if (!date) return null;
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        const seconds = String(date.getSeconds()).padStart(2, '0');
-        return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
-      };
 
+      // Construire les filtres pour l'API
       const filters = {};
 
-      // Ajouter les dates seulement si elles sont définies
-      if (startDate) {
-        filters.startDate = formatDateForAPI(startDate);
-      }
-      if (endDate) {
-        filters.endDate = formatDateForAPI(endDate);
+      // Ajouter le texte de recherche s'il existe
+      if (searchText && searchText.trim()) {
+        filters.searchText = searchText.trim();
       }
 
-      // Ajouter les autres filtres
+      // Ajouter le type de véhicule si sélectionné
       if (selectedVehicles.length > 0) {
-        filters.vehicleType = selectedVehicles[0]; // Premier type sélectionné
+        filters.vehicleTypeId = selectedVehicles[0]; // Premier type sélectionné
       }
 
+      // Ajouter le nombre de véhicules si défini
       if (vehicleCount) {
-        filters.numberOfVehicles = parseInt(vehicleCount);
+        filters.minPlaces = parseInt(vehicleCount);
       }
 
-      filters.sortBy = 'price'; // Tri par prix par défaut
-      
-      const results = await parkingService.searchParkings(filters);
-      setAllParkings(results); // Stocker pour le filtre local
-      setParkings(results);
-      
-      Alert.alert('Succès', `${results.length} parking(s) trouvé(s)`);
+      console.log('🔍 Recherche avec filtres:', filters);
+
+      // Appeler l'API de recherche
+      const results = await announcementService.searchAnnouncements(filters);
+
+      console.log('✅ Résultats:', results.length, 'annonce(s)');
+
+      setAllAnnouncements(results);
+      setAnnouncements(results);
+
+      if (results.length === 0) {
+        Alert.alert('Aucun résultat', 'Aucune annonce ne correspond à vos critères.');
+      } else {
+        Alert.alert('Succès', `${results.length} annonce(s) trouvée(s)`);
+      }
     } catch (error) {
       console.error('Erreur recherche:', error);
       Alert.alert('Erreur', 'Impossible d\'effectuer la recherche');
@@ -149,7 +144,7 @@ export default function ParkingList({ navigation }) {
         <Header navigation={navigation} />
       </View>
 
-      <ScrollView 
+      <ScrollView
         style={{ flex: 1, paddingHorizontal: 18 }}
         scrollEnabled={scrollViewEnabled}
         refreshControl={
@@ -157,174 +152,174 @@ export default function ParkingList({ navigation }) {
         }
       >
 
-      {/* HERO */}
-      <Image source={require("../../../assets/find.png")} style={{ width: "100%", height: 180, resizeMode: "contain", marginVertical: 12 }} />
-      <Text style={{ fontSize: 22, fontWeight: "700", color: "#2D3436", marginTop: 10 }}>Trouver vos parking avec nous</Text>
-      <Text style={{ color: "#636E72", marginBottom: 16, fontSize: 14, lineHeight: 20 }}>Nous vous aidons à trouver votre place de parking où que vous alliez</Text>
+        {/* HERO */}
+        <Image source={require("../../../assets/find.png")} style={{ width: "100%", height: 180, resizeMode: "contain", marginVertical: 12 }} />
+        <Text style={{ fontSize: 22, fontWeight: "700", color: "#2D3436", marginTop: 10 }}>Trouver vos parking avec nous</Text>
+        <Text style={{ color: "#636E72", marginBottom: 16, fontSize: 14, lineHeight: 20 }}>Nous vous aidons à trouver votre place de parking où que vous alliez</Text>
 
-      {/* SEARCH */}
-      <View style={{ flexDirection: "row", alignItems: "center", borderWidth: 1, borderRadius: 10, paddingHorizontal: 10 }}>
-        <TextInput 
-          placeholder="Adresse ou localisation" 
-          style={{ flex: 1, padding: 10 }} 
-          value={searchText}
-          onChangeText={setSearchText}
+        {/* SEARCH */}
+        <View style={{ flexDirection: "row", alignItems: "center", borderWidth: 1, borderRadius: 10, paddingHorizontal: 10 }}>
+          <TextInput
+            placeholder="Adresse ou localisation"
+            style={{ flex: 1, padding: 10 }}
+            value={searchText}
+            onChangeText={setSearchText}
+          />
+          <Ionicons name="search" size={20} />
+        </View>
+
+        {/* FILTERS */}
+        <Text style={{ marginTop: 20, fontWeight: "600", fontSize: 16, color: "#2D3436" }}>Filtres</Text>
+
+        <FilterButton
+          icon="calendar-outline"
+          label="Date & heure de début"
+          onPress={() => openDatePicker("start")}
+          value={startDate ? startDate.toLocaleString() : "Sélectionner"}
         />
-        <Ionicons name="search" size={20} />
-      </View>
+        <FilterButton
+          icon="calendar-outline"
+          label="Date & heure de fin"
+          onPress={() => openDatePicker("end")}
+          value={endDate ? endDate.toLocaleString() : "Sélectionner"}
+        />
+        <FilterButton
+          icon="car-outline"
+          label="Types de véhicules"
+          onPress={() => setActiveFilter("types")}
+          value={selectedVehicles.length > 0 ? `(${selectedVehicles.length})` : "Sélectionner"}
+        />
+        <FilterButton
+          icon="apps-outline"
+          label="Nombre de véhicules"
+          onPress={() => setActiveFilter("count")}
+          value={vehicleCount ? vehicleCount : "Sélectionner"}
+        />
 
-      {/* FILTERS */}
-      <Text style={{ marginTop: 20, fontWeight: "600", fontSize: 16, color: "#2D3436" }}>Filtres</Text>
+        <TouchableOpacity
+          style={{ backgroundColor: "#A4E66E", marginTop: 20, padding: 14, borderRadius: 10, alignItems: "center" }}
+          onPress={handleSearch}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={{ fontWeight: "bold" }}>Rechercher</Text>
+          )}
+        </TouchableOpacity>
 
-      <FilterButton 
-        icon="calendar-outline" 
-        label="Date & heure de début" 
-        onPress={() => openDatePicker("start")} 
-        value={startDate ? startDate.toLocaleString() : "Sélectionner"} 
-      />
-      <FilterButton 
-        icon="calendar-outline" 
-        label="Date & heure de fin" 
-        onPress={() => openDatePicker("end")} 
-        value={endDate ? endDate.toLocaleString() : "Sélectionner"} 
-      />
-      <FilterButton 
-        icon="car-outline" 
-        label="Types de véhicules" 
-        onPress={() => setActiveFilter("types")} 
-        value={selectedVehicles.length > 0 ? `(${selectedVehicles.length})` : "Sélectionner"} 
-      />
-      <FilterButton 
-        icon="apps-outline" 
-        label="Nombre de véhicules" 
-        onPress={() => setActiveFilter("count")} 
-        value={vehicleCount ? vehicleCount : "Sélectionner"} 
-      />
+        {/* LIST */}
+        <Text style={{ marginTop: 30, fontWeight: "700", fontSize: 18 }}>
+          Annonces disponibles {announcements.length > 0 && `(${announcements.length})`}
+        </Text>
 
-      <TouchableOpacity 
-        style={{ backgroundColor: "#A4E66E", marginTop: 20, padding: 14, borderRadius: 10, alignItems: "center" }}
-        onPress={handleSearch}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color="#fff" />
+        {loading && announcements.length === 0 ? (
+          <View style={{ padding: 40, alignItems: 'center' }}>
+            <ActivityIndicator size="large" color="#A4E66E" />
+            <Text style={{ marginTop: 10, color: '#666' }}>Chargement des annonces...</Text>
+          </View>
+        ) : announcements.length === 0 ? (
+          <View style={{ padding: 40, alignItems: 'center' }}>
+            <Ionicons name="megaphone-outline" size={60} color="#ccc" />
+            <Text style={{ marginTop: 10, color: '#666' }}>Aucune annonce disponible</Text>
+          </View>
         ) : (
-          <Text style={{ fontWeight: "bold" }}>Rechercher</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginVertical: 10 }}>
+            {announcements.map((announcement, index) => {
+              const announcementId = announcement.id_Announcements || announcement.Id_Announcements;
+              const parking = announcement.parking;
+              const parkingId = parking?.id_Parking || parking?.Id_Parking;
+
+              if (!announcementId || !parkingId) {
+                console.error('Erreur: ATTENTION: Données manquantes!', announcement);
+              }
+
+              // Récupérer l'image principale du parking (depuis Supabase)
+              const parkingImage = parking?.primaryImageUrl
+                ? parking.primaryImageUrl
+                : require("../../../assets/image.png");
+
+              return (
+                <ParkingCard
+                  key={`announcement-${announcementId || index}`}
+                  title={parking?.label || 'Parking'}
+                  address={announcement.description || parking?.description || 'Adresse non disponible'}
+                  price={`${parking?.hourlyRate || parking?.hourly_rate || 0}$/heure`}
+                  rating={4}
+                  image={parkingImage}
+                  onPress={() => {
+                    // console.log('🔍 Navigation vers annonce ID:', announcementId, '- Parking ID:', parkingId);
+                    navigation.navigate("Détails du parking", {
+                      parkingId: parkingId,
+                      announcementId: announcementId,
+                      title: parking?.label,
+                      address: announcement.description || parking?.description,
+                      price: `${parking?.hourlyRate || parking?.hourly_rate || 0}$/heure`,
+                      rating: 4,
+                      image: parkingImage
+                    });
+                  }}
+                />
+              );
+            })}
+          </ScrollView>
         )}
-      </TouchableOpacity>
 
-      {/* LIST */}
-      <Text style={{ marginTop: 30, fontWeight: "700", fontSize: 18 }}>
-        Annonces disponibles {announcements.length > 0 && `(${announcements.length})`}
-      </Text>
+        {/* MAP */}
+        <Text style={{ fontWeight: "700", fontSize: 18 }}>Positions des annonces</Text>
+        {announcements.length > 0 ? (
+          <ParkingMap
+            parkings={announcements.map(a => a.parking).filter(p => p)}
+            scrollEnabled={setScrollViewEnabled}
+            onMarkerPress={(parking) => {
+              // Trouver l'annonce correspondant à ce parking
+              const announcement = announcements.find(a =>
+                (a.parking?.id_Parking || a.parking?.Id_Parking) === (parking.id_Parking || parking.Id_Parking)
+              );
+              const announcementId = announcement?.id_Announcements || announcement?.Id_Announcements;
+              const parkingId = parking.id_Parking || parking.Id_Parking;
 
-      {loading && announcements.length === 0 ? (
-        <View style={{ padding: 40, alignItems: 'center' }}>
-          <ActivityIndicator size="large" color="#A4E66E" />
-          <Text style={{ marginTop: 10, color: '#666' }}>Chargement des annonces...</Text>
-        </View>
-      ) : announcements.length === 0 ? (
-        <View style={{ padding: 40, alignItems: 'center' }}>
-          <Ionicons name="megaphone-outline" size={60} color="#ccc" />
-          <Text style={{ marginTop: 10, color: '#666' }}>Aucune annonce disponible</Text>
-        </View>
-      ) : (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginVertical: 10 }}>
-          {announcements.map((announcement, index) => {
-            const announcementId = announcement.id_Announcements || announcement.Id_Announcements;
-            const parking = announcement.parking;
-            const parkingId = parking?.id_Parking || parking?.Id_Parking;
-            
-            if (!announcementId || !parkingId) {
-              console.error('Erreur: ATTENTION: Données manquantes!', announcement);
-            }
-            
-            // Récupérer l'image principale du parking (depuis Supabase)
-            const parkingImage = parking?.primaryImageUrl 
-              ? parking.primaryImageUrl 
-              : require("../../../assets/image.png");
-            
-            return (
-              <ParkingCard
-                key={`announcement-${announcementId || index}`}
-                title={parking?.label || 'Parking'}
-                address={announcement.description || parking?.description || 'Adresse non disponible'}
-                price={`${parking?.hourlyRate || parking?.hourly_rate || 0}$/heure`}
-                rating={4}
-                image={parkingImage}
-                onPress={() => {
-                  // console.log('🔍 Navigation vers annonce ID:', announcementId, '- Parking ID:', parkingId);
-                  navigation.navigate("Détails du parking", {
-                    parkingId: parkingId,
-                    announcementId: announcementId,
-                    title: parking?.label,
-                    address: announcement.description || parking?.description,
-                    price: `${parking?.hourlyRate || parking?.hourly_rate || 0}$/heure`,
-                    rating: 4,
-                    image: parkingImage
-                  });
-                }}
-              />
-            );
-          })}
-        </ScrollView>
-      )}
+              // console.log('🗺️ Marker cliqué - Annonce ID:', announcementId, '- Parking ID:', parkingId);
+              navigation.navigate("Détails du parking", {
+                parkingId: parkingId,
+                announcementId: announcementId,
+                title: parking.label,
+                address: announcement?.description || parking.description,
+                price: `${parking.hourlyRate || parking.hourly_rate || 0}$/heure`,
+                rating: 4,
+                image: require("../../../assets/image.png")
+              });
+            }}
+          />
+        ) : (
+          <View style={{ width: "100%", height: 220, borderRadius: 10, marginVertical: 12, backgroundColor: '#f0f0f0', justifyContent: 'center', alignItems: 'center' }}>
+            <Ionicons name="map-outline" size={50} color="#ccc" />
+            <Text style={{ marginTop: 10, color: '#999' }}>Aucun parking à afficher</Text>
+          </View>
+        )}
 
-      {/* MAP */}
-      <Text style={{ fontWeight: "700", fontSize: 18 }}>Positions des annonces</Text>
-      {announcements.length > 0 ? (
-        <ParkingMap 
-          parkings={announcements.map(a => a.parking).filter(p => p)}
-          scrollEnabled={setScrollViewEnabled}
-          onMarkerPress={(parking) => {
-            // Trouver l'annonce correspondant à ce parking
-            const announcement = announcements.find(a => 
-              (a.parking?.id_Parking || a.parking?.Id_Parking) === (parking.id_Parking || parking.Id_Parking)
-            );
-            const announcementId = announcement?.id_Announcements || announcement?.Id_Announcements;
-            const parkingId = parking.id_Parking || parking.Id_Parking;
-            
-            // console.log('🗺️ Marker cliqué - Annonce ID:', announcementId, '- Parking ID:', parkingId);
-            navigation.navigate("Détails du parking", {
-              parkingId: parkingId,
-              announcementId: announcementId,
-              title: parking.label,
-              address: announcement?.description || parking.description,
-              price: `${parking.hourlyRate || parking.hourly_rate || 0}$/heure`,
-              rating: 4,
-              image: require("../../../assets/image.png")
-            });
-          }}
+        {/* DATE PICKER */}
+        <DatePicker
+          modal
+          open={openPicker}
+          date={activeFilter === "start" ? startDate || new Date() : endDate || new Date()}
+          mode="datetime"
+          onConfirm={handleDateConfirm}
+          onCancel={() => setOpenPicker(false)}
         />
-      ) : (
-        <View style={{ width: "100%", height: 220, borderRadius: 10, marginVertical: 12, backgroundColor: '#f0f0f0', justifyContent: 'center', alignItems: 'center' }}>
-          <Ionicons name="map-outline" size={50} color="#ccc" />
-          <Text style={{ marginTop: 10, color: '#999' }}>Aucun parking à afficher</Text>
-        </View>
-      )}
 
-      {/* DATE PICKER */}
-      <DatePicker
-        modal
-        open={openPicker}
-        date={activeFilter === "start" ? startDate || new Date() : endDate || new Date()}
-        mode="datetime"
-        onConfirm={handleDateConfirm}
-        onCancel={() => setOpenPicker(false)}
-      />
-
-      {/* VEHICLE TYPE MODAL */}
-      <VehicleTypeModal
-        visible={activeFilter === "types"}
-        onClose={() => setActiveFilter(null)}
-        options={vehicleOptions}
-        selected={selectedVehicles}
-        toggle={toggleVehicleSelection}
-        loading={loadingVehicles}
-      />
+        {/* VEHICLE TYPE MODAL */}
+        <VehicleTypeModal
+          visible={activeFilter === "types"}
+          onClose={() => setActiveFilter(null)}
+          options={vehicleOptions}
+          selected={selectedVehicles}
+          toggle={toggleVehicleSelection}
+          loading={loadingVehicles}
+        />
 
       </ScrollView>
-      
+
       {/* FOOTER */}
       <Footer navigation={navigation} activeRoute="Liste des parkings" />
     </View>
