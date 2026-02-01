@@ -2,6 +2,10 @@
 #
 .DS_Store
 
+# iOS - Généré par Expo Prebuild (CNG)
+/ios/
+
+
 # Xcode
 #
 build/
@@ -34,9 +38,11 @@ local.properties
 *.keystore
 !debug.keystore
 
-# Firebase Configuration (contient des clés sensibles)
+
+# Firebase Configuration Android (contient des clés sensibles)
 google-services.json
-GoogleService-Info.plist
+
+# Note: GoogleService-Info.plist est inclus pour EAS Build iOS
 
 # node.js
 #

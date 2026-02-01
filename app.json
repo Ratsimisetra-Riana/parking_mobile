@@ -40,11 +40,6 @@
       },
       "entitlements": {
         "aps-environment": "development"
-      },
-      "config": {
-        "googleSignIn": {
-          "reservedClientId": "com.googleusercontent.apps.918409349260-uqfla9m7seh995bjgojo6t7mt7e9smj6"
-        }
       }
     },
     "android": {
