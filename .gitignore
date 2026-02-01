@@ -76,3 +76,12 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# EAS Build
+eas-build-pre-install.sh
+eas-build-post-install.sh
