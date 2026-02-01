@@ -74,7 +74,7 @@ await announcementService.getPublishedAnnouncements();
 
 ---
 
-## 🔄 Workflow Implémenté
+##  Workflow Implémenté
 
 ```
 PROPRIÉTAIRE
@@ -96,7 +96,7 @@ CLIENT
 
 ---
 
-## 🔐 Sécurité
+##  Sécurité
 
 **Endpoints Publics**:
 - `GET /api/v1/announcements/published` - Liste des annonces publiées

@@ -41,7 +41,7 @@
 
 ---
 
-## 🔄 Flux de Données
+##  Flux de Données
 
 ### 1. Authentification
 
@@ -209,7 +209,7 @@
 
 ---
 
-## 🔐 Sécurité - Flux JWT
+##  Sécurité - Flux JWT
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -372,7 +372,7 @@
 
 ---
 
-## 🔄 État et Props Flow
+##  État et Props Flow
 
 ```
 ┌─────────────────────────────────────────────────────────┐

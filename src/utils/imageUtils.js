@@ -13,7 +13,7 @@ const SUPABASE_URL = getSupabaseUrl();
 const SUPABASE_STORAGE_URL = `${SUPABASE_URL}/storage/v1/object/public/parking-images/`;
 
 // Log de la configuration au chargement
-console.log('🖼️ Configuration images:');
+console.log(' Configuration images:');
 console.log('   - Mode:', USE_PROXY ? 'PROXY' : 'DIRECT');
 console.log('   - Backend URL:', BACKEND_URL);
 console.log('   - Supabase URL:', SUPABASE_URL);
@@ -26,28 +26,28 @@ console.log('   - Supabase URL:', SUPABASE_URL);
  */
 export const convertToProxyUrl = (supabaseUrl) => {
   if (!supabaseUrl) return null;
-  
+
   // Si ce n'est pas une URL Supabase, retourner telle quelle
   if (!supabaseUrl.includes('supabase.co')) {
     return supabaseUrl;
   }
-  
+
   // MODE DIRECT: Utiliser Supabase directement (bucket public)
   if (!USE_PROXY) {
     log.info('🔗 Mode DIRECT - URL Supabase:', supabaseUrl);
     return supabaseUrl;
   }
-  
+
   // MODE PROXY: Passer par le backend
   // Extraire le chemin après "parking-images/"
   const path = supabaseUrl.replace(SUPABASE_STORAGE_URL, '');
-  
+
   // Construire l'URL proxy
   const proxyUrl = `${BACKEND_URL}/api/images/proxy?path=${encodeURIComponent(path)}`;
-  
-  log.info('🔄 Mode PROXY - URL Supabase:', supabaseUrl);
+
+  log.info(' Mode PROXY - URL Supabase:', supabaseUrl);
   log.info(' Mode PROXY - URL Proxy:', proxyUrl);
-  
+
   return proxyUrl;
 };
 
@@ -58,7 +58,7 @@ export const convertToProxyUrl = (supabaseUrl) => {
  */
 export const convertImagesToProxy = (images) => {
   if (!images || !Array.isArray(images)) return [];
-  
+
   return images.map(img => ({
     ...img,
     fileUrl: convertToProxyUrl(img.fileUrl),

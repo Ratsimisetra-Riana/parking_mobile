@@ -76,7 +76,7 @@ export const markAllAsRead = async (userId) => {
 export const deleteNotification = async (notificationId) => {
   try {
     await api.delete(`/notifications/${notificationId}`);
-    console.log('🗑️ Notification supprimée:', notificationId);
+    console.log(' Notification supprimée:', notificationId);
   } catch (error) {
     console.error('Erreur: Erreur suppression notification:', error);
     throw error;
@@ -108,7 +108,7 @@ export const deactivateDeviceToken = async (token, userId = null) => {
     const response = await api.delete('/device-tokens/deactivate', {
       data: { token, userId },
     });
-    console.log('🔴 Token FCM désactivé');
+    console.log(' Token FCM désactivé');
     return response.data;
   } catch (error) {
     console.error('Erreur: Erreur désactivation token:', error);

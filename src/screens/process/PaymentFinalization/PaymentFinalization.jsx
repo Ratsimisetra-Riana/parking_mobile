@@ -31,10 +31,10 @@ export default function PaymentFinalization({ route, navigation }) {
       setLoadingData(true);
       console.log('📥 Chargement des données de la demande', requestId);
       const data = await reservationRequestService.getRequestById(requestId);
-      console.log('✅ Données chargées:', data);
+      console.log(' Données chargées:', data);
       setRequestData(data);
     } catch (error) {
-      console.error('❌ Erreur chargement données demande:', error);
+      console.error(' Erreur chargement données demande:', error);
       Alert.alert('Erreur', 'Impossible de charger les détails de la demande');
     } finally {
       setLoadingData(false);

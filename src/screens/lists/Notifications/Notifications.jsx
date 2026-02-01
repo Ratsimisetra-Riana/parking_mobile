@@ -31,7 +31,7 @@ export default function Notifications({ navigation }) {
       if (user?.Id_Users) {
         setUserId(user.Id_Users);
       } else {
-        console.warn('⚠️ Utilisateur non connecté');
+        console.warn(' Utilisateur non connecté');
         setLoading(false);
       }
     } catch (error) {
@@ -153,7 +153,7 @@ export default function Notifications({ navigation }) {
       setNotifications(prev =>
         prev.map(n => ({ ...n, isRead: true }))
       );
-      console.log('✅ Toutes les notifications marquées comme lues');
+      console.log(' Toutes les notifications marquées comme lues');
     } catch (error) {
       console.error('Erreur: Erreur marquage toutes notifications:', error);
     }

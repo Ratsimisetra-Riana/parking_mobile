@@ -22,7 +22,7 @@
 
 ---
 
-## 🔄 Mapping Backend → Ionicons
+##  Mapping Backend → Ionicons
 
 ```javascript
 const iconMap = {

@@ -16,7 +16,7 @@ const SocialLoginButtons = ({ navigation, onSuccess, onError }) => {
   const handleGoogleLogin = async () => {
     setLoadingGoogle(true);
     try {
-      console.log('🔵 Tentative de connexion Google...');
+      console.log(' Tentative de connexion Google...');
       const response = await authService.loginWithGoogle();
 
       console.log(' Connexion Google réussie:', response);
@@ -59,7 +59,7 @@ const SocialLoginButtons = ({ navigation, onSuccess, onError }) => {
   const handleFacebookLogin = async () => {
     setLoadingFacebook(true);
     try {
-      console.log('🔵 Tentative de connexion Facebook...');
+      console.log(' Tentative de connexion Facebook...');
       const response = await authService.loginWithFacebook();
 
       console.log(' Connexion Facebook réussie:', response);

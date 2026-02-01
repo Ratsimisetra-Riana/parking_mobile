@@ -13,10 +13,10 @@ export const dashboardService = {
         try {
             const response = await api.get(`/owner-dashboard/${ownerId}`);
 
-            console.log('✅ Dashboard API response:', response.data);
+            console.log(' Dashboard API response:', response.data);
             return response.data;
         } catch (error) {
-            console.error('❌ Erreur getDashboard:', error.response?.data || error.message);
+            console.error(' Erreur getDashboard:', error.response?.data || error.message);
             throw new Error(error.response?.data?.message || 'Erreur lors du chargement du dashboard');
         }
     },
@@ -37,7 +37,7 @@ export const dashboardService = {
 
             return response.data;
         } catch (error) {
-            console.error('❌ Erreur getCommissionStatistics:', error.response?.data || error.message);
+            console.error(' Erreur getCommissionStatistics:', error.response?.data || error.message);
             throw new Error(error.response?.data?.message || 'Erreur lors du chargement des commissions');
         }
     },
@@ -58,7 +58,7 @@ export const dashboardService = {
 
             return response.data;
         } catch (error) {
-            console.error('❌ Erreur getReservationsByStatus:', error.response?.data || error.message);
+            console.error(' Erreur getReservationsByStatus:', error.response?.data || error.message);
             throw new Error(error.response?.data?.message || 'Erreur lors du chargement des réservations');
         }
     },
@@ -76,7 +76,7 @@ export const dashboardService = {
 
             return response.data;
         } catch (error) {
-            console.error('❌ Erreur getTopParkingsByReservations:', error.response?.data || error.message);
+            console.error(' Erreur getTopParkingsByReservations:', error.response?.data || error.message);
             throw new Error(error.response?.data?.message || 'Erreur lors du chargement du top parkings');
         }
     },
@@ -97,7 +97,7 @@ export const dashboardService = {
 
             return response.data;
         } catch (error) {
-            console.error('❌ Erreur getActiveUsersStatistics:', error.response?.data || error.message);
+            console.error(' Erreur getActiveUsersStatistics:', error.response?.data || error.message);
             throw new Error(error.response?.data?.message || 'Erreur lors du chargement des utilisateurs actifs');
         }
     },

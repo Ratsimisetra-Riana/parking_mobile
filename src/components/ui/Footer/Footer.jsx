@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, useWindowDimensions } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,7 +25,7 @@ const Footer = ({ navigation, activeRoute }) => {
       }
     } catch (error) {
       // Silencieux en cas d'erreur pour ne pas polluer la console
-      console.log('ℹ️ Impossible de charger le compteur de notifs');
+      console.log('️ Impossible de charger le compteur de notifs');
     }
   }, []);
 

@@ -66,7 +66,7 @@ const reservationService = {
         throw new Error('Vous devez être connecté pour effectuer une réservation');
       }
 
-      console.log('🔑 Token présent, envoi de la requête...');
+      console.log(' Token présent, envoi de la requête...');
 
       // Convertir les dates en UTC (format ISO 8601) pour le backend
       const startDateUTC = new Date(reservationData.startDateTime).toISOString();

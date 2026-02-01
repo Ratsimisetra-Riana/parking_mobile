@@ -56,7 +56,7 @@ src/
 
 ---
 
-## 🔐 Authentification & Sécurité
+##  Authentification & Sécurité
 
 ### JWT Token Management
 
@@ -229,7 +229,7 @@ padding: 10px
 
 ---
 
-## 🔄 Flux de Navigation
+##  Flux de Navigation
 
 ```
 Home

@@ -623,7 +623,7 @@ const handleLogout = async () => {
 
 ---
 
-## 🔐 Gestion de la Sécurité
+##  Gestion de la Sécurité
 
 ### 1. **Authentification JWT**
 
@@ -812,7 +812,7 @@ await AsyncStorage.removeItem('jwt_token');
 
 ---
 
-## 🔄 Flux de Navigation
+##  Flux de Navigation
 
 ### Navigation Stack
 

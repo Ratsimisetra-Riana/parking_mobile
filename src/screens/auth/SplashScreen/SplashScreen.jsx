@@ -46,7 +46,7 @@ export default function SplashScreen({ navigation }) {
             const token = await AsyncStorage.getItem('jwt_token');
 
             if (!token) {
-                console.log('❌ Aucun token trouvé, redirection vers Login');
+                console.log(' Aucun token trouvé, redirection vers Login');
                 navigateToLogin();
                 return;
             }
@@ -65,17 +65,17 @@ export default function SplashScreen({ navigation }) {
             const userJson = await AsyncStorage.getItem('user');
 
             if (!userJson) {
-                console.log('❌ Données utilisateur manquantes, redirection vers Login');
+                console.log(' Données utilisateur manquantes, redirection vers Login');
                 navigateToLogin();
                 return;
             }
 
             // Session valide, redirection vers Home
-            console.log('✅ Session valide, redirection vers Home');
+            console.log(' Session valide, redirection vers Home');
             navigateToHome();
 
         } catch (error) {
-            console.error('❌ Erreur vérification session:', error);
+            console.error(' Erreur vérification session:', error);
             navigateToLogin();
         }
     };

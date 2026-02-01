@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Service de navigation global
  * Permet de naviguer depuis n'importe où dans l'app (même en dehors des composants React)
  * Utilisé notamment pour la navigation depuis les notifications push
@@ -18,7 +18,7 @@ export const navigate = (name, params) => {
     if (navigationRef.isReady()) {
         navigationRef.navigate(name, params);
     } else {
-        console.warn('⚠️ Navigation non prête, impossible de naviguer vers:', name);
+        console.warn(' Navigation non prête, impossible de naviguer vers:', name);
     }
 };
 
@@ -28,7 +28,7 @@ export const navigate = (name, params) => {
  */
 export const navigateFromNotification = (data) => {
     if (!data || !data.type) {
-        console.log('ℹ️ Notification sans type, navigation vers Notifications');
+        console.log('️ Notification sans type, navigation vers Notifications');
         navigate('Notifications');
         return;
     }

@@ -14,7 +14,7 @@ const SupabaseImage = ({ uri, style, resizeMode = 'cover', placeholder, ...props
   const [error, setError] = useState(false);
 
   const handleLoadStart = () => {
-    console.log('🔄 Chargement SupabaseImage:', uri);
+    console.log(' Chargement SupabaseImage:', uri);
     setLoading(true);
     setError(false);
   };

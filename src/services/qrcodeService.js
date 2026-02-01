@@ -6,13 +6,13 @@ const BASE_PATH = '/reservations';
 const qrcodeService = {
 
   /**
-   * 🔐 Récupérer le token QR Code d'une réservation
+   *  Récupérer le token QR Code d'une réservation
    * @param {number} reservationId - ID de la réservation
    * @returns {Promise<{qrToken: string, isValidated: boolean, validatedAt: string|null}>}
    */
   getQRToken: async (reservationId) => {
     try {
-      console.log(`🔐 Récupération du token QR pour la réservation ${reservationId}...`);
+      console.log(` Récupération du token QR pour la réservation ${reservationId}...`);
       const response = await api.get(`${BASE_PATH}/${reservationId}/qr-token`);
       console.log(' Token QR récupéré:', response.data);
       return response.data;
@@ -24,13 +24,13 @@ const qrcodeService = {
 
 
   /**
-   * 🖼️ Récupérer l'image QR Code (PNG) d'une réservation
+   *  Récupérer l'image QR Code (PNG) d'une réservation
    * @param {number} reservationId - ID de la réservation
    * @returns {Promise<Blob>} Image PNG du QR Code
    */
   getQRImage: async (reservationId) => {
     try {
-      console.log(`🖼️ Récupération de l'image QR pour la réservation ${reservationId}...`);
+      console.log(` Récupération de l'image QR pour la réservation ${reservationId}...`);
       const response = await api.get(`${BASE_PATH}/${reservationId}/qr-image`, {
         responseType: 'blob', // Important pour recevoir l'image
       });
@@ -56,7 +56,7 @@ const qrcodeService = {
       return response.data;
     } catch (error) {
       console.error(`Erreur: Erreur lors de la validation du QR Code:`, error);
-      
+
       // Extraire le message d'erreur du backend
       if (error.response?.data?.error) {
         throw new Error(error.response.data.error);

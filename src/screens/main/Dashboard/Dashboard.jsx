@@ -39,11 +39,11 @@ const Dashboard = ({ navigation }) => {
 
             console.log('📊 Chargement dashboard pour user:', userId);
             const data = await dashboardService.getOwnerDashboard(userId);
-            console.log('✅ Dashboard chargé:', data);
+            console.log(' Dashboard chargé:', data);
 
             setDashboardData(data);
         } catch (err) {
-            console.error('❌ Erreur chargement dashboard:', err);
+            console.error(' Erreur chargement dashboard:', err);
             setError(err.message || 'Erreur de chargement');
         } finally {
             setLoading(false);

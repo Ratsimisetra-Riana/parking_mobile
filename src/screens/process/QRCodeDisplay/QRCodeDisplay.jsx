@@ -39,7 +39,7 @@ export default function QRCodeDisplay() {
     // Utiliser fullReservation en priorité (données rechargées de l'API)
     const startDateTime = fullReservation?.startDateTime || reservation?.startDateTime;
     const endDateTime = fullReservation?.endDateTime || reservation?.endDateTime;
-    
+
     if (!startDateTime || !endDateTime) {
       return "Date non disponible";
     }
@@ -59,13 +59,13 @@ export default function QRCodeDisplay() {
           throw new Error('Aucune réservation sélectionnée');
         }
 
-        console.log('🔐 Chargement du QR Code pour la réservation:', reservation.id);
-        
+        console.log(' Chargement du QR Code pour la réservation:', reservation.id);
+
         // Charger les données complètes de la réservation via l'API (utilise la vue SQL)
         const fullResData = await reservationService.getReservationById(reservation.id);
         setFullReservation(fullResData);
         console.log(' Réservation complète chargée:', fullResData);
-        
+
         // Charger le QR token
         const qrData = await qrcodeService.getQRToken(reservation.id);
         setQrToken(qrData.qrToken);
@@ -164,10 +164,10 @@ export default function QRCodeDisplay() {
           <Text style={styles.confirmationText}>
             {isValidated ? 'Réservation validée' : 'Réservation confirmée'}
           </Text>
-          <Ionicons 
-            name={isValidated ? "checkmark-circle" : "checkmark-circle-outline"} 
-            size={32} 
-            color={isValidated ? colors.status.success : colors.primary.green} 
+          <Ionicons
+            name={isValidated ? "checkmark-circle" : "checkmark-circle-outline"}
+            size={32}
+            color={isValidated ? colors.status.success : colors.primary.green}
           />
         </View>
 
@@ -216,10 +216,10 @@ export default function QRCodeDisplay() {
         {/* Instructions */}
         <View style={styles.instructionsContainer}>
           <View style={styles.instructionsTitleRow}>
-            <Ionicons 
-              name={isValidated ? "shield-checkmark" : "qr-code-outline"} 
-              size={20} 
-              color={isValidated ? colors.status.success : colors.primary.green} 
+            <Ionicons
+              name={isValidated ? "shield-checkmark" : "qr-code-outline"}
+              size={20}
+              color={isValidated ? colors.status.success : colors.primary.green}
             />
             <Text style={styles.instructionsTitle}>
               {isValidated ? 'Accès autorisé' : 'Présentez ce QR code à l\'entrée'}

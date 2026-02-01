@@ -1,16 +1,14 @@
 import messaging from '@react-native-firebase/messaging';
 import { Platform, PermissionsAndroid } from 'react-native';
 
-/**
- * Demander la permission pour les notifications (Android 13+)
- */
+
 export const requestUserPermission = async () => {
   try {
     if (Platform.OS === 'android' && Platform.Version >= 33) {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
       );
-      
+
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         console.log(' Permission notifications accordée');
       } else {
@@ -38,14 +36,12 @@ export const requestUserPermission = async () => {
   }
 };
 
-/**
- * Obtenir le token FCM de l'appareil
- */
+//get fcm
 export const getFCMToken = async () => {
   try {
     const fcmToken = await messaging().getToken();
     if (fcmToken) {
-      console.log('🔑 FCM Token obtenu:', fcmToken.substring(0, 20) + '...');
+      console.log(' FCM Token obtenu:', fcmToken.substring(0, 20) + '...');
       return fcmToken;
     } else {
       console.warn(' Aucun token FCM disponible');
@@ -57,19 +53,15 @@ export const getFCMToken = async () => {
   }
 };
 
-/**
- * Rafraîchir le token FCM (quand il change)
- */
+//refresh FCm
 export const onTokenRefresh = (callback) => {
   return messaging().onTokenRefresh((token) => {
-    console.log('🔄 Token FCM rafraîchi:', token.substring(0, 20) + '...');
+    console.log(' Token FCM rafraîchi:', token.substring(0, 20) + '...');
     callback(token);
   });
 };
 
-/**
- * Écouter les notifications en premier plan (app ouverte)
- */
+
 export const onForegroundMessage = (callback) => {
   return messaging().onMessage(async (remoteMessage) => {
     console.log(' Notification foreground:', remoteMessage);
@@ -77,9 +69,7 @@ export const onForegroundMessage = (callback) => {
   });
 };
 
-/**
- * Écouter les notifications en arrière-plan (app fermée/minimisée)
- */
+
 export const setBackgroundMessageHandler = () => {
   messaging().setBackgroundMessageHandler(async (remoteMessage) => {
     console.log('📭 Notification background:', remoteMessage);
@@ -87,9 +77,7 @@ export const setBackgroundMessageHandler = () => {
   });
 };
 
-/**
- * Notification cliquée quand l'app est fermée
- */
+
 export const onNotificationOpenedApp = (callback) => {
   messaging().onNotificationOpenedApp((remoteMessage) => {
     console.log(' Notification cliquée (app fermée):', remoteMessage);
@@ -97,9 +85,7 @@ export const onNotificationOpenedApp = (callback) => {
   });
 };
 
-/**
- * Vérifier si l'app a été ouverte via une notification
- */
+
 export const getInitialNotification = async (callback) => {
   const remoteMessage = await messaging().getInitialNotification();
   if (remoteMessage) {

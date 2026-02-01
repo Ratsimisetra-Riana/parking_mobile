@@ -56,7 +56,7 @@ npx react-native run-android
 - Affichage avec précision 6 décimales
 
 ### **Option 2 : Sélection Manuelle sur Carte**
-- Bouton "🗺️ Choisir sur la carte"
+- Bouton " Choisir sur la carte"
 - Modal plein écran avec carte Leaflet
 - Marqueur déplaçable (drag & drop)
 - Clic sur la carte pour repositionner
@@ -68,7 +68,7 @@ npx react-native run-android
 
 ---
 
-## 🔄 Workflow Utilisateur
+##  Workflow Utilisateur
 
 ```
 Création de Parking

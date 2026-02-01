@@ -248,7 +248,7 @@ badgeRed: {
 
 ---
 
-## 🔄 Synchronisation avec le Backend
+##  Synchronisation avec le Backend
 
 **Utilisation des statuts du backend:**
 ```jsx

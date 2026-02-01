@@ -57,22 +57,22 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   // Initialiser FCM au démarrage de l'app
   React.useEffect(() => {
-    console.log('🚀 DÉBUT initialisation FCM...');
+    console.log(' DÉBUT initialisation FCM...');
     const initializeFCM = async () => {
       try {
         console.log('📝 Étape 1: Demande permissions...');
         // 1. Demander les permissions
         const hasPermission = await requestUserPermission();
-        console.log('✅ Permissions résultat:', hasPermission);
+        console.log(' Permissions résultat:', hasPermission);
         if (!hasPermission) {
-          console.warn('⚠️ Permissions notifications non accordées');
+          console.warn(' Permissions notifications non accordées');
           return;
         }
 
-        console.log('🔑 Étape 2: Récupération token FCM...');
+        console.log(' Étape 2: Récupération token FCM...');
         // 2. Obtenir le token FCM
         const fcmToken = await getFCMToken();
-        console.log('✅ Token FCM reçu:', fcmToken ? 'OUI' : 'NON');
+        console.log(' Token FCM reçu:', fcmToken ? 'OUI' : 'NON');
         if (fcmToken) {
           // Récupérer l'ID utilisateur depuis AsyncStorage (après login)
           const userJson = await AsyncStorage.getItem('user');
@@ -83,10 +83,10 @@ export default function App() {
             if (userId) {
               // Enregistrer le token dans le backend
               await registerDeviceToken(userId, fcmToken, Platform.OS);
-              console.log('✅ Token FCM enregistré pour user:', userId);
+              console.log(' Token FCM enregistré pour user:', userId);
             }
           } else {
-            console.log('ℹ️ Utilisateur non connecté, token sera enregistré après login');
+            console.log(' Utilisateur non connecté, token sera enregistré après login');
           }
         }
 
@@ -140,7 +140,7 @@ export default function App() {
 
         // 7. Vérifier si l'app a été ouverte via une notification (app fermée)
         getInitialNotification((remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
-          console.log('🚀 App ouverte via notification:', remoteMessage.data);
+          console.log(' App ouverte via notification:', remoteMessage.data);
           // Attendre un peu que la navigation soit prête puis naviguer
           setTimeout(() => {
             navigateFromNotification(remoteMessage.data || {});
@@ -153,8 +153,8 @@ export default function App() {
           unsubscribeForeground();
         };
       } catch (error: any) {
-        console.error('❌ Erreur initialisation FCM:', error);
-        console.error('❌ Stack trace:', error?.stack);
+        console.error(' Erreur initialisation FCM:', error);
+        console.error(' Stack trace:', error?.stack);
       }
     };
 

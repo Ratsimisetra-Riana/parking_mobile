@@ -59,7 +59,7 @@ Bienvenue dans la documentation complète du projet **Parking Mobile**. Cette pa
 
 **Pour qui :** Développeurs, Architectes  
 **Temps de lecture :** 45 minutes  
-**Niveau :** 🔴 Avancé
+**Niveau :**  Avancé
 
 👉 [Lire l'analyse complète](./ANALYSE_COMPLETE_PROJET.md)
 
@@ -123,7 +123,7 @@ Bienvenue dans la documentation complète du projet **Parking Mobile**. Cette pa
 
 ---
 
-## 🗺️ Parcours Recommandés
+##  Parcours Recommandés
 
 ### Pour les Nouveaux Arrivants
 
@@ -267,7 +267,7 @@ R: Voir [CONFORMITE_MES_RESERVATIONS.md](./CONFORMITE_MES_RESERVATIONS.md)
 
 ---
 
-## 🔄 Mises à Jour
+##  Mises à Jour
 
 ### Version 1.0 (20 novembre 2025)
 -  Analyse complète du projet

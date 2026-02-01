@@ -108,7 +108,7 @@ export default function ParkingList({ navigation }) {
       // Appeler l'API de recherche
       const results = await announcementService.searchAnnouncements(filters);
 
-      console.log('✅ Résultats:', results.length, 'annonce(s)');
+      console.log(' Résultats:', results.length, 'annonce(s)');
 
       setAllAnnouncements(results);
       setAnnouncements(results);
@@ -280,7 +280,7 @@ export default function ParkingList({ navigation }) {
               const announcementId = announcement?.id_Announcements || announcement?.Id_Announcements;
               const parkingId = parking.id_Parking || parking.Id_Parking;
 
-              // console.log('🗺️ Marker cliqué - Annonce ID:', announcementId, '- Parking ID:', parkingId);
+              // console.log(' Marker cliqué - Annonce ID:', announcementId, '- Parking ID:', parkingId);
               navigation.navigate("Détails du parking", {
                 parkingId: parkingId,
                 announcementId: announcementId,
