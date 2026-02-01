@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
-import FastImage from 'react-native-fast-image';
+import { Image } from 'expo-image';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { supabaseImageStyles as styles } from './SupabaseImage.styles';
 import { colors } from '../../../theme';
 
 /**
  * Composant Image optimisé pour Supabase Storage
- * Utilise FastImage pour une meilleure gestion des certificats SSL et du cache
+ * Utilise expo-image pour une meilleure gestion du cache et des performances
  */
 const SupabaseImage = ({ uri, style, resizeMode = 'cover', placeholder, ...props }) => {
   const [loading, setLoading] = useState(true);
@@ -40,20 +40,26 @@ const SupabaseImage = ({ uri, style, resizeMode = 'cover', placeholder, ...props
     );
   }
 
+  // Mapping resizeMode pour expo-image (contentFit)
+  const contentFitMap = {
+    cover: 'cover',
+    contain: 'contain',
+    stretch: 'fill',
+    center: 'none',
+  };
+
   return (
     <View style={[styles.container, style]}>
-      <FastImage
+      <Image
         {...props}
-        source={{
-          uri: uri,
-          priority: FastImage.priority.normal,
-          cache: FastImage.cacheControl.immutable,
-        }}
+        source={{ uri: uri }}
         style={[StyleSheet.absoluteFill, style]}
-        resizeMode={FastImage.resizeMode[resizeMode] || FastImage.resizeMode.cover}
+        contentFit={contentFitMap[resizeMode] || 'cover'}
+        cachePolicy="disk"
         onLoadStart={handleLoadStart}
         onLoad={handleLoad}
         onError={handleError}
+        transition={200}
       />
       {loading && (
         <View style={styles.loadingContainer}>
