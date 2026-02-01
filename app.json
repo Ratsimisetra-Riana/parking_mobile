@@ -73,15 +73,6 @@
           "cameraPermissionText": "UPark a besoin d'accéder à la caméra pour scanner les QR codes",
           "enableMicrophonePermission": false
         }
-      ],
-      [
-        "react-native-fbsdk-next",
-        {
-          "appID": "1522395478989208",
-          "clientToken": "c46cfbdb827f5ed80da34a21b3404597",
-          "displayName": "UPark",
-          "scheme": "fb1522395478989208"
-        }
       ]
     ],
     "extra": {
