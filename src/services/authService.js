@@ -2,7 +2,7 @@ import api from '../config/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
+// import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
 import messaging from '@react-native-firebase/messaging';
 import { deactivateDeviceToken } from './notificationService';
 
@@ -128,16 +128,18 @@ const authService = {
         console.log('ℹ️ Pas de session Google active');
       }
 
-      // 3. Déconnecter Facebook (si connecté avec Facebook)
-      try {
-        const fbToken = await AccessToken.getCurrentAccessToken();
-        if (fbToken) {
-          await LoginManager.logOut();
-          console.log('✅ Déconnexion Facebook effectuée');
-        }
-      } catch (facebookError) {
-        console.log('ℹ️ Pas de session Facebook active');
-      }
+      /*
+            // 3. Déconnecter Facebook (si connecté avec Facebook)
+            try {
+              const fbToken = await AccessToken.getCurrentAccessToken();
+              if (fbToken) {
+                await LoginManager.logOut();
+                console.log('✅ Déconnexion Facebook effectuée');
+              }
+            } catch (facebookError) {
+              console.log('ℹ️ Pas de session Facebook active');
+            }
+            */
 
       console.log('✅ Déconnexion complète terminée');
     } catch (error) {
@@ -291,10 +293,11 @@ const authService = {
   },
 
   /**
-   * Connexion avec Facebook OAuth2
+   * Connexion avec Facebook OAuth2 (Désactivé temporairement pour iOS)
    * @returns {Promise} Données de l'utilisateur et token
    */
   loginWithFacebook: async () => {
+    /*
     try {
       console.log('🔵 Démarrage connexion Facebook...');
 
@@ -346,6 +349,8 @@ const authService = {
       console.error('Erreur: Erreur connexion Facebook:', error);
       throw error;
     }
+    */
+    throw new Error('La connexion Facebook est temporairement indisponible sur cette plateforme.');
   },
 
   // ========================================

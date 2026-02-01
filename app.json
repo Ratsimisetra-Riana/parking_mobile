@@ -18,17 +18,9 @@
         "NSLocationAlwaysAndWhenInUseUsageDescription": "UPark a besoin de votre localisation pour trouver les parkings à proximité",
         "UIBackgroundModes": [
           "fetch",
-          "remote-notification",
-          "fetch",
           "remote-notification"
         ],
         "SKAdNetworkItems": [
-          {
-            "SKAdNetworkIdentifier": "v9wttpbfk9.skadnetwork"
-          },
-          {
-            "SKAdNetworkIdentifier": "n38lu8286q.skadnetwork"
-          },
           {
             "SKAdNetworkIdentifier": "v9wttpbfk9.skadnetwork"
           },
