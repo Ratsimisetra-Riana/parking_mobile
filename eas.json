@@ -15,10 +15,16 @@
                 "buildType": "apk"
             }
         },
-        "simulator": {
+        "sideload": {
             "ios": {
-                "simulator": true,
-                "resourceClass": "m-medium"
+                "simulator": false,
+                "resourceClass": "m-medium",
+                "gradleCommand": ":app:assembleRelease",
+                "withoutCredentials": true,
+                "image": "latest"
+            },
+            "android": {
+                "buildType": "apk"
             }
         },
         "preview": {
