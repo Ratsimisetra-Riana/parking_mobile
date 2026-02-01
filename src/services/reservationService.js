@@ -37,6 +37,21 @@ const reservationService = {
     }
   },
 
+  /**
+   * Récupérer les réservations des parkings d'un propriétaire
+   * @param {number} ownerId - ID du propriétaire
+   * @returns {Promise<Array>} - Liste des réservations sur ses parkings
+   */
+  getOwnerParkingReservations: async (ownerId) => {
+    try {
+      const response = await api.get(`${BASE_PATH}/owner/${ownerId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Erreur lors de la récupération des réservations du propriétaire ${ownerId}:`, error);
+      throw error;
+    }
+  },
+
 
   createReservation: async (reservationData) => {
     try {
@@ -53,11 +68,15 @@ const reservationService = {
 
       console.log('🔑 Token présent, envoi de la requête...');
 
+      // Convertir les dates en UTC (format ISO 8601) pour le backend
+      const startDateUTC = new Date(reservationData.startDateTime).toISOString();
+      const endDateUTC = new Date(reservationData.endDateTime).toISOString();
+
       const response = await api.post(BASE_PATH, {
         parkingId: reservationData.parkingId,
         userId: reservationData.userId,
-        startDateTime: reservationData.startDateTime,
-        endDateTime: reservationData.endDateTime,
+        startDateTime: startDateUTC,
+        endDateTime: endDateUTC,
         paymentMethod: reservationData.paymentMethod || 'CARTE_BANCAIRE',
         selectedVehicles: reservationData.selectedVehicles || [],
       });
@@ -106,10 +125,14 @@ const reservationService = {
 
   calculatePrice: async (priceData) => {
     try {
+      // Convertir les dates en UTC pour le calcul
+      const startDateUTC = new Date(priceData.startDateTime).toISOString();
+      const endDateUTC = new Date(priceData.endDateTime).toISOString();
+
       const response = await api.post(`${BASE_PATH}/calculate-price`, {
         parkingId: priceData.parkingId,
-        startDateTime: priceData.startDateTime,
-        endDateTime: priceData.endDateTime,
+        startDateTime: startDateUTC,
+        endDateTime: endDateUTC,
         selectedVehicles: priceData.selectedVehicles || [],
       });
       return response.data;
@@ -122,10 +145,14 @@ const reservationService = {
 
   checkAvailability: async (availabilityData) => {
     try {
+      // Convertir les dates en UTC pour vérifier la disponibilité
+      const startDateUTC = new Date(availabilityData.startDateTime).toISOString();
+      const endDateUTC = new Date(availabilityData.endDateTime).toISOString();
+
       const response = await api.post(`${BASE_PATH}/check-availability`, {
         parkingId: availabilityData.parkingId,
-        startDateTime: availabilityData.startDateTime,
-        endDateTime: availabilityData.endDateTime,
+        startDateTime: startDateUTC,
+        endDateTime: endDateUTC,
         selectedVehicles: availabilityData.selectedVehicles || [],
       });
       return response.data;
@@ -143,8 +170,8 @@ const reservationService = {
       if (filters.statusId) params.statusId = filters.statusId;
       if (filters.userId) params.userId = filters.userId;
       if (filters.parkingId) params.parkingId = filters.parkingId;
-      if (filters.startDate) params.startDate = filters.startDate;
-      if (filters.endDate) params.endDate = filters.endDate;
+      if (filters.startDate) params.startDate = new Date(filters.startDate).toISOString();
+      if (filters.endDate) params.endDate = new Date(filters.endDate).toISOString();
 
       const response = await api.get(`${BASE_PATH}/filter`, { params });
       return response.data;

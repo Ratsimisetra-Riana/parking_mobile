@@ -11,6 +11,7 @@ import Header from "../../../components/ui/Header/Header";
 import Footer from "../../../components/ui/Footer/Footer";
 import ParkingMap from "../../../components/maps/ParkingMap/ParkingMap";
 import { announcementService, vehicleService } from "../../../services";
+import { formatHourlyRate } from "../../../config/constants";
 
 export default function ParkingList({ navigation }) {
   const {
@@ -243,9 +244,9 @@ export default function ParkingList({ navigation }) {
                 <ParkingCard
                   key={`announcement-${announcementId || index}`}
                   title={parking?.label || 'Parking'}
-                  address={announcement.description || parking?.description || 'Adresse non disponible'}
-                  price={`${parking?.hourlyRate || parking?.hourly_rate || 0}$/heure`}
-                  rating={4}
+                  address={parking?.address || parking?.description || 'Adresse non disponible'}
+                  price={formatHourlyRate(parking?.hourlyRate || parking?.hourly_rate || 0)}
+                  rating={announcement.averageRating || 0}
                   image={parkingImage}
                   onPress={() => {
                     // console.log('🔍 Navigation vers annonce ID:', announcementId, '- Parking ID:', parkingId);
@@ -253,9 +254,9 @@ export default function ParkingList({ navigation }) {
                       parkingId: parkingId,
                       announcementId: announcementId,
                       title: parking?.label,
-                      address: announcement.description || parking?.description,
-                      price: `${parking?.hourlyRate || parking?.hourly_rate || 0}$/heure`,
-                      rating: 4,
+                      address: parking?.address || parking?.description,
+                      price: formatHourlyRate(parking?.hourlyRate || parking?.hourly_rate || 0),
+                      rating: announcement.averageRating || 0,
                       image: parkingImage
                     });
                   }}
@@ -284,9 +285,9 @@ export default function ParkingList({ navigation }) {
                 parkingId: parkingId,
                 announcementId: announcementId,
                 title: parking.label,
-                address: announcement?.description || parking.description,
-                price: `${parking.hourlyRate || parking.hourly_rate || 0}$/heure`,
-                rating: 4,
+                address: parking.address || parking.description,
+                price: formatHourlyRate(parking.hourlyRate || parking.hourly_rate || 0),
+                rating: announcement?.averageRating || 0,
                 image: require("../../../assets/image.png")
               });
             }}

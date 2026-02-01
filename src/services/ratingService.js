@@ -1,6 +1,6 @@
 /**
  * Service de gestion des notations/avis
- * Connecté au backend via /api/user-notes
+ * Connecté au backend via /api/v1/user-notes
  */
 
 import api from '../config/api';
@@ -26,7 +26,7 @@ const ratingService = {
       // Récupérer l'ID de l'utilisateur connecté
       const userJson = await AsyncStorage.getItem('user');
       const user = userJson ? JSON.parse(userJson) : null;
-      
+
       if (!user || !user.Id_Users) {
         throw new Error('Utilisateur non connecté');
       }
@@ -48,9 +48,9 @@ const ratingService = {
       };
 
       console.log('📤 Soumission avis:', payload);
-      
+
       const response = await api.post(BASE_PATH, payload);
-      
+
       console.log(' Avis enregistré:', response.data);
       return {
         success: true,
@@ -71,9 +71,9 @@ const ratingService = {
   getRatingsByParking: async (parkingId) => {
     try {
       console.log('📥 Récupération avis parking:', parkingId);
-      
+
       const response = await api.get(`${BASE_PATH}/parking/${parkingId}`);
-      
+
       // Mapper les données backend vers le format frontend
       const ratings = response.data.map(rating => ({
         id: rating.id,
@@ -88,7 +88,7 @@ const ratingService = {
         description: rating.description,
         createdAt: rating.createdAt,
       }));
-      
+
       console.log(` ${ratings.length} avis trouvés`);
       return ratings;
     } catch (error) {
@@ -105,25 +105,32 @@ const ratingService = {
   getParkingAverageRating: async (parkingId) => {
     try {
       console.log('📥 Récupération moyenne parking:', parkingId);
-      
+
       const response = await api.get(`${BASE_PATH}/statistics/parking/${parkingId}`);
-      
+
+      // Calculer le total des avis séparément pour éviter l'appel récursif
+      let total = 0;
+      try {
+        const ratings = await api.get(`${BASE_PATH}/parking/${parkingId}`);
+        total = ratings.data?.length || 0;
+      } catch (e) {
+        // Ignorer l'erreur pour le total
+      }
+
       return {
         average: response.data.average || 0,
-        total: await ratingService.getRatingsByParking(parkingId).then(r => r.length),
+        total: total,
       };
     } catch (error) {
-      console.error('Erreur: Erreur récupération moyenne parking:', error);
-      // En cas d'erreur, calculer manuellement depuis les avis
-      const ratings = await ratingService.getRatingsByParking(parkingId);
-      if (ratings.length === 0) {
-        return { average: 0, total: 0 };
+      // Si 404, c'est normal : pas de notes pour ce parking
+      if (error.response?.status === 404) {
+        console.log('ℹ️ Aucune note pour le parking:', parkingId);
+        return { average: null, total: 0 };
       }
-      const sum = ratings.reduce((acc, r) => acc + r.note, 0);
-      return {
-        average: Math.round((sum / ratings.length) * 10) / 10,
-        total: ratings.length,
-      };
+
+      console.error('Erreur: Erreur récupération moyenne parking:', error);
+      // En cas d'autre erreur, retourner null pour indiquer "pas de données"
+      return { average: null, total: 0 };
     }
   },
 
@@ -135,9 +142,9 @@ const ratingService = {
   getUserAverageRating: async (userId) => {
     try {
       console.log('📥 Récupération moyenne utilisateur:', userId);
-      
+
       const response = await api.get(`${BASE_PATH}/statistics/user/${userId}`);
-      
+
       return {
         average: response.data.average || 0,
         total: 0, // La vue ne retourne pas le total, on pourrait le calculer si besoin
@@ -156,18 +163,18 @@ const ratingService = {
   hasRatedReservation: async (reservationId) => {
     try {
       console.log('📥 Vérification notation réservation:', reservationId);
-      
+
       // Pour l'instant, on vérifie en récupérant tous les avis de l'utilisateur
       const userJson = await AsyncStorage.getItem('user');
       const user = userJson ? JSON.parse(userJson) : null;
-      
+
       if (!user || !user.Id_Users) {
         return false;
       }
-      
+
       const userRatings = await ratingService.getRatingsByUser(user.Id_Users);
       const hasRated = userRatings.some(r => r.reservationId === reservationId);
-      
+
       console.log(` Réservation ${reservationId} déjà notée: ${hasRated}`);
       return hasRated;
     } catch (error) {
@@ -184,9 +191,9 @@ const ratingService = {
   getRatingsByUser: async (userId) => {
     try {
       console.log('📥 Récupération avis utilisateur:', userId);
-      
+
       const response = await api.get(`${BASE_PATH}/user/${userId}`);
-      
+
       // Mapper les données backend vers le format frontend
       const ratings = response.data.map(rating => ({
         id: rating.id,
@@ -202,7 +209,7 @@ const ratingService = {
         description: rating.description,
         createdAt: rating.createdAt,
       }));
-      
+
       console.log(` ${ratings.length} avis utilisateur trouvés`);
       return ratings;
     } catch (error) {
@@ -219,9 +226,9 @@ const ratingService = {
   deleteRating: async (ratingId) => {
     try {
       console.log('🗑️ Suppression avis:', ratingId);
-      
+
       await api.delete(`${BASE_PATH}/${ratingId}`);
-      
+
       console.log(' Avis supprimé');
       return true;
     } catch (error) {

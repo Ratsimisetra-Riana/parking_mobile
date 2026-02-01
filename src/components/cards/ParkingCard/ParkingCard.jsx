@@ -25,7 +25,7 @@ export function ParkingCard({ title, address, price, rating, image, onPress, par
   }
 
   // Déterminer la source de l'image (URI ou require)
-  const imageSource = typeof image === 'string' 
+  const imageSource = typeof image === 'string'
     ? { uri: image }  // URL depuis Supabase
     : image;          // require() local
 
@@ -64,10 +64,12 @@ export function ParkingCard({ title, address, price, rating, image, onPress, par
           <Text style={styles.price}>
             {price}
           </Text>
-          
+
           <View style={styles.rating}>
             <Ionicons name="star" size={14} color={colors.status.warning} />
-            <Text style={styles.ratingText}>{rating}</Text>
+            <Text style={styles.ratingText}>
+              {rating ? Number(rating).toFixed(1) : '-'}
+            </Text>
           </View>
         </View>
       </View>

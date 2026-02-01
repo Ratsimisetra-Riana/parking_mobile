@@ -6,6 +6,7 @@ import Header from "../../../components/ui/Header/Header";
 import Footer from "../../../components/ui/Footer/Footer";
 import { reservationConfirmationStyles as styles } from './ReservationConfirmation.styles';
 import { colors } from '../../../theme';
+import { formatPrice } from '../../../config/constants';
 
 const ConfirmationScreen = () => {
   const navigation = useNavigation();
@@ -70,7 +71,7 @@ const ConfirmationScreen = () => {
           <Text style={styles.parkingName}>{bookingDetails.parkingName}</Text>
           <Text style={styles.detailItem}>- {bookingDetails.location}</Text>
           <Text style={styles.detailItem}>- {bookingDetails.dateTime}</Text>
-          <Text style={styles.detailItem}>Prix: {bookingDetails.price.toFixed(2)} €</Text>
+          <Text style={styles.detailItem}>Prix: {formatPrice(bookingDetails.price)}</Text>
         </View>
 
         {/* QR Code */}

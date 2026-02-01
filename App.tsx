@@ -49,6 +49,7 @@ import QRCodeScanner from "./src/screens/process/QRCodeScanner/QRCodeScanner";
 import ReportIssue from "./src/screens/forms/ReportIssue/ReportIssue";
 import MyDisputes from "./src/screens/lists/MyDisputes/MyDisputes";
 import Dashboard from "./src/screens/main/Dashboard/Dashboard";
+import SplashScreen from "./src/screens/auth/SplashScreen/SplashScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -160,6 +161,7 @@ export default function App() {
     initializeFCM();
   }, []);
 
+
   return (
     <SafeAreaProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
@@ -167,11 +169,12 @@ export default function App() {
           <NavigationContainer ref={navigationRef}>
 
             <Stack.Navigator
-              initialRouteName="Login"
+              initialRouteName="SplashScreen"
               screenOptions={{
                 headerShown: false
               }}
             >
+              <Stack.Screen name="SplashScreen" component={SplashScreen} />
               <Stack.Screen name="Home" component={Home} />
               <Stack.Screen name="Login" component={Login} />
               <Stack.Screen name="Registration" component={Registration} />

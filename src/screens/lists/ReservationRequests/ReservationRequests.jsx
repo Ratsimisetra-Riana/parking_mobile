@@ -6,6 +6,7 @@ import { reservationRequestService } from '../../../services';
 import Header from '../../../components/ui/Header/Header';
 import Footer from '../../../components/ui/Footer/Footer';
 import { reservationRequestsStyles as styles } from './ReservationRequests.styles';
+import { formatPrice } from '../../../config/constants';
 
 export default function ReservationRequests({ navigation }) {
   const [requests, setRequests] = useState([]);
@@ -14,10 +15,12 @@ export default function ReservationRequests({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('all'); // all, pending, accepted, rejected
   const [processingId, setProcessingId] = useState(null);
+  const [activeTab, setActiveTab] = useState('received'); // 'received' = reçues (propriétaire), 'sent' = envoyées (client)
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     loadRequests();
-  }, []);
+  }, [activeTab]); // Recharger quand l'onglet change
 
   useEffect(() => {
     applyFilter();
@@ -27,22 +30,30 @@ export default function ReservationRequests({ navigation }) {
     try {
       setLoading(true);
       const userJson = await AsyncStorage.getItem('user');
-      
+
       if (!userJson) {
         navigation.navigate('Login');
         return;
       }
 
       const user = JSON.parse(userJson);
-      const ownerId = user.Id_Users;
+      const currentUserId = user.Id_Users;
+      setUserId(currentUserId);
 
-      const data = await reservationRequestService.getRequestsByOwner(ownerId);
-      
-      console.log(' Demandes reçues:', data.length);
-      
+      let data;
+      if (activeTab === 'received') {
+        // Demandes reçues (en tant que propriétaire)
+        data = await reservationRequestService.getRequestsByOwner(currentUserId);
+        console.log('📥 Demandes reçues:', data.length);
+      } else {
+        // Demandes envoyées (en tant que client)
+        data = await reservationRequestService.getRequestsByRequester(currentUserId);
+        console.log('📤 Demandes envoyées:', data.length);
+      }
+
       // Trier par date (plus récentes en premier)
       const sorted = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      
+
       setRequests(sorted);
     } catch (error) {
       console.error('Erreur: Erreur chargement demandes:', error);
@@ -120,6 +131,42 @@ export default function ReservationRequests({ navigation }) {
     );
   };
 
+  // Annuler une demande (client)
+  const handleCancelRequest = async (requestId) => {
+    Alert.alert(
+      'Annuler la demande',
+      'Êtes-vous sûr de vouloir annuler cette demande ?',
+      [
+        { text: 'Non', style: 'cancel' },
+        {
+          text: 'Oui, annuler',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setProcessingId(requestId);
+              await reservationRequestService.cancelRequest(requestId);
+              Alert.alert('Succès', 'Demande annulée');
+              loadRequests();
+            } catch (error) {
+              console.error('Erreur: Erreur annulation:', error);
+              Alert.alert('Erreur', error.message || 'Impossible d\'annuler la demande');
+            } finally {
+              setProcessingId(null);
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  // Payer une demande acceptée (client)
+  const handlePayment = (request) => {
+    navigation.navigate('PaymentFinalization', {
+      requestId: request.id,
+      requestData: request,
+    });
+  };
+
   const getStatusInfo = (state) => {
     switch (state) {
       case 10:
@@ -156,7 +203,7 @@ export default function ReservationRequests({ navigation }) {
     const parkingName = item.announcement?.parking?.label || 'Parking';
     const startDate = item.startDateTime ? formatDate(item.startDateTime) : 'N/A';
     const endDate = item.endDateTime ? formatDate(item.endDateTime) : 'N/A';
-    const totalGain = item.totalGain?.toFixed(2) || '0.00';
+    const totalGain = formatPrice(item.totalGain);
 
     return (
       <View style={styles.card}>
@@ -191,35 +238,64 @@ export default function ReservationRequests({ navigation }) {
           <View style={styles.detailRow}>
             <Ionicons name="cash-outline" size={16} color="#666" />
             <Text style={styles.detailLabel}>Gain total</Text>
-            <Text style={styles.detailValueGreen}>{totalGain}€</Text>
+            <Text style={styles.detailValueGreen}>{formatPrice(item.totalGain)}</Text>
           </View>
         </View>
 
-        {/* Actions */}
-        {isPending && (
+        {/* Actions selon l'onglet */}
+        {activeTab === 'received' ? (
+          // Actions pour demandes REÇUES (propriétaire) : Accepter / Refuser
+          isPending && (
+            <View style={styles.actionsRow}>
+              <TouchableOpacity
+                style={[styles.button, styles.buttonReject]}
+                onPress={() => handleReject(item.id)}
+                disabled={isProcessing}
+              >
+                {isProcessing ? (
+                  <ActivityIndicator size="small" color="#666" />
+                ) : (
+                  <Text style={styles.buttonTextReject}>Refuser</Text>
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, styles.buttonAccept]}
+                onPress={() => handleAccept(item.id)}
+                disabled={isProcessing}
+              >
+                {isProcessing ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={styles.buttonTextAccept}>Accepter</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          )
+        ) : (
+          // Actions pour demandes ENVOYÉES (client)
           <View style={styles.actionsRow}>
-            <TouchableOpacity
-              style={[styles.button, styles.buttonReject]}
-              onPress={() => handleReject(item.id)}
-              disabled={isProcessing}
-            >
-              {isProcessing ? (
-                <ActivityIndicator size="small" color="#666" />
-              ) : (
-                <Text style={styles.buttonTextReject}>Refuser</Text>
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.buttonAccept]}
-              onPress={() => handleAccept(item.id)}
-              disabled={isProcessing}
-            >
-              {isProcessing ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Text style={styles.buttonTextAccept}>Accepter</Text>
-              )}
-            </TouchableOpacity>
+            {isPending && (
+              <TouchableOpacity
+                style={[styles.button, styles.buttonReject]}
+                onPress={() => handleCancelRequest(item.id)}
+                disabled={isProcessing}
+              >
+                {isProcessing ? (
+                  <ActivityIndicator size="small" color="#666" />
+                ) : (
+                  <Text style={styles.buttonTextReject}>Annuler</Text>
+                )}
+              </TouchableOpacity>
+            )}
+            {item.state === 20 && (
+              <TouchableOpacity
+                style={[styles.button, styles.buttonAccept]}
+                onPress={() => handlePayment(item)}
+                disabled={isProcessing}
+              >
+                <Text style={styles.buttonTextAccept}>Payer</Text>
+              </TouchableOpacity>
+            )}
           </View>
         )}
       </View>
@@ -234,9 +310,41 @@ export default function ReservationRequests({ navigation }) {
         <Header navigation={navigation} />
       </View>
 
+      {/* Onglets principaux : Reçues / Envoyées */}
+      <View style={styles.tabsContainer}>
+        <TouchableOpacity
+          style={[styles.tabButton, activeTab === 'received' && styles.tabButtonActive]}
+          onPress={() => setActiveTab('received')}
+        >
+          <Ionicons
+            name="download-outline"
+            size={18}
+            color={activeTab === 'received' ? '#6BBF47' : '#666'}
+          />
+          <Text style={[styles.tabText, activeTab === 'received' && styles.tabTextActive]}>
+            Reçues
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tabButton, activeTab === 'sent' && styles.tabButtonActive]}
+          onPress={() => setActiveTab('sent')}
+        >
+          <Ionicons
+            name="send-outline"
+            size={18}
+            color={activeTab === 'sent' ? '#6BBF47' : '#666'}
+          />
+          <Text style={[styles.tabText, activeTab === 'sent' && styles.tabTextActive]}>
+            Envoyées
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Title + Filter */}
       <View style={styles.header}>
-        <Text style={styles.title}>Mes Demandes</Text>
+        <Text style={styles.title}>
+          {activeTab === 'received' ? 'Demandes reçues' : 'Demandes envoyées'}
+        </Text>
         <View style={styles.filterButtons}>
           <TouchableOpacity
             style={[styles.filterButton, selectedFilter === 'all' && styles.filterButtonActive]}

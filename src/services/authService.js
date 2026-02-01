@@ -3,6 +3,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
+import messaging from '@react-native-firebase/messaging';
+import { deactivateDeviceToken } from './notificationService';
 
 // Base path pour l'API d'authentification
 const BASE_PATH = '/auth';
@@ -95,18 +97,32 @@ const authService = {
     try {
       console.log('🔴 Déconnexion complète en cours...');
 
+      // 0. Récupérer le token FCM et le désactiver en BDD AVANT de supprimer les données
+      try {
+        const fcmToken = await messaging().getToken();
+        const userJson = await AsyncStorage.getItem('user');
+        const userId = userJson ? JSON.parse(userJson).Id_Users : null;
+
+        if (fcmToken) {
+          await deactivateDeviceToken(fcmToken, userId);
+          console.log('🔴 Token FCM désactivé en BDD');
+        }
+      } catch (fcmError) {
+        console.log('⚠️ Erreur désactivation token FCM:', fcmError);
+      }
+
       // 1. Supprimer les données de l'app
       await AsyncStorage.removeItem('jwt_token');
       await AsyncStorage.removeItem('user');
       await AsyncStorage.removeItem('username');
-      console.log(' Données de l\'app supprimées');
+      console.log('✅ Données de l\'app supprimées');
 
       // 2. Déconnecter Google (si connecté avec Google)
       try {
         const isGoogleSignedIn = await GoogleSignin.isSignedIn();
         if (isGoogleSignedIn) {
           await GoogleSignin.signOut();
-          console.log(' Déconnexion Google effectuée');
+          console.log('✅ Déconnexion Google effectuée');
         }
       } catch (googleError) {
         console.log('ℹ️ Pas de session Google active');
@@ -117,13 +133,13 @@ const authService = {
         const fbToken = await AccessToken.getCurrentAccessToken();
         if (fbToken) {
           await LoginManager.logOut();
-          console.log(' Déconnexion Facebook effectuée');
+          console.log('✅ Déconnexion Facebook effectuée');
         }
       } catch (facebookError) {
         console.log('ℹ️ Pas de session Facebook active');
       }
 
-      console.log(' Déconnexion complète terminée');
+      console.log('✅ Déconnexion complète terminée');
     } catch (error) {
       console.error('Erreur: Erreur lors de la déconnexion:', error);
     }

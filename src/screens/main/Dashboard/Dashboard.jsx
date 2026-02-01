@@ -11,6 +11,7 @@ import WeeklyChart from '../../../components/cards/WeeklyChart/WeeklyChart';
 import NotificationItem from '../../../components/cards/NotificationItem/NotificationItem';
 import { dashboardStyles as styles } from './Dashboard.styles';
 import { colors } from '../../../theme';
+import { formatPrice } from '../../../config/constants';
 
 const { width } = Dimensions.get('window');
 
@@ -102,7 +103,7 @@ const Dashboard = ({ navigation }) => {
                             iconColor={colors.primary.bright}
                             iconBgColor={`${colors.primary.bright}20`}
                             title="Revenus du mois"
-                            value={`${summary?.revenusMoisCourant?.toFixed(2) || '0.00'} €`}
+                            value={formatPrice(summary?.revenusMoisCourant)}
                             evolution={summary?.evolutionRevenus || 0}
                             style={styles.kpiCardHalf}
                         />

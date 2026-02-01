@@ -166,6 +166,21 @@ const announcementService = {
       throw error;
     }
   },
+
+  /**
+   * Toggle le status de publication d'une annonce
+   * @param {number} id - ID de l'annonce
+   * @returns {Promise<Object>} Annonce mise à jour
+   */
+  togglePublished: async (id) => {
+    try {
+      const response = await api.put(`/announcements/${id}/toggle-published`);
+      return response.data;
+    } catch (error) {
+      console.error(`Erreur lors du toggle publish de l'annonce ${id}:`, error);
+      throw error;
+    }
+  },
 };
 
 export default announcementService;

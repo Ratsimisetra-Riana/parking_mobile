@@ -49,7 +49,7 @@ export default function Notifications({ navigation }) {
 
       // Mapper les notifications pour l'affichage
       const mappedNotifications = (data || []).map(notif => ({
-        id: notif.id,
+        id: notif.Id_Notification,
         title: notif.title || 'Notification',
         message: notif.message || '',
         type: notif.type || 'system',
@@ -77,7 +77,7 @@ export default function Notifications({ navigation }) {
         return 'checkmark-circle-outline';
       case 'reservation_rejected':
         return 'close-circle-outline';
-      case 'reservation_request':
+      case 'new_request':
         return 'mail-unread-outline';
       case 'payment_confirmed':
         return 'shield-checkmark-outline';
@@ -96,7 +96,7 @@ export default function Notifications({ navigation }) {
         return '#4CAF50'; // Vert
       case 'reservation_rejected':
         return '#F44336'; // Rouge
-      case 'reservation_request':
+      case 'new_request':
         return '#2196F3'; // Bleu
       case 'dispute':
         return '#FF9800'; // Orange
@@ -129,8 +129,14 @@ export default function Notifications({ navigation }) {
       navigation.navigate('PaymentFinalization', {
         requestId: parseInt(data.requestId),
       });
-    } else if (type === 'reservation_request') {
-      navigation.navigate('ReservationRequests');
+    } else if (type === 'new_request') {
+      // Notification de nouvelle demande -> aller vers les demandes de réservation
+      const requestId = data?.requestId;
+      if (requestId) {
+        navigation.navigate('ReservationRequests', { requestId: parseInt(requestId) });
+      } else {
+        navigation.navigate('ReservationRequests');
+      }
     } else if (type === 'payment_confirmed' || type === 'reservation_rejected') {
       navigation.navigate('Mes réservations');
     } else if (type === 'dispute' && data?.disputeId) {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, SafeAreaView, FlatList, ActivityIndicator, RefreshControl, TouchableOpacity, Modal, Animated } from 'react-native';
-import {ReservationCard} from "../../../components/cards/ReservationCard/ReservationCard";
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { ReservationCard } from "../../../components/cards/ReservationCard/ReservationCard";
 import Header from "../../../components/ui/Header/Header";
 import Footer from "../../../components/ui/Footer/Footer";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,18 +10,21 @@ import { reservationService, ratingService } from '../../../services';
 import RatingModal from '../../../components/modals/RatingModal';
 import { reservationListStyles as styles } from './ReservationList.styles';
 
-export default function ReservationList () {
+export default function ReservationList() {
   const navigation = useNavigation();
   const [reservations, setReservations] = useState([]);
   const [filteredReservations, setFilteredReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
-  
+
+  // Onglet actif: 'client' = mes réservations, 'owner' = réservations sur mes parkings
+  const [activeTab, setActiveTab] = useState('client');
+
   // Filtres
   const [selectedStatusFilter, setSelectedStatusFilter] = useState('Tous');
   const [selectedDateFilter, setSelectedDateFilter] = useState('Tous');
-  
+
   // États pour les dropdowns
   const [statusDropdownVisible, setStatusDropdownVisible] = useState(false);
   const [periodDropdownVisible, setPeriodDropdownVisible] = useState(false);
@@ -34,7 +38,7 @@ export default function ReservationList () {
   const getReservationStatus = (reservation) => {
     // Utiliser le statut du backend s'il existe
     const backendStatus = reservation.status;
-    
+
     // Mapping des statuts backend (labels exacts de la DB) vers l'affichage
     // Backend labels: "à venir" (value=10), "En cours" (value=15), "Terminée" (value=20), "Annulée" (value=25)
     const statusMapping = {
@@ -51,8 +55,16 @@ export default function ReservationList () {
 
     // Sinon, calculer en fonction des dates (fallback)
     const now = new Date();
-    const startDate = new Date(reservation.startDateTime);
-    const endDate = new Date(reservation.endDateTime);
+    const startDateValue = reservation.startDateTime || reservation.start_datetime;
+    const endDateValue = reservation.endDateTime || reservation.end_datetime;
+    
+    const startDate = startDateValue ? new Date(startDateValue) : null;
+    const endDate = endDateValue ? new Date(endDateValue) : null;
+
+    // Si les dates sont invalides, retourner un statut par défaut
+    if (!startDate || isNaN(startDate.getTime()) || !endDate || isNaN(endDate.getTime())) {
+      return { status: 'Erreur', color: 'red' };
+    }
 
     if (now < startDate) {
       return { status: 'À venir', color: 'green' };    //  Vert
@@ -67,22 +79,38 @@ export default function ReservationList () {
   const formatReservation = (reservation, index) => {
     try {
       const { status, color } = getReservationStatus(reservation);
-      
-      // Formater la date
-      const startDate = new Date(reservation.startDateTime);
-      const endDate = new Date(reservation.endDateTime);
-      const dateStr = `Le ${startDate.toLocaleDateString('fr-FR')} ${startDate.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}-${endDate.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}`;
+
+      // Formater la date - supporter différents formats de noms de champs
+      const startDateValue = reservation.startDateTime || reservation.start_datetime;
+      const endDateValue = reservation.endDateTime || reservation.end_datetime;
+
+      // Vérifier que les dates sont valides
+      const startDate = startDateValue ? new Date(startDateValue) : null;
+      const endDate = endDateValue ? new Date(endDateValue) : null;
+
+      let dateStr = 'Date non disponible';
+      if (startDate && !isNaN(startDate.getTime()) && endDate && !isNaN(endDate.getTime())) {
+        dateStr = `Le ${startDate.toLocaleDateString('fr-FR')} ${startDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}-${endDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
+      }
+
+      // Supporter les deux formats de données (parking.name ou parkingName)
+      const parkingName = reservation.parking?.name || reservation.parkingName || 'Parking non disponible';
+      const parkingAddress = reservation.parking?.address || reservation.parkingAddress || 'Adresse non disponible';
+      const parkingId = reservation.parking?.id || reservation.parkingId;
 
       return {
         id: reservation.id ? reservation.id.toString() : `temp-${index}`,
-        parkingId: reservation.parking?.id, // ID du parking pour la notation
-        name: reservation.parking?.name || 'Parking non disponible',
-        location: reservation.parking?.address || 'Adresse non disponible',
+        parkingId: parkingId,
+        name: parkingName,
+        location: parkingAddress,
         dateTime: dateStr,
         status: status,
         color: color,
         totalPrice: reservation.totalPrice || 0,
         paymentMethod: reservation.paymentMethod || 'Non défini',
+        // Infos client (pour le propriétaire)
+        clientId: reservation.clientId,
+        clientName: reservation.clientName,
       };
     } catch (error) {
       console.error('Erreur formatage réservation:', error, reservation);
@@ -101,12 +129,13 @@ export default function ReservationList () {
     }
   };
 
-  // Charger les réservations
+  // Charger les réservations selon l'onglet actif
   const loadReservations = async () => {
     try {
       setError(null);
+      setLoading(true);
       const userJson = await AsyncStorage.getItem('user');
-      
+
       if (!userJson) {
         setError('Utilisateur non connecté');
         navigation.navigate('Login');
@@ -116,26 +145,32 @@ export default function ReservationList () {
       const user = JSON.parse(userJson);
       const userId = user.Id_Users;
 
-      const data = await reservationService.getUserReservations(userId);
-      
-      console.log(' Réservations reçues:', data);
-      console.log(' Nombre de réservations:', data?.length || 0);
-      
+      let data;
+      if (activeTab === 'client') {
+        // Mes réservations (en tant que client)
+        data = await reservationService.getUserReservations(userId);
+        console.log('📥 Mes réservations:', data?.length || 0);
+      } else {
+        // Réservations sur mes parkings (en tant que propriétaire)
+        data = await reservationService.getOwnerParkingReservations(userId);
+        console.log('📤 Réservations sur mes parkings:', data?.length || 0);
+      }
+
       // Vérifier que data est un tableau
       if (!Array.isArray(data)) {
         console.warn('Les données reçues ne sont pas un tableau:', data);
         setReservations([]);
         return;
       }
-      
+
       // Formater les données pour l'affichage
       const formattedData = data.map((reservation, index) => formatReservation(reservation, index));
-      
+
       // Trier par date (plus récentes en premier)
       formattedData.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
-      
+
       setReservations(formattedData);
-      setFilteredReservations(formattedData); // Initialiser les réservations filtrées
+      setFilteredReservations(formattedData);
     } catch (error) {
       console.error('Erreur chargement réservations:', error);
       setError('Impossible de charger les réservations');
@@ -164,7 +199,7 @@ export default function ReservationList () {
       // Récupérer l'utilisateur connecté
       const userJson = await AsyncStorage.getItem('user');
       const user = userJson ? JSON.parse(userJson) : null;
-      
+
       const fullRatingData = {
         ...ratingData,
         idUser: user?.Id_Users,
@@ -173,12 +208,12 @@ export default function ReservationList () {
       };
 
       console.log('📤 Soumission notation:', fullRatingData);
-      
+
       await ratingService.submitRating(fullRatingData);
-      
+
       // Marquer la réservation comme notée
       setRatedReservations(prev => new Set([...prev, selectedReservation?.id]));
-      
+
       console.log(' Notation soumise avec succès');
     } catch (error) {
       console.error('Erreur: Erreur soumission notation:', error);
@@ -186,10 +221,10 @@ export default function ReservationList () {
     }
   };
 
-  // Charger au montage
+  // Charger au montage et quand l'onglet change
   useEffect(() => {
     loadReservations();
-  }, []);
+  }, [activeTab]);
 
   // Appliquer les filtres quand ils changent
   useEffect(() => {
@@ -209,29 +244,29 @@ export default function ReservationList () {
     if (selectedDateFilter !== 'Tous') {
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      
+
       filtered = filtered.filter(r => {
         const resDate = new Date(r.dateTime.split(' ')[1]); // Extraire la date
-        
+
         switch (selectedDateFilter) {
           case 'Aujourd\'hui':
             return resDate.toDateString() === today.toDateString();
-          
+
           case 'Cette semaine':
             const weekStart = new Date(today);
             weekStart.setDate(today.getDate() - today.getDay());
             const weekEnd = new Date(weekStart);
             weekEnd.setDate(weekStart.getDate() + 6);
             return resDate >= weekStart && resDate <= weekEnd;
-          
+
           case 'Ce mois':
-            return resDate.getMonth() === now.getMonth() && 
-                   resDate.getFullYear() === now.getFullYear();
-          
+            return resDate.getMonth() === now.getMonth() &&
+              resDate.getFullYear() === now.getFullYear();
+
           case 'Historique':
             // Afficher les réservations terminées et annulées (labels exacts de la DB)
             return r.status === 'Terminée' || r.status === 'Annulée';
-          
+
           default:
             return true;
         }
@@ -250,7 +285,7 @@ export default function ReservationList () {
   // Composant FilterDropdown
   const FilterDropdown = ({ visible, onClose, options, selectedValue, onSelect, label }) => {
     const [scaleValue] = useState(new Animated.Value(0));
-    
+
     useEffect(() => {
       if (visible) {
         Animated.spring(scaleValue, {
@@ -263,7 +298,7 @@ export default function ReservationList () {
         scaleValue.setValue(0);
       }
     }, [visible]);
-    
+
     return (
       <Modal
         visible={visible}
@@ -358,7 +393,7 @@ export default function ReservationList () {
         <Header navigation={navigation} />
         <View style={styles.centerContainer}>
           <Text style={styles.errorText}>Erreur: {error}</Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.retryButton}
             onPress={loadReservations}
           >
@@ -378,7 +413,7 @@ export default function ReservationList () {
         <View style={styles.centerContainer}>
           <Text style={styles.emptyText}> Aucune réservation</Text>
           <Text style={styles.emptySubText}>Vos réservations apparaîtront ici</Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.retryButton}
             onPress={() => navigation.navigate('Liste des parkings')}
           >
@@ -391,16 +426,59 @@ export default function ReservationList () {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* ➡️ Header */}
+      {/* Header */}
       <Header navigation={navigation} />
 
-      {/* ➡️ Title avec Badge */}
+      {/* Onglets principaux : Mes réservations / Sur mes parkings */}
+      <View style={styles.tabsContainer}>
+        <TouchableOpacity
+          style={[styles.tabButton, activeTab === 'client' && styles.tabButtonActive]}
+          onPress={() => setActiveTab('client')}
+        >
+          <Ionicons
+            name="calendar-outline"
+            size={18}
+            color={activeTab === 'client' ? '#6BBF47' : '#666'}
+          />
+          <Text style={[styles.tabText, activeTab === 'client' && styles.tabTextActive]}>
+            Mes réservations
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tabButton, activeTab === 'owner' && styles.tabButtonActive]}
+          onPress={() => setActiveTab('owner')}
+        >
+          <Ionicons
+            name="business-outline"
+            size={18}
+            color={activeTab === 'owner' ? '#6BBF47' : '#666'}
+          />
+          <Text style={[styles.tabText, activeTab === 'owner' && styles.tabTextActive]}>
+            Sur mes parkings
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Title avec Badge */}
       <View style={styles.titleContainer}>
-        <Text style={styles.title}>Mes réservations</Text>
+        <Text style={styles.title}>
+          {activeTab === 'client' ? 'Mes réservations' : 'Réservations reçues'}
+        </Text>
         <View style={styles.countBadge}>
           <Text style={styles.countBadgeText}>{filteredReservations.length}</Text>
         </View>
       </View>
+
+      {/* Bouton Scanner QR - uniquement pour le propriétaire */}
+      {activeTab === 'owner' && (
+        <TouchableOpacity
+          style={styles.scannerButton}
+          onPress={() => navigation.navigate('QRCodeScanner')}
+        >
+          <Ionicons name="qr-code-outline" size={24} color="#fff" />
+          <Text style={styles.scannerButtonText}>Scanner un client</Text>
+        </TouchableOpacity>
+      )}
 
       {/* ➡️ Filtres en Dropdown */}
       <View style={styles.filtersContainer}>
@@ -413,7 +491,7 @@ export default function ReservationList () {
               Statut: {selectedStatusFilter}
             </Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={[styles.filterButton, styles.filterButtonSecondary]}
             onPress={() => setPeriodDropdownVisible(true)}
@@ -422,7 +500,7 @@ export default function ReservationList () {
               Période: {selectedDateFilter}
             </Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={[styles.filterButton, styles.historyButton]}
             onPress={() => {
@@ -443,7 +521,7 @@ export default function ReservationList () {
         onSelect={setSelectedStatusFilter}
         label="Filtrer par statut"
       />
-      
+
       <FilterDropdown
         visible={periodDropdownVisible}
         onClose={() => setPeriodDropdownVisible(false)}
@@ -465,17 +543,18 @@ export default function ReservationList () {
           data={filteredReservations}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <ReservationCard 
-              reservation={item} 
-              styles={styles} 
+            <ReservationCard
+              reservation={item}
+              styles={styles}
               onRate={handleOpenRatingModal}
               hasRated={ratedReservations.has(item.id)}
+              isOwnerView={activeTab === 'owner'}
             />
           )}
           contentContainerStyle={styles.listContent}
           refreshControl={
-            <RefreshControl 
-              refreshing={refreshing} 
+            <RefreshControl
+              refreshing={refreshing}
               onRefresh={onRefresh}
               colors={['#A4E66E']}
             />
@@ -490,7 +569,7 @@ export default function ReservationList () {
         onSubmit={handleSubmitRating}
         reservation={selectedReservation}
       />
-      
+
       {/* FOOTER */}
       <Footer navigation={navigation} activeRoute="Mes réservations" />
     </SafeAreaView>

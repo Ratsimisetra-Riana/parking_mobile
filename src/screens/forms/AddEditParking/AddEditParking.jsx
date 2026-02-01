@@ -90,10 +90,9 @@ const AddEditParking = ({ navigation, route }) => {
       setLabel(parking.label || '');
       setHourlyRate(parking.hourlyRate?.toString() || '');
       
-      // Extraire adresse et description
-      const descLines = parking.description?.split('\n') || [];
-      setAddress(descLines.slice(0, 2).join('\n') || '');
-      setDescription(descLines.slice(2).join('\n') || '');
+      // Charger adresse et description directement
+      setAddress(parking.address || '');
+      setDescription(parking.description || '');
       
       // Charger les véhicules associés
       try {
@@ -383,9 +382,6 @@ const AddEditParking = ({ navigation, route }) => {
     try {
       setSaving(true);
 
-      // Combiner adresse et description
-      const fullDescription = `${address.trim()}\n${description.trim()}`;
-
       // Générer la localisation au format PostGIS
       const locationString = `SRID=4326;POINT(${longitude} ${latitude})`;
 
@@ -397,7 +393,8 @@ const AddEditParking = ({ navigation, route }) => {
 
       const parkingData = {
         label: label.trim(),
-        description: fullDescription,
+        address: address.trim(),
+        description: description.trim(),
         hourlyRate: parseFloat(hourlyRate),
         localisation: locationString,
         isActive: true,

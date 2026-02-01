@@ -44,7 +44,11 @@ const MyAnnouncements = ({ navigation }) => {
     try {
       setLoading(true);
       const data = await announcementService.getMyAnnouncements(uid);
-      console.log(' Annonces chargées:', data);
+      console.log('🔍 Annonces chargées:', JSON.stringify(data, null, 2));
+      if (data && data.length > 0) {
+        console.log('🔍 Première annonce - clés:', Object.keys(data[0]));
+        console.log('🔍 Première annonce - published?:', data[0].published, data[0].isPublished, data[0].is_published);
+      }
       setAnnouncements(data);
     } catch (error) {
       Alert.alert('Erreur', 'Impossible de charger vos annonces');
@@ -68,7 +72,7 @@ const MyAnnouncements = ({ navigation }) => {
   const handleDeleteAnnouncement = (announcement) => {
     Alert.alert(
       'Confirmation',
-      'Voulez-vous vraiment supprimer cette annonce ?',
+      'Voulez-vous vraiment supprimer cette annonce ? Vous pourrez la restaurer plus tard.',
       [
         { text: 'Annuler', style: 'cancel' },
         {
@@ -88,13 +92,33 @@ const MyAnnouncements = ({ navigation }) => {
     );
   };
 
+  const handleTogglePublish = async (announcement) => {
+    const announcementId = announcement.Id_Announcements || announcement.id_Announcements;
+    console.log('Toggle publish for announcement:', announcement, 'ID:', announcementId);
+
+    if (!announcementId) {
+      Alert.alert('Erreur', 'ID d\'annonce invalide');
+      return;
+    }
+
+    try {
+      const updatedAnnouncement = await announcementService.togglePublished(announcementId);
+      const newStatus = updatedAnnouncement.published || updatedAnnouncement.isPublished || updatedAnnouncement.is_published ? 'publiée' : 'dépubliée';
+      Alert.alert('Succès', `Annonce ${newStatus} avec succès`);
+      loadAnnouncements(userId);
+    } catch (error) {
+      console.error('Erreur toggle publish:', error);
+      Alert.alert('Erreur', 'Impossible de modifier le statut de publication');
+    }
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', { 
-      day: '2-digit', 
-      month: 'short', 
-      year: 'numeric' 
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
     });
   };
 
@@ -148,6 +172,28 @@ const MyAnnouncements = ({ navigation }) => {
 
         {/* Card Footer - Actions */}
         <View style={styles.cardFooter}>
+          {(() => {
+            // Vérifier explicitement chaque format possible (le || ne fonctionne pas avec false)
+            const isPublished = announcement.published !== undefined ? announcement.published
+              : announcement.isPublished !== undefined ? announcement.isPublished
+                : announcement.is_published;
+            return (
+              <TouchableOpacity
+                onPress={() => handleTogglePublish(announcement)}
+                style={[styles.actionButton, isPublished ? styles.unpublishButton : styles.publishButton]}
+              >
+                <Ionicons
+                  name={isPublished ? "eye-off-outline" : "eye-outline"}
+                  size={18}
+                  color={isPublished ? "#f59e0b" : "#10b981"}
+                />
+                <Text style={[styles.actionButtonText, isPublished ? styles.unpublishButtonText : styles.publishButtonText]}>
+                  {isPublished ? 'Dépublier' : 'Publier'}
+                </Text>
+              </TouchableOpacity>
+            );
+          })()}
+
           <TouchableOpacity
             onPress={() => handleDeleteAnnouncement(announcement)}
             style={[styles.actionButton, styles.deleteButton]}

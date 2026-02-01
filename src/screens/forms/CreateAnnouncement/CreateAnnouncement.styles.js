@@ -11,20 +11,20 @@ export const createAnnouncementStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background.lightGray3,
   },
-  
+
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.background.white,
   },
-  
+
   loadingText: {
     marginTop: spacing.base,
     fontSize: typography.fontSize.base,
     color: colors.text.gray.medium,
   },
-  
+
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -35,56 +35,56 @@ export const createAnnouncementStyles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border.medium,
   },
-  
+
   backButton: {
     padding: spacing.xs2,
   },
-  
+
   headerTitle: {
     fontSize: typography.fontSize.xl,
     fontWeight: typography.fontWeight.bold,
     color: colors.text.dark,
   },
-  
+
   scrollView: {
     flex: 1,
   },
-  
+
   scrollContent: {
     padding: spacing.lg,
   },
-  
+
   section: {
     marginBottom: spacing.xl,
   },
-  
+
   sectionTitle: {
     fontSize: typography.fontSize.xl2,
     fontWeight: typography.fontWeight.bold,
     color: colors.text.dark,
     marginBottom: spacing.xs2,
   },
-  
+
   sectionSubtitle: {
     fontSize: typography.fontSize.sm,
     color: colors.text.gray.medium,
     marginBottom: spacing.base,
   },
-  
+
   emptyParkings: {
     alignItems: 'center',
     paddingVertical: spacing.xl2,
     backgroundColor: colors.background.lightGray2,
     borderRadius: radius.base,
   },
-  
+
   emptyText: {
     fontSize: typography.fontSize.base,
     fontWeight: typography.fontWeight.semibold,
     color: colors.text.gray.dark,
     marginTop: spacing.base,
   },
-  
+
   emptySubtext: {
     fontSize: typography.fontSize.sm,
     color: colors.text.gray.slate.medium,
@@ -92,11 +92,11 @@ export const createAnnouncementStyles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: spacing.lg,
   },
-  
+
   parkingList: {
     gap: spacing.base,
   },
-  
+
   parkingOption: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -106,24 +106,24 @@ export const createAnnouncementStyles = StyleSheet.create({
     borderWidth: 2,
     borderColor: colors.border.medium,
   },
-  
+
   parkingOptionSelected: {
     borderColor: colors.primary.dark,
     backgroundColor: colors.primary.light,
   },
-  
+
   parkingOptionText: {
     marginLeft: spacing.base,
     fontSize: typography.fontSize.base,
     color: colors.text.gray.dark,
     fontWeight: typography.fontWeight.medium,
   },
-  
+
   parkingOptionTextSelected: {
     color: colors.secondary.green,
     fontWeight: typography.fontWeight.semibold,
   },
-  
+
   textArea: {
     backgroundColor: colors.background.white,
     borderRadius: radius.base,
@@ -135,15 +135,15 @@ export const createAnnouncementStyles = StyleSheet.create({
     textAlignVertical: 'top',
     minHeight: 100,
   },
-  
+
   vehiclesGrid: {
     gap: spacing.base,
   },
-  
+
   vehicleCard: {
     gap: spacing.sm,
   },
-  
+
   vehicleButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -153,36 +153,36 @@ export const createAnnouncementStyles = StyleSheet.create({
     borderWidth: 2,
     borderColor: colors.border.medium,
   },
-  
+
   vehicleButtonSelected: {
     backgroundColor: colors.primary.dark,
     borderColor: colors.primary.dark,
   },
-  
+
   vehicleButtonText: {
     marginLeft: spacing.base,
     fontSize: typography.fontSize.base,
     color: colors.text.dark,
     fontWeight: typography.fontWeight.medium,
   },
-  
+
   vehicleButtonTextSelected: {
     color: colors.text.white,
     fontWeight: typography.fontWeight.semibold,
   },
-  
+
   vehicleCountContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingLeft: 52,
   },
-  
+
   vehicleCountLabel: {
     fontSize: typography.fontSize.sm,
     color: colors.text.gray.medium,
     marginRight: spacing.sm,
   },
-  
+
   vehicleCountInput: {
     backgroundColor: colors.background.white,
     borderRadius: radius.sm,
@@ -196,18 +196,18 @@ export const createAnnouncementStyles = StyleSheet.create({
     width: 60,
     textAlign: 'center',
   },
-  
+
   vehicleCountMax: {
     fontSize: typography.fontSize.sm,
     color: colors.text.gray.slate.medium,
     marginLeft: spacing.xs2,
   },
-  
+
   availabilityTypeToggle: {
     flexDirection: 'row',
     gap: spacing.base,
   },
-  
+
   typeButton: {
     flex: 1,
     flexDirection: 'row',
@@ -219,23 +219,23 @@ export const createAnnouncementStyles = StyleSheet.create({
     borderWidth: 2,
     borderColor: colors.border.medium,
   },
-  
+
   typeButtonActive: {
     backgroundColor: colors.primary.dark,
     borderColor: colors.primary.dark,
   },
-  
+
   typeButtonText: {
     marginLeft: spacing.sm,
     fontSize: typography.fontSize.md,
     color: colors.primary.dark,
     fontWeight: typography.fontWeight.semibold,
   },
-  
+
   typeButtonTextActive: {
     color: colors.text.white,
   },
-  
+
   scheduleRow: {
     marginBottom: spacing.base,
     padding: spacing.base,
@@ -244,25 +244,25 @@ export const createAnnouncementStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border.medium,
   },
-  
+
   scheduleHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  
+
   scheduleLabel: {
     fontSize: typography.fontSize.base,
     fontWeight: typography.fontWeight.semibold,
     color: colors.text.dark,
   },
-  
+
   hoursContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: spacing.base,
   },
-  
+
   hourInput: {
     flex: 1,
     backgroundColor: colors.background.lightGray3,
@@ -275,37 +275,142 @@ export const createAnnouncementStyles = StyleSheet.create({
     color: colors.text.dark,
     textAlign: 'center',
   },
-  
+
   hourSeparator: {
     marginHorizontal: spacing.base,
     fontSize: typography.fontSize.xl2,
     color: colors.text.gray.medium,
     fontWeight: typography.fontWeight.bold,
   },
-  
+
   footer: {
     padding: spacing.base,
     backgroundColor: colors.background.white,
     borderTopWidth: 1,
     borderTopColor: colors.border.medium,
   },
-  
+
   footerButton: {
     paddingVertical: spacing.base,
     borderRadius: radius.base,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  
+
   publishButton: {
     backgroundColor: colors.primary.dark,
     flexDirection: 'row',
     gap: spacing.sm,
   },
-  
+
   publishButtonText: {
     fontSize: typography.fontSize.base,
     fontWeight: typography.fontWeight.bold,
     color: colors.text.white,
+  },
+
+  // Styles pour le calendrier et les plages de dates
+  dateRangeCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.base,
+    backgroundColor: colors.background.white,
+    borderRadius: radius.base,
+    borderWidth: 1,
+    borderColor: colors.border.medium,
+    marginBottom: spacing.sm,
+  },
+
+  dateRangeText: {
+    fontSize: typography.fontSize.md,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.text.dark,
+  },
+
+  dateRangeHours: {
+    fontSize: typography.fontSize.sm,
+    color: colors.text.gray.medium,
+    marginTop: spacing.xs3,
+  },
+
+  dateRangeRemove: {
+    padding: spacing.xs2,
+  },
+
+  addDateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.base,
+    backgroundColor: colors.background.white,
+    borderRadius: radius.base,
+    borderWidth: 2,
+    borderColor: colors.primary.dark,
+    borderStyle: 'dashed',
+    gap: spacing.sm,
+  },
+
+  addDateButtonText: {
+    fontSize: typography.fontSize.md,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.primary.dark,
+  },
+
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+
+  modalContent: {
+    backgroundColor: colors.background.white,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+    padding: spacing.lg,
+    maxHeight: '90%',
+  },
+
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.base,
+  },
+
+  modalTitle: {
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.text.dark,
+  },
+
+  selectedRangeInfo: {
+    backgroundColor: colors.primary.light,
+    padding: spacing.base,
+    borderRadius: radius.base,
+    marginTop: spacing.base,
+  },
+
+  selectedRangeLabel: {
+    fontSize: typography.fontSize.sm,
+    color: colors.text.gray.dark,
+  },
+
+  selectedRangeValue: {
+    fontSize: typography.fontSize.md,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.primary.dark,
+    marginTop: spacing.xs3,
+  },
+
+  modalHoursSection: {
+    marginTop: spacing.base,
+  },
+
+  modalHoursLabel: {
+    fontSize: typography.fontSize.md,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.text.dark,
+    marginBottom: spacing.sm,
   },
 });

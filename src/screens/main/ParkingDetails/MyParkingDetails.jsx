@@ -112,7 +112,7 @@ export default function MyParkingDetails({ route, navigation }) {
   }
 
   const title = parking.label || 'Mon Parking';
-  const address = parking.description || 'Adresse non spécifiée';
+  const address = parking.address || parking.description || 'Adresse non spécifiée';
   const priceValue = parking.hourlyRate || 0;
   const price = `${priceValue}$/heure`;
 

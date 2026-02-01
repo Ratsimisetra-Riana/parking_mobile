@@ -4,6 +4,7 @@ import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { weeklyChartStyles as styles } from './WeeklyChart.styles';
 import { colors } from '../../../theme';
+import { formatPrice } from '../../../config/constants';
 
 const { width } = Dimensions.get('window');
 const CHART_WIDTH = width - 64; // padding horizontal
@@ -27,7 +28,7 @@ const WeeklyChart = ({ data, title, totalRevenue, evolution }) => {
             <View style={styles.header}>
                 <View>
                     <Text style={styles.subtitle}>{title}</Text>
-                    <Text style={styles.totalValue}>{totalRevenue.toFixed(2)} €</Text>
+                    <Text style={styles.totalValue}>{formatPrice(totalRevenue)}</Text>
                 </View>
                 <View style={[styles.evolutionBadge, isPositive ? styles.evolutionPositive : styles.evolutionNegative]}>
                     <Text style={[styles.evolutionLabel, isPositive ? styles.evolutionLabelPositive : styles.evolutionLabelNegative]}>

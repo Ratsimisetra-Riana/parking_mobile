@@ -98,6 +98,24 @@ export const getUnreadCount = async (userId) => {
   }
 };
 
+/**
+ * Désactiver le token FCM (lors du logout)
+ * @param {string} token - Token FCM à désactiver
+ * @param {number} userId - ID de l'utilisateur (optionnel)
+ */
+export const deactivateDeviceToken = async (token, userId = null) => {
+  try {
+    const response = await api.delete('/device-tokens/deactivate', {
+      data: { token, userId },
+    });
+    console.log('🔴 Token FCM désactivé');
+    return response.data;
+  } catch (error) {
+    console.error('Erreur: Erreur désactivation token:', error);
+    // Ne pas throw pour ne pas bloquer le logout
+  }
+};
+
 export default {
   registerDeviceToken,
   getNotifications,
@@ -105,4 +123,5 @@ export default {
   markAllAsRead,
   deleteNotification,
   getUnreadCount,
+  deactivateDeviceToken,
 };

@@ -8,14 +8,17 @@ import {
   Alert,
   ActivityIndicator,
   Switch,
+  Modal,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Calendar } from 'react-native-calendars';
 import ownerService from '../../../services/ownerService';
 import parkingService from '../../../services/parkingService';
 import announcementService from '../../../services/announcementService';
 import { createAnnouncementStyles as styles } from './CreateAnnouncement.styles';
+import { colors } from '../../../theme';
 
 const CreateAnnouncement = ({ route, navigation }) => {
   const insets = useSafeAreaInsets();
@@ -24,22 +27,29 @@ const CreateAnnouncement = ({ route, navigation }) => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [userId, setUserId] = useState(null);
-  
+
   // Données du formulaire
   const [selectedParkingId, setSelectedParkingId] = useState(initialParkingId || null);
   const [myParkings, setMyParkings] = useState([]);
   const [parkingVehicles, setParkingVehicles] = useState([]);
   const [description, setDescription] = useState('');
   const [selectedVehicles, setSelectedVehicles] = useState([]); // [{parkingVehicleId, numbers}]
-  
+
   // Type de disponibilité
   const [availabilityType, setAvailabilityType] = useState('recurring'); // 'recurring' ou 'calendar'
-  
+
   // Disponibilités récurrentes
   const [weekdayEnabled, setWeekdayEnabled] = useState(false);
   const [weekdayHours, setWeekdayHours] = useState({ start: '08:00', end: '19:00' });
   const [weekendEnabled, setWeekendEnabled] = useState(false);
   const [weekendHours, setWeekendHours] = useState({ start: '00:00', end: '23:59' });
+
+  // Disponibilités par calendrier
+  const [calendarDates, setCalendarDates] = useState([]); // [{startDate, endDate, startHour, endHour}]
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedRange, setSelectedRange] = useState({ startDate: null, endDate: null });
+  const [rangeHours, setRangeHours] = useState({ start: '08:00', end: '19:00' });
+  const [markedDates, setMarkedDates] = useState({});
 
   useEffect(() => {
     loadInitialData();
@@ -58,11 +68,11 @@ const CreateAnnouncement = ({ route, navigation }) => {
       if (userJson) {
         const user = JSON.parse(userJson);
         setUserId(user.Id_Users);
-        
+
         // Charger les parkings de l'utilisateur
         const parkings = await ownerService.getMyParkings();
         setMyParkings(parkings);
-        
+
         // Si un parking est pré-sélectionné
         if (initialParkingId) {
           setSelectedParkingId(initialParkingId);
@@ -82,7 +92,7 @@ const CreateAnnouncement = ({ route, navigation }) => {
       // Charger les véhicules via l'endpoint spécifique
       const vehicles = await parkingService.getParkingVehicles(parkingId);
       console.log(' Véhicules reçus:', vehicles);
-      
+
       if (vehicles && vehicles.length > 0) {
         setParkingVehicles(vehicles);
         // Réinitialiser la sélection
@@ -102,7 +112,7 @@ const CreateAnnouncement = ({ route, navigation }) => {
     const exists = selectedVehicles.find(
       v => v.parkingVehicleId === vehicleId
     );
-    
+
     if (exists) {
       setSelectedVehicles(selectedVehicles.filter(
         v => v.parkingVehicleId !== vehicleId
@@ -124,12 +134,12 @@ const CreateAnnouncement = ({ route, navigation }) => {
       pv => (pv.id_Parking_vehicles || pv.Id_Parking_Vehicles) === parkingVehicleId
     );
     const maxPlaces = parkingVehicle?.numbers || parkingVehicle?.number_Of_Places || 999;
-    
+
     // Permettre champ vide, sinon limiter au nombre de places disponibles
     const validCount = count === '' ? '' : Math.min(parsed || 0, maxPlaces);
-    
-    setSelectedVehicles(selectedVehicles.map(v => 
-      v.parkingVehicleId === parkingVehicleId 
+
+    setSelectedVehicles(selectedVehicles.map(v =>
+      v.parkingVehicleId === parkingVehicleId
         ? { ...v, numbers: validCount }
         : v
     ));
@@ -137,7 +147,7 @@ const CreateAnnouncement = ({ route, navigation }) => {
 
   const buildAvailabilitiesFrequence = () => {
     const availabilities = [];
-    
+
     if (weekdayEnabled) {
       // Lundi (1) à Vendredi (5)
       for (let day = 1; day <= 5; day++) {
@@ -148,7 +158,7 @@ const CreateAnnouncement = ({ route, navigation }) => {
         });
       }
     }
-    
+
     if (weekendEnabled) {
       // Samedi (6) et Dimanche (7)
       [6, 7].forEach(day => {
@@ -159,9 +169,112 @@ const CreateAnnouncement = ({ route, navigation }) => {
         });
       });
     }
-    
+
     return availabilities;
   };
+
+  // Générer les dates marquées pour le calendrier
+  const generateMarkedDates = (start, end) => {
+    const marked = {};
+    if (!start) return marked;
+
+    const startDate = new Date(start);
+    const endDate = end ? new Date(end) : startDate;
+
+    // Marquer la plage sélectionnée
+    let currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      const isStart = dateStr === start;
+      const isEnd = dateStr === (end || start);
+
+      marked[dateStr] = {
+        color: colors.primary.bright,
+        textColor: 'white',
+        startingDay: isStart,
+        endingDay: isEnd,
+      };
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    // Ajouter les plages déjà enregistrées (en gris)
+    calendarDates.forEach(range => {
+      let current = new Date(range.startDate);
+      const rangeEnd = new Date(range.endDate);
+      while (current <= rangeEnd) {
+        const dateStr = current.toISOString().split('T')[0];
+        if (!marked[dateStr]) {
+          marked[dateStr] = {
+            color: '#9ca3af',
+            textColor: 'white',
+            startingDay: dateStr === range.startDate,
+            endingDay: dateStr === range.endDate,
+          };
+        }
+        current.setDate(current.getDate() + 1);
+      }
+    });
+
+    return marked;
+  };
+
+  // Gérer la sélection d'une date sur le calendrier
+  const handleDayPress = (day) => {
+    const dateStr = day.dateString;
+
+    if (!selectedRange.startDate || (selectedRange.startDate && selectedRange.endDate)) {
+      // Début d'une nouvelle sélection
+      setSelectedRange({ startDate: dateStr, endDate: null });
+      setMarkedDates(generateMarkedDates(dateStr, null));
+    } else {
+      // Fin de la sélection
+      const start = selectedRange.startDate;
+      const end = dateStr;
+
+      // S'assurer que start < end
+      if (new Date(start) <= new Date(end)) {
+        setSelectedRange({ startDate: start, endDate: end });
+        setMarkedDates(generateMarkedDates(start, end));
+      } else {
+        setSelectedRange({ startDate: end, endDate: start });
+        setMarkedDates(generateMarkedDates(end, start));
+      }
+    }
+  };
+
+  // Ajouter une plage de dates
+  const addDateRange = () => {
+    if (!selectedRange.startDate) {
+      Alert.alert('Erreur', 'Veuillez sélectionner une plage de dates');
+      return;
+    }
+
+    const newRange = {
+      startDate: selectedRange.startDate,
+      endDate: selectedRange.endDate || selectedRange.startDate,
+      startHour: rangeHours.start,
+      endHour: rangeHours.end,
+    };
+
+    setCalendarDates([...calendarDates, newRange]);
+    setSelectedRange({ startDate: null, endDate: null });
+    setRangeHours({ start: '08:00', end: '19:00' });
+    setShowDatePicker(false);
+    setMarkedDates(generateMarkedDates(null, null));
+  };
+
+  // Supprimer une plage de dates
+  const removeDateRange = (index) => {
+    const updated = calendarDates.filter((_, i) => i !== index);
+    setCalendarDates(updated);
+  };
+
+  // Formater une date pour l'affichage
+  const formatDateDisplay = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+  };
+
 
   const handleSubmit = async (isPublished) => {
     // Validation
@@ -169,42 +282,54 @@ const CreateAnnouncement = ({ route, navigation }) => {
       Alert.alert('Erreur', 'Veuillez sélectionner un parking');
       return;
     }
-    
+
     if (selectedVehicles.length === 0) {
       Alert.alert('Erreur', 'Veuillez sélectionner au moins un type de véhicule');
       return;
     }
-    
+
     // Vérifier que tous les véhicules ont un nombre de places valide
     const invalidVehicle = selectedVehicles.find(v => !v.numbers || v.numbers <= 0);
     if (invalidVehicle) {
       Alert.alert('Erreur', 'Veuillez saisir un nombre de places valide pour tous les véhicules');
       return;
     }
-    
+
     if (availabilityType === 'recurring' && !weekdayEnabled && !weekendEnabled) {
       Alert.alert('Erreur', 'Veuillez définir au moins une plage horaire');
       return;
     }
-    
+
+    if (availabilityType === 'calendar' && calendarDates.length === 0) {
+      Alert.alert('Erreur', 'Veuillez ajouter au moins une plage de dates');
+      return;
+    }
+
     try {
       setSubmitting(true);
-      
+
       const announcementData = {
         description: description.trim() || 'Disponible à la location',
         parkingId: selectedParkingId,
         published: true, // Toujours publié directement
         vehicles: selectedVehicles,
-        availabilitiesDates: [], // Pour l'instant, pas de calendrier
-        availabilitiesFrequence: availabilityType === 'recurring' 
-          ? buildAvailabilitiesFrequence() 
+        availabilitiesDates: availabilityType === 'calendar'
+          ? calendarDates.map(range => ({
+            startDate: range.startDate,
+            endDate: range.endDate,
+            startHour: range.startHour,
+            endHour: range.endHour,
+          }))
+          : [],
+        availabilitiesFrequence: availabilityType === 'recurring'
+          ? buildAvailabilitiesFrequence()
           : [],
       };
-      
+
       console.log('📤 Envoi données annonce:', announcementData);
-      
+
       await announcementService.createCompleteAnnouncement(announcementData);
-      
+
       Alert.alert(
         'Succès',
         'Annonce publiée avec succès !',
@@ -249,7 +374,7 @@ const CreateAnnouncement = ({ route, navigation }) => {
       </View>
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        
+
         {/* Sélection du parking */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Parking</Text>
@@ -270,10 +395,10 @@ const CreateAnnouncement = ({ route, navigation }) => {
                     selectedParkingId === parking.Id_Parking && styles.parkingOptionSelected
                   ]}
                 >
-                  <Ionicons 
-                    name={selectedParkingId === parking.Id_Parking ? 'radio-button-on' : 'radio-button-off'} 
-                    size={24} 
-                    color={selectedParkingId === parking.Id_Parking ? '#6BBF47' : '#9ca3af'} 
+                  <Ionicons
+                    name={selectedParkingId === parking.Id_Parking ? 'radio-button-on' : 'radio-button-off'}
+                    size={24}
+                    color={selectedParkingId === parking.Id_Parking ? '#6BBF47' : '#9ca3af'}
                   />
                   <Text style={[
                     styles.parkingOptionText,
@@ -316,7 +441,7 @@ const CreateAnnouncement = ({ route, navigation }) => {
                 const selectedVehicle = selectedVehicles.find(
                   v => v.parkingVehicleId === vehicleId
                 );
-                
+
                 // Mapper l'icône du véhicule
                 const getVehicleIcon = (iconName) => {
                   const iconMap = {
@@ -329,7 +454,7 @@ const CreateAnnouncement = ({ route, navigation }) => {
                   };
                   return iconMap[iconName] || 'car';
                 };
-                
+
                 return (
                   <View key={vehicleId} style={styles.vehicleCard}>
                     <TouchableOpacity
@@ -339,10 +464,10 @@ const CreateAnnouncement = ({ route, navigation }) => {
                         isSelected && styles.vehicleButtonSelected
                       ]}
                     >
-                      <Ionicons 
-                        name={getVehicleIcon(pv.vehicle?.icon)} 
-                        size={24} 
-                        color={isSelected ? '#fff' : '#6BBF47'} 
+                      <Ionicons
+                        name={getVehicleIcon(pv.vehicle?.icon)}
+                        size={24}
+                        color={isSelected ? '#fff' : '#6BBF47'}
                       />
                       <Text style={[
                         styles.vehicleButtonText,
@@ -351,7 +476,7 @@ const CreateAnnouncement = ({ route, navigation }) => {
                         {pv.vehicle?.types || 'Véhicule'}
                       </Text>
                     </TouchableOpacity>
-                    
+
                     {isSelected && (
                       <View style={styles.vehicleCountContainer}>
                         <Text style={styles.vehicleCountLabel}>Places :</Text>
@@ -383,10 +508,10 @@ const CreateAnnouncement = ({ route, navigation }) => {
                 availabilityType === 'recurring' && styles.typeButtonActive
               ]}
             >
-              <Ionicons 
-                name="repeat" 
-                size={20} 
-                color={availabilityType === 'recurring' ? '#fff' : '#6BBF47'} 
+              <Ionicons
+                name="repeat"
+                size={20}
+                color={availabilityType === 'recurring' ? '#fff' : '#6BBF47'}
               />
               <Text style={[
                 styles.typeButtonText,
@@ -395,26 +520,24 @@ const CreateAnnouncement = ({ route, navigation }) => {
                 Récurrent
               </Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity
               onPress={() => setAvailabilityType('calendar')}
               style={[
                 styles.typeButton,
                 availabilityType === 'calendar' && styles.typeButtonActive
               ]}
-              disabled={true}
             >
-              <Ionicons 
-                name="calendar" 
-                size={20} 
-                color={availabilityType === 'calendar' ? '#fff' : '#9ca3af'} 
+              <Ionicons
+                name="calendar"
+                size={20}
+                color={availabilityType === 'calendar' ? '#fff' : '#6BBF47'}
               />
               <Text style={[
                 styles.typeButtonText,
-                availabilityType === 'calendar' && styles.typeButtonTextActive,
-                { color: '#9ca3af' }
+                availabilityType === 'calendar' && styles.typeButtonTextActive
               ]}>
-                Calendrier (bientôt)
+                Calendrier
               </Text>
             </TouchableOpacity>
           </View>
@@ -485,6 +608,45 @@ const CreateAnnouncement = ({ route, navigation }) => {
           </View>
         )}
 
+        {/* Disponibilités par calendrier */}
+        {availabilityType === 'calendar' && (
+          <View style={styles.section}>
+            {/* Liste des plages de dates ajoutées */}
+            {calendarDates.length > 0 && (
+              <View style={{ marginBottom: 16 }}>
+                <Text style={styles.sectionSubtitle}>Plages de dates sélectionnées</Text>
+                {calendarDates.map((range, index) => (
+                  <View key={index} style={styles.dateRangeCard}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.dateRangeText}>
+                        {formatDateDisplay(range.startDate)} → {formatDateDisplay(range.endDate)}
+                      </Text>
+                      <Text style={styles.dateRangeHours}>
+                        {range.startHour} - {range.endHour}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => removeDateRange(index)}
+                      style={styles.dateRangeRemove}
+                    >
+                      <Ionicons name="close-circle" size={24} color="#ef4444" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* Bouton pour ajouter une plage */}
+            <TouchableOpacity
+              onPress={() => setShowDatePicker(true)}
+              style={styles.addDateButton}
+            >
+              <Ionicons name="add-circle-outline" size={24} color="#6BBF47" />
+              <Text style={styles.addDateButtonText}>Ajouter une plage de dates</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* Espace en bas pour les boutons */}
         <View style={{ height: 120 }} />
       </ScrollView>
@@ -506,6 +668,88 @@ const CreateAnnouncement = ({ route, navigation }) => {
           )}
         </TouchableOpacity>
       </View>
+
+      {/* Modal Calendrier */}
+      <Modal
+        visible={showDatePicker}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowDatePicker(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Sélectionner une plage</Text>
+              <TouchableOpacity onPress={() => {
+                setShowDatePicker(false);
+                setSelectedRange({ startDate: null, endDate: null });
+                setMarkedDates({});
+              }}>
+                <Ionicons name="close" size={28} color="#333" />
+              </TouchableOpacity>
+            </View>
+
+            <Calendar
+              onDayPress={handleDayPress}
+              markingType="period"
+              markedDates={markedDates}
+              minDate={new Date().toISOString().split('T')[0]}
+              theme={{
+                todayTextColor: '#6BBF47',
+                arrowColor: '#6BBF47',
+                selectedDayBackgroundColor: '#6BBF47',
+                textDayFontWeight: '500',
+                textMonthFontWeight: 'bold',
+                textDayHeaderFontWeight: '500',
+              }}
+            />
+
+            {selectedRange.startDate && (
+              <View style={styles.selectedRangeInfo}>
+                <Text style={styles.selectedRangeLabel}>Plage sélectionnée :</Text>
+                <Text style={styles.selectedRangeValue}>
+                  {formatDateDisplay(selectedRange.startDate)}
+                  {selectedRange.endDate && selectedRange.endDate !== selectedRange.startDate
+                    ? ` → ${formatDateDisplay(selectedRange.endDate)}`
+                    : ' (1 jour)'}
+                </Text>
+              </View>
+            )}
+
+            {/* Horaires */}
+            <View style={styles.modalHoursSection}>
+              <Text style={styles.modalHoursLabel}>Horaires :</Text>
+              <View style={styles.hoursContainer}>
+                <TextInput
+                  style={styles.hourInput}
+                  value={rangeHours.start}
+                  onChangeText={(text) => setRangeHours({ ...rangeHours, start: text })}
+                  placeholder="08:00"
+                  keyboardType="numbers-and-punctuation"
+                />
+                <Text style={styles.hourSeparator}>-</Text>
+                <TextInput
+                  style={styles.hourInput}
+                  value={rangeHours.end}
+                  onChangeText={(text) => setRangeHours({ ...rangeHours, end: text })}
+                  placeholder="19:00"
+                  keyboardType="numbers-and-punctuation"
+                />
+              </View>
+            </View>
+
+            {/* Bouton Ajouter */}
+            <TouchableOpacity
+              onPress={addDateRange}
+              style={[styles.footerButton, styles.publishButton, { marginTop: 16 }]}
+              disabled={!selectedRange.startDate}
+            >
+              <Text style={styles.publishButtonText}>Ajouter cette plage</Text>
+              <Ionicons name="checkmark" size={20} color="#fff" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };

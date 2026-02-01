@@ -16,6 +16,7 @@ import { myParkingsStyles as styles } from './MyParkings.styles';
 import ownerService from '../../../services/ownerService';
 import SupabaseImage from '../../../components/ui/SupabaseImage';
 import { convertToProxyUrl } from '../../../utils/imageUtils';
+import { formatHourlyRate } from '../../../config/constants';
 
 const MyParkings = ({ navigation }) => {
   const insets = useSafeAreaInsets();
@@ -97,9 +98,13 @@ const MyParkings = ({ navigation }) => {
     navigation.navigate('MyParkingDetails', { parkingId: parking.Id_Parking });
   };
 
-  const extractAddress = (description) => {
-    // Extraire les 2 premières lignes de la description comme adresse
-    const lines = description?.split('\n') || [];
+  const extractAddress = (parking) => {
+    // Utiliser le champ address dédié ou fallback sur description
+    if (parking.address) {
+      return parking.address;
+    }
+    // Fallback: extraire les 2 premières lignes de la description
+    const lines = parking.description?.split('\n') || [];
     return lines.slice(0, 2).join('\n') || 'Adresse non spécifiée';
   };
 
@@ -108,9 +113,9 @@ const MyParkings = ({ navigation }) => {
     const statusBadge = isActive ? 'DISPONIBLE' : 'INACTIF';
     const statusColor = isActive ? '#dcfce7' : '#f3f4f6';
     const statusTextColor = isActive ? '#16a34a' : '#6b7280';
-    
+
     // Récupérer l'image principale du parking (via proxy)
-    const parkingImage = parking.primaryImageUrl 
+    const parkingImage = parking.primaryImageUrl
       ? convertToProxyUrl(parking.primaryImageUrl)
       : null;
 
@@ -121,7 +126,7 @@ const MyParkings = ({ navigation }) => {
           {/* Image Placeholder */}
           <View style={styles.imageContainer}>
             {parkingImage ? (
-              <SupabaseImage 
+              <SupabaseImage
                 uri={parkingImage}
                 style={styles.parkingImage}
                 resizeMode="cover"
@@ -145,11 +150,11 @@ const MyParkings = ({ navigation }) => {
               {parking.label}
             </Text>
             <Text style={styles.cardAddress} numberOfLines={2}>
-              {extractAddress(parking.description)}
+              {extractAddress(parking)}
             </Text>
             <View style={styles.priceContainer}>
               <Text style={styles.priceText}>
-                {parking.hourlyRate}€<Text style={styles.priceUnit}>/h</Text>
+                {formatHourlyRate(parking.hourlyRate)}
               </Text>
             </View>
             <TouchableOpacity

@@ -11,10 +11,11 @@ import { useNavigation } from '@react-navigation/native';
  * @param {function} onRate - Callback quand on clique sur "Noter" (optionnel)
  * @param {boolean} hasRated - Indique si déjà noté (optionnel)
  * @param {boolean} hasDispute - Indique si un litige existe déjà (optionnel)
+ * @param {boolean} isOwnerView - True si vue propriétaire (pas de boutons actions)
  */
-export function ReservationCard ({ reservation, styles, onRate, hasRated = false, hasDispute = false }) {
+export function ReservationCard({ reservation, styles, onRate, hasRated = false, hasDispute = false, isOwnerView = false }) {
   const navigation = useNavigation();
-  
+
   // Determine card style based on color
   const getCardStyle = (color) => {
     switch (color) {
@@ -52,17 +53,32 @@ export function ReservationCard ({ reservation, styles, onRate, hasRated = false
   };
 
   // Vérifier si le bouton "Noter" doit être affiché
-  // Seulement si statut = "Terminée" et pas encore noté
-  const canRate = reservation.status === 'Terminée' && !hasRated && onRate;
+  // Seulement si statut = "Terminée" et pas encore noté ET PAS en vue propriétaire
+  const canRate = !isOwnerView && reservation.status === 'Terminée' && !hasRated && onRate;
 
   // Vérifier si le bouton "Signaler" doit être affiché
-  // Visible si statut = "Terminée" ou "En cours" et pas déjà de litige
-  const canReport = (reservation.status === 'Terminée' || reservation.status === 'En cours') && !hasDispute;
+  // Visible si statut = "Terminée" ou "En cours" et pas déjà de litige ET PAS en vue propriétaire
+  const canReport = !isOwnerView && (reservation.status === 'Terminée' || reservation.status === 'En cours') && !hasDispute;
+  
+  // Vérifier si le bouton "QR Code" doit être affiché
+  // Seulement pour le client (pas le propriétaire)
+  const canShowQR = !isOwnerView && (reservation.status === 'À venir' || reservation.status === 'En cours');
 
   return (
     <View style={[styles.card, getCardStyle(reservation.color)]}>
       <View style={{ flex: 1 }}>
         <Text style={styles.parkingName}> {reservation.name}</Text>
+
+        {/* Afficher le nom du client (visible pour le propriétaire) */}
+        {reservation.clientName && (
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 3 }}>
+            <Ionicons name="person-outline" size={14} color={colors.primary.main} style={{ marginRight: 5 }} />
+            <Text style={[styles.detailItem, { color: colors.primary.dark, fontWeight: '600' }]}>
+              Client: {reservation.clientName}
+            </Text>
+          </View>
+        )}
+
         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 3 }}>
           <Ionicons name="location-outline" size={14} color={colors.text.gray.medium} style={{ marginRight: 5 }} />
           <Text style={styles.detailItem}>{reservation.location}</Text>
@@ -94,8 +110,8 @@ export function ReservationCard ({ reservation, styles, onRate, hasRated = false
           </TouchableOpacity>
         )}
 
-        {/* Bouton QR Code - visible pour réservations "À venir" et "En cours" */}
-        {(reservation.status === 'À venir' || reservation.status === 'En cours') && (
+        {/* Bouton QR Code - visible pour réservations "À venir" et "En cours" (client seulement) */}
+        {canShowQR && (
           <TouchableOpacity
             style={rateButtonStyles.qrButton}
             onPress={() => navigation.navigate('QRCodeDisplay', { reservation })}
@@ -118,7 +134,7 @@ export function ReservationCard ({ reservation, styles, onRate, hasRated = false
         {canReport && (
           <TouchableOpacity
             style={rateButtonStyles.reportButton}
-            onPress={() => navigation.navigate('ReportIssue', { 
+            onPress={() => navigation.navigate('ReportIssue', {
               reservationId: reservation.id,
               reservationData: reservation
             })}
