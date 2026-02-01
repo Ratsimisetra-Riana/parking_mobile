@@ -1,4 +1,98 @@
 {
-  "name": "UPark",
-  "displayName": "UPark"
+  "expo": {
+    "name": "UPark",
+    "slug": "upark",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "com.upark",
+      "supportsTablet": true,
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "infoPlist": {
+        "NSCameraUsageDescription": "UPark a besoin d'accéder à la caméra pour scanner les QR codes",
+        "NSPhotoLibraryUsageDescription": "UPark a besoin d'accéder à vos photos pour ajouter des images de parking",
+        "NSPhotoLibraryAddUsageDescription": "UPark a besoin d'enregistrer des photos dans votre galerie",
+        "NSLocationWhenInUseUsageDescription": "UPark a besoin de votre localisation pour trouver les parkings à proximité",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "UPark a besoin de votre localisation pour trouver les parkings à proximité",
+        "UIBackgroundModes": [
+          "fetch",
+          "remote-notification",
+          "fetch",
+          "remote-notification"
+        ],
+        "SKAdNetworkItems": [
+          {
+            "SKAdNetworkIdentifier": "v9wttpbfk9.skadnetwork"
+          },
+          {
+            "SKAdNetworkIdentifier": "n38lu8286q.skadnetwork"
+          },
+          {
+            "SKAdNetworkIdentifier": "v9wttpbfk9.skadnetwork"
+          },
+          {
+            "SKAdNetworkIdentifier": "n38lu8286q.skadnetwork"
+          }
+        ],
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "entitlements": {
+        "aps-environment": "development"
+      },
+      "config": {
+        "googleSignIn": {
+          "reservedClientId": "com.googleusercontent.apps.918409349260-uqfla9m7seh995bjgojo6t7mt7e9smj6"
+        }
+      }
+    },
+    "android": {
+      "package": "com.upark",
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
+      "googleServicesFile": "./android/app/google-services.json",
+      "permissions": [
+        "android.permission.INTERNET",
+        "android.permission.CAMERA"
+      ]
+    },
+    "plugins": [
+      "expo-dev-client",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static",
+            "deploymentTarget": "15.1"
+          }
+        }
+      ],
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging",
+      "@react-native-google-signin/google-signin",
+      [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "UPark a besoin d'accéder à la caméra pour scanner les QR codes",
+          "enableMicrophonePermission": false
+        }
+      ],
+      [
+        "react-native-fbsdk-next",
+        {
+          "appID": "1522395478989208",
+          "clientToken": "c46cfbdb827f5ed80da34a21b3404597",
+          "displayName": "UPark",
+          "scheme": "fb1522395478989208"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "745e1b8c-931d-4fde-89d5-ea837a174169"
+      }
+    }
+  }
 }

@@ -1,19 +1,17 @@
-const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+const { getDefaultConfig } = require('expo/metro-config');
 
 /**
- * Metro configuration
- * https://reactnative.dev/docs/metro
- *
- * @type {import('metro-config').MetroConfig}
+ * Metro configuration compatible Expo
+ * https://docs.expo.dev/guides/customizing-metro
  */
-const config = {
-    resolver: {
-        extraNodeModules: {
-            crypto: require.resolve('react-native-get-random-values'),
-            stream: require.resolve('readable-stream'),
-        },
-        unstable_enablePackageExports: false,
-    },
+const config = getDefaultConfig(__dirname);
+
+// Configuration pour Supabase (crypto & stream polyfills)
+config.resolver.extraNodeModules = {
+    crypto: require.resolve('react-native-get-random-values'),
+    stream: require.resolve('readable-stream'),
 };
 
-module.exports = mergeConfig(getDefaultConfig(__dirname), config);
+config.resolver.unstable_enablePackageExports = false;
+
+module.exports = config;
