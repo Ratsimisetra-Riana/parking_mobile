@@ -19,7 +19,6 @@
             "ios": {
                 "simulator": false,
                 "resourceClass": "m-medium",
-                "gradleCommand": ":app:assembleRelease",
                 "withoutCredentials": true,
                 "image": "latest"
             },
